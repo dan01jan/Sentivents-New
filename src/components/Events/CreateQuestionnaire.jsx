@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';  // Import useNavigate for navigation
 import './CreateQuestionnaire.css';  // Import the CSS file for styling
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const CreateQuestionnaire = () => {
   const [questions, setQuestions] = useState([]);

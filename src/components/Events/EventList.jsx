@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Modal from 'react-modal'; // Import Modal from react-modal
 import './EventList.css';
 import EventModal from './EventModal'; // Import EventModal component
+const apiUrl = import.meta.env.VITE_API_URL;
 
 // Set up modal accessibility
 Modal.setAppElement('#root');
@@ -70,7 +71,7 @@ const EventList = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/v1/events/adminevents');
+        const response = await fetch('${apiUrl}events/adminevents');
         if (!response.ok) {
           throw new Error('Failed to fetch events');
         }
