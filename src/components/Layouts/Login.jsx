@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: '', password: '' });
@@ -9,7 +10,7 @@ const Login = () => {
     e.preventDefault();
   
     try {
-      const response = await fetch('http://localhost:4000/api/v1/users/weblogin', {
+      const response = await fetch(`https://sentivents-new-backend.onrender.com/api/v1/users/weblogin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
