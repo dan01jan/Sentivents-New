@@ -1,0 +1,84 @@
+.questionnaire-container {
+    padding: 20px;
+  }
+  
+  .traits-container {
+    display: flex;
+    flex-wrap: wrap;  /* Allow wrapping of items to the next line */
+    gap: 20px;  /* Space between each trait section */
+  }
+  
+  .trait-section {
+    flex: 1 1 calc(33.33% - 20px);  /* Make each trait section take up a third of the space, with some gap */
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .trait-title {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+  
+  .question-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .question-item {
+    margin-bottom: 10px;
+  }
+  
+  .question-text {
+    font-size: 0.9rem;
+  }
+  
+  .scale-container {
+    margin-top: 10px;
+  }
+  
+  .scale-label {
+    font-size: 0.8rem;
+  }
+  
+  .likert-scale {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+  }
+  
+  .scale-btn {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    background-color: #e0e0e0;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .scale-btn:hover {
+    background-color: #c0c0c0;
+  }
+  
+  .create-button-container {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .create-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .create-button:hover {
+    background-color: #45a049;
+  }
+  
