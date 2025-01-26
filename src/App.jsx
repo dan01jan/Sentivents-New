@@ -14,6 +14,8 @@ import CreateQuestionnaire from './components/Events/CreateQuestionnaire';
 import ViewQuestionnaire from './components/Events/ViewQuestionnaire';
 import ViewReports from './components/Events/ViewReports';
 import AttendanceChart from './components/Layouts/AttendanceChart';
+import ListTraits from './components/Question/ListTraits';
+import ListQuestion from './components/Question/ListQuestion';
 
 function App() {
   return (
@@ -37,6 +39,8 @@ function App() {
           <Route path="viewquestions" element={<ProtectedRoute><ViewQuestionnaire /></ProtectedRoute>} />
           <Route path="viewreports" element={<ProtectedRoute><ViewReports /></ProtectedRoute>} />
           <Route path="attendancechart" element={<ProtectedRoute><AttendanceChart /></ProtectedRoute>} />
+          <Route path="trait" element={<ProtectedRoute><ListTraits /></ProtectedRoute>} />
+          <Route path="questions" element={<ProtectedRoute><ListQuestion/></ProtectedRoute>} />
         </Route>
       </Routes>
     </Router>

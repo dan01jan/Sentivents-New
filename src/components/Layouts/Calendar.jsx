@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './CalendarComponent.css';
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const CalendarComponent = () => {
   const [events, setEvents] = useState([]);
@@ -18,7 +19,7 @@ const CalendarComponent = () => {
   
     const fetchEvents = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/v1/events/event/events');
+        const response = await fetch(`${apiUrl}events/event/events`);
         if (response.ok) {
           const data = await response.json();
           console.log('Fetched Events:', data); // Check the data

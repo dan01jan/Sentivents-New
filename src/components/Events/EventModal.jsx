@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import Modal from 'react-modal'; // Import Modal if not imported yet
+import Modal from 'react-modal'; // Import Modal
 import axios from 'axios'; // Import axios for API requests
-import { useNavigate } from 'react-router-dom';  // Import useNavigate for navigation
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+const apiUrl = import.meta.env.VITE_API_URL;
 
 // Set up modal accessibility
 Modal.setAppElement('#root');
 
 const EventModal = ({ selectedEvent, modalIsOpen, handleModalClose, handleViewReports, handleViewAttendance, handleCreateQuestionnaire }) => {
   const [hasQuestionnaire, setHasQuestionnaire] = useState(null);
-  const navigate = useNavigate();  // Get the navigate function
+  const navigate = useNavigate(); // Get the navigate function
 
   useEffect(() => {
     if (selectedEvent) {
       // Fetch if the event has a questionnaire
       const checkQuestionnaire = async () => {
         try {
-          const response = await axios.get(`http://localhost:4000/api/v1/questionnaires/check-questionnaire/${selectedEvent._id}`);
+          const response = await axios.get(`${apiUrl}questionnaires/check-questionnaire/${selectedEvent._id}`);
           setHasQuestionnaire(response.data.hasQuestionnaire);
         } catch (error) {
           console.error('Error checking for questionnaire:', error);
@@ -40,7 +41,7 @@ const EventModal = ({ selectedEvent, modalIsOpen, handleModalClose, handleViewRe
         <div className="text-gray-700 text-sm mb-2">
           <p><strong>Description:</strong> {selectedEvent.description}</p>
           <p><strong>Location:</strong> {selectedEvent.location}</p>
-          <p><strong>Type:</strong> {selectedEvent.type}</p>
+          <p><strong>Type:</strong> {selectedEvent.type && selectedEvent.type.eventType ? selectedEvent.type.eventType : 'Unknown'}</p>
           <p><strong>Date:</strong> {new Date(selectedEvent.dateStart).toLocaleDateString()}</p>
         </div>
 
@@ -53,7 +54,7 @@ const EventModal = ({ selectedEvent, modalIsOpen, handleModalClose, handleViewRe
           <p className="text-red-500 font-bold mb-4">This event has no questionnaire yet.</p>
         )}
 
-        {/* Display appropriate button and text based on whether there is a questionnaire */}
+        {/* Display appropriate buttons */}
         <div className="flex space-x-4 mt-4">
           <button
             onClick={handleViewReports}
@@ -62,21 +63,21 @@ const EventModal = ({ selectedEvent, modalIsOpen, handleModalClose, handleViewRe
             View Reports
           </button>
           <button
-            onClick={() => navigate('/dashboard/attendancechart')}
+            onClick={handleViewAttendance}
             className="bg-yellow-500 text-white px-3 py-1 rounded-full transition duration-300 hover:bg-yellow-600 text-sm"
           >
             View Attendance
           </button>
           {hasQuestionnaire ? (
             <button
-              onClick={() => navigate('/dashboard/viewquestions')}  // Corrected navigation
+              onClick={() => navigate('/dashboard/viewquestions')}
               className="bg-pink-500 text-white px-3 py-1 rounded-full transition duration-300 hover:bg-pink-600 text-sm"
             >
               View Questionnaire
             </button>
           ) : (
             <button
-              onClick={handleCreateQuestionnaire}
+            onClick={() => navigate('/dashboard/createquestionnaire')}
               className="bg-pink-500 text-white px-3 py-1 rounded-full transition duration-300 hover:bg-pink-600 text-sm"
             >
               Create Questionnaire

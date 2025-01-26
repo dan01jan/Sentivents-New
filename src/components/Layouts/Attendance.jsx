@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const Attendance = () => {
   const [eventId, setEventId] = useState("");
@@ -14,7 +15,7 @@ const Attendance = () => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("http://localhost:4000/api/v1/events/events");
+        const response = await axios.get(`${apiUrl}events/events`);
         if (response.data.success) {
           setEvents(response.data.data || []);
           if (response.data.data.length === 0) {
@@ -42,8 +43,8 @@ const Attendance = () => {
     setLoading(true);
   
     try {
-      const response = await axios.get(`http://localhost:4000/api/v1/attendance/getUsersByEvent/${eventId}`);
-      const eventResponse = await axios.get(`http://localhost:4000/api/v1/events/${eventId}`);
+      const response = await axios.get(`${apiUrl}attendance/getUsersByEvent/${eventId}`);
+      const eventResponse = await axios.get(`${apiUrl}events/${eventId}`);
   
       setAttendees(response.data || []);
   
@@ -86,7 +87,7 @@ const Attendance = () => {
           hasAttended: true,
         }));
 
-      await axios.put(`http://localhost:4000/api/v1/attendance/updateUsersAttendance/${eventId}`, {
+      await axios.put(`${apiUrl}attendance/updateUsersAttendance/${eventId}`, {
         attendees: attendeesToUpdate,
       });
 

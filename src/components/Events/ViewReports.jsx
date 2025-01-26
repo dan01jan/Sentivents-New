@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Bar, Radar } from 'react-chartjs-2'; // Importing Bar chart
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, RadialLinearScale } from 'chart.js';
+import { Bar, Radar } from 'react-chartjs-2'; // Importing Bar and Radar chart
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, RadialLinearScale, PointElement, LineElement } from 'chart.js';
+const apiUrl = import.meta.env.VITE_API_URL;
 
 // Register necessary chart components
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, RadialLinearScale);
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, RadialLinearScale, PointElement, LineElement);
 
 const ViewReports = () => {
   const [attendanceData, setAttendanceData] = useState([]);
@@ -26,11 +27,11 @@ const ViewReports = () => {
     try {
       setLoading(true);
       // Fetch sentiment counts (positive, negative, neutral)
-      const sentimentResponse = await axios.get(`http://localhost:4000/api/v1/ratings/${eventId}?type=counts`);
+      const sentimentResponse = await axios.get(`${apiUrl}ratings/${eventId}?type=counts`);
       setSentimentCounts(sentimentResponse.data);
 
       // Fetch aggregated ratings
-      const ratingsResponse = await axios.get(`http://localhost:4000/api/v1/questionnaires/aggregated-ratings?eventId=${eventId}`);
+      const ratingsResponse = await axios.get(`${apiUrl}questionnaires/aggregated-ratings?eventId=${eventId}`);
       setAggregatedRatings(ratingsResponse.data.aggregatedRatings);
     } catch (error) {
       console.error("Error fetching data", error);
@@ -42,7 +43,7 @@ const ViewReports = () => {
   // Fetch users' sentiment details for the data table
   const fetchEventSentiments = async (eventId) => {
     try {
-      const response = await axios.get(`http://localhost:4000/api/v1/ratings/${eventId}?type=details`);
+      const response = await axios.get(`${apiUrl}ratings/${eventId}?type=details`);
       if (response.data && response.data.length > 0) {
         const sentimentsWithNames = response.data.map(item => ({
           ...item,

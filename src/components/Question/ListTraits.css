@@ -1,0 +1,154 @@
+.trait-form {
+    width: 300px;
+    margin: 0 auto 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.trait-form input {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.trait-form button {
+    width: 100%;
+    padding: 8px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.trait-form button:hover {
+    background-color: #45a049;
+}
+
+.subset {
+    margin-bottom: 10px;
+}
+
+.subset input {
+    width: 48%;
+    display: inline-block;
+    margin-right: 2%;
+}
+
+.subset button {
+    width: 48%;
+    display: inline-block;
+    background-color: red;
+}
+
+.traits-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 20px 0;
+    width: 100%;
+}
+
+.trait-column {
+    flex: 0 0 auto;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.trait-name {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.subsets-container {
+    width: 100%;
+}
+
+.subset-item {
+    display: flex;
+    justify-content: space-between;
+    background-color: #f0f0f0;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+@media (max-width: 768px) {
+    .traits-container {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .trait-column {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+.existing-traits {
+    width: 100%;
+    margin-top: 30px;
+}
+
+.traits-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 20px 0;
+    width: 100%;
+}
+
+.trait-column {
+    flex: 0 0 auto;
+    width: 200px;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.trait-name {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.subsets-container {
+    width: 100%;
+}
+
+.subset-item {
+    display: flex;
+    justify-content: space-between;
+    background-color: #f0f0f0;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+@media (max-width: 768px) {
+    .traits-container {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .trait-column {
+        width: 100%;
+        max-width: none;
+    }
+}

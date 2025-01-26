@@ -37,6 +37,16 @@ const Sidebar = () => {
                 Attendance
               </Link>
             </li>
+            <li>
+              <Link to="/dashboard/trait" className="text-lg text-gray-700 hover:text-pink-500 transition duration-200">
+                Trait
+              </Link>
+            </li>
+            <li>
+              <Link to="/dashboard/questions" className="text-lg text-gray-700 hover:text-pink-500 transition duration-200">
+                Questions
+              </Link>
+            </li>
           </ul>
         </nav>
         

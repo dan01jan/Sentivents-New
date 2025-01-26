@@ -10,7 +10,7 @@ const Login = () => {
     e.preventDefault();
   
     try {
-      const response = await fetch(`https://sentivents-new-backend.onrender.com/api/v1/users/weblogin`, {
+      const response = await fetch(`${apiUrl}users/weblogin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

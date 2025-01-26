@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+const apiUrl = import.meta.env.VITE_API_URL;
+
 
 const ViewQuestionnaire = () => {
   const [selectedEventId, setSelectedEventId] = useState(null);
@@ -20,7 +22,7 @@ const ViewQuestionnaire = () => {
     if (selectedEventId) {
       const fetchQuestionnaire = async () => {
         try {
-          const response = await fetch(`http://localhost:4000/api/v1/questionnaires/event/${selectedEventId}`);
+          const response = await fetch(`${apiUrl}questionnaires/event/${selectedEventId}`);
           const data = await response.json();
 
           if (response.ok) {
@@ -41,7 +43,7 @@ const ViewQuestionnaire = () => {
   // Function to toggle the accepting responses status
   const toggleAcceptingResponses = async () => {
     try {
-      const response = await fetch(`http://localhost:4000/api/v1/questionnaires/accepting-responses/${selectedEventId}`, {
+      const response = await fetch(`${apiUrl}questionnaires/accepting-responses/${selectedEventId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

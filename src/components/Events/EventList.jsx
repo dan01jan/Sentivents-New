@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Modal from 'react-modal'; // Import Modal from react-modal
+import Modal from 'react-modal';
 import './EventList.css';
-import EventModal from './EventModal'; // Import EventModal component
+import EventModal from './EventModal';
 const apiUrl = import.meta.env.VITE_API_URL;
 
-// Set up modal accessibility
 Modal.setAppElement('#root');
 
-// Pagination Component
 const Pagination = ({ currentPage, totalPages, paginate }) => {
   const pageNumbers = [];
   const maxVisibleButtons = 5;
@@ -61,17 +59,19 @@ const EventList = () => {
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 6;
-  const [filter, setFilter] = useState({
-    type: '',
-    date: '',
-  });
+  const [filter, setFilter] = useState({ type: '', date: '' });
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch('${apiUrl}events/adminevents');
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${apiUrl}events/adminevents`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch events');
         }
@@ -84,7 +84,7 @@ const EventList = () => {
         setLoading(false);
       }
     };
-
+    
     fetchEvents();
   }, []);
 
@@ -99,7 +99,7 @@ const EventList = () => {
     let filtered = [...events];
 
     if (filter.type) {
-      filtered = filtered.filter((event) => event.type === filter.type);
+      filtered = filtered.filter((event) => event.type && event.type.eventType === filter.type);
     }
 
     if (filter.date) {
@@ -109,10 +109,10 @@ const EventList = () => {
     }
 
     setFilteredEvents(filtered);
-    setCurrentPage(1); // Reset to the first page when the filter changes
+    setCurrentPage(1);
   };
 
-  const eventTypes = [...new Set(events.map(event => event.type))];
+  const eventTypes = [...new Set(events.map((event) => event.type.eventType))];
 
   if (loading) {
     return <p>Loading events...</p>;
@@ -137,56 +137,18 @@ const EventList = () => {
     const eventId = event._id;
     navigate(`/dashboard/updateevents/${eventId}`);
   };
-  // Function to open the modal and store event ID in localStorage
-const handleModalOpen = (event) => {
-  setSelectedEvent(event);
-  localStorage.setItem('selectedEventId', event._id); // Save event ID to localStorage
-  setModalIsOpen(true);
-};
 
+  const handleModalOpen = (event) => {
+    console.log("Event selected:", event); // Log to ensure the correct event is selected
+    setSelectedEvent(event);
+    localStorage.setItem('selectedEventId', event._id); // Store the event ID in local storage
+    setModalIsOpen(true);
+  };
+  
 
-  // Function to close the modal
   const handleModalClose = () => {
     setModalIsOpen(false);
     setSelectedEvent(null);
-  };
-
-  const handleViewReports = () => {
-    navigate(`/dashboard/viewreports`);
-    handleModalClose();
-  };
-
-  const handleViewAttendance = () => {
-    navigate(`/attendance/${selectedEvent._id}`);
-    handleModalClose();
-  };
-
-  const handleCreateQuestionnaire = () => {
-    navigate(`/dashboard/createquestionnaire`);
-    handleModalClose();
-  };
-
-  // Function to delete an event
-  const handleDelete = async (eventId) => {
-    if (window.confirm("Are you sure you want to delete this event?")) {
-      try {
-        const response = await fetch(`http://localhost:4000/api/v1/events/${eventId}`, {
-          method: "DELETE",
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          alert(data.message);
-          setEvents((prevEvents) => prevEvents.filter((event) => event._id !== eventId));
-          setFilteredEvents((prevFiltered) => prevFiltered.filter((event) => event._id !== eventId));
-        } else {
-          alert(data.message || "Failed to delete the event.");
-        }
-      } catch (err) {
-        alert("An error occurred while deleting the event.");
-        console.error(err);
-      }
-    }
   };
 
   return (
@@ -248,7 +210,7 @@ const handleModalOpen = (event) => {
               <div className="font-bold text-sm mb-1 truncate">{event.name}</div>
               <p className="text-gray-700 text-xs mb-1 line-clamp-2">{event.description}</p>
               <p className="text-xs text-gray-600">
-                <span className="font-semibold">Type:</span> {event.type}
+                <span className="font-semibold">Type:</span> {event.type ? event.type.eventType : 'Unknown'}
               </p>
               <p className="text-xs text-gray-600">
                 <span className="font-semibold">Date:</span> {new Date(event.dateStart).toLocaleDateString()}
@@ -259,7 +221,7 @@ const handleModalOpen = (event) => {
             </div>
             <div className="px-2 pt-1 pb-2 flex justify-between items-center">
               <span className="inline-block bg-teal-200 text-teal-800 text-xs font-semibold px-2 py-1 rounded-full">
-                {event.type}
+                {event.type.eventType}
               </span>
               <div className="flex space-x-2">
                 <button
@@ -292,15 +254,14 @@ const handleModalOpen = (event) => {
         paginate={paginate}
       />
 
-      {/* Event Modal Component */}
-      {/* Ensure EventModal is defined and imported correctly */}
+      {/* Modal */}
       <EventModal
         selectedEvent={selectedEvent}
         modalIsOpen={modalIsOpen}
         handleModalClose={handleModalClose}
-        handleViewReports={handleViewReports}
-        handleViewAttendance={handleViewAttendance}
-        handleCreateQuestionnaire={handleCreateQuestionnaire}
+        handleViewReports={() => {/* Implement this function */}}
+        handleViewAttendance={() => {/* Implement this function */}}
+        handleCreateQuestionnaire={() => {/* Implement this function */}}
       />
     </div>
   );

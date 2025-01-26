@@ -20,4 +20,84 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     z-index: 10000;
   }
+
+  /* EventList.css */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.max-w-xs {
+  max-width: 300px; /* Adjust the width if needed */
+}
+
+.bg-white {
+  background-color: #fff;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.shadow-lg {
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.hover\:shadow-xl:hover {
+  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.transition {
+  transition: all 0.3s ease-in-out;
+}
+
+.duration-300 {
+  transition-duration: 300ms;
+}
+
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.py-2 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.h-24 {
+  height: 6rem;
+}
+
+.object-cover {
+  object-fit: cover;
+}
+
+/* Added styles for button spacing */
+.flex {
+  display: flex;
+}
+
+.space-x-2 > :not(:first-child) {
+  margin-left: 0.5rem;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+/* Adjust button container height */
+.flex-col > div {
+  margin-top: 0.5rem;
+}
+
+.pb-2 {
+  padding-bottom: 0.5rem;
+}
+
   

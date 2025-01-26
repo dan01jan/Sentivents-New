@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import WordCloud from 'react-wordcloud';
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const Wordtag = () => {
   const [events, setEvents] = useState([]);
@@ -11,7 +12,7 @@ const Wordtag = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch(`http://localhost:4000/api/v1/events${eventType ? `?type=${eventType}` : ''}`);
+        const response = await fetch(`${apiUrl}events${eventType ? `?type=${eventType}` : ''}`);
         const data = await response.json();
         if (Array.isArray(data)) {
           setEvents(data);
@@ -30,7 +31,7 @@ const Wordtag = () => {
   // Fetch comments for the selected event
   const fetchComments = async (eventId) => {
     try {
-      const response = await fetch(`http://localhost:4000/api/v1/events/${eventId}/comments`);
+      const response = await fetch(`${apiUrl}events/${eventId}/comments`);
       const data = await response.json();
       setComments(data);
     } catch (error) {

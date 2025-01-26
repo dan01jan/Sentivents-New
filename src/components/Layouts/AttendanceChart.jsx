@@ -4,6 +4,8 @@ import { Chart as ChartJS, CategoryScale, BarElement, Title, Tooltip, Legend } f
 
 ChartJS.register(CategoryScale, BarElement, Title, Tooltip, Legend);
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const AttendanceChart = () => {
   const [attendanceData, setAttendanceData] = useState({ present: 0, absent: 0, registered: 0 });
 
@@ -19,7 +21,7 @@ const AttendanceChart = () => {
     // Fetch attendance data from your server
     const fetchAttendanceData = async () => {
       try {
-        const response = await fetch(`http://localhost:4000/api/v1/attendance/hasAttendedCounts/${selectedEvent}`);
+        const response = await fetch(`${apiUrl}attendance/hasAttendedCounts/${selectedEvent}`);
         const data = await response.json();
         
         // Update state with the fetched data
@@ -78,7 +80,7 @@ const AttendanceTable = () => {
     // Fetch users attendance data from the server
     const fetchUsersAttendance = async () => {
       try {
-        const response = await fetch(`http://localhost:4000/api/v1/attendance/getUsersByEvent/${selectedEvent}`);
+        const response = await fetch(`${apiUrl}attendance/getUsersByEvent/${selectedEvent}`);
         const data = await response.json();
         
         // Update state with the fetched user attendance data

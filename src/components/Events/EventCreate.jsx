@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; 
 import './EventCreate.css';
+import axios from 'axios';
+
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const EventCreate = () => {
-
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -15,17 +16,39 @@ const EventCreate = () => {
     timeStart: '',
     timeEnd: '',
     location: '',
-    images: [], // Changed from null to empty array
+    images: [],
   });
 
+  const [eventTypes, setEventTypes] = useState([]);
+  const [error, setError] = useState('');
+
   useEffect(() => {
+    const fetchEventTypes = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}types/`);
+        console.log('Fetched event types:', response.data);
+
+        if (Array.isArray(response.data)) {
+          setEventTypes(response.data);
+        } else {
+          setError('Unexpected response format');
+        }
+      } catch (err) {
+        console.error('Error fetching event types:', err);
+        setError('Failed to fetch event types. Please try again.');
+      }
+    };
+
+    fetchEventTypes();
+
+    // Pre-fill organization and department based on user data from localStorage
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (userData) {
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
         organization: userData.organization || '',
         department: userData.department || '',
-        userId: userData.userId || '', // Add userId
+        userId: userData.userId || '',
       }));
     }
   }, []);
@@ -39,61 +62,49 @@ const EventCreate = () => {
   };
 
   const handleImageChange = (e) => {
-    const files = e.target.files;
-    // Ensure files are not empty and are images
-    if (files.length === 0) {
-      alert('Please select at least one image');
-    } else {
-      const validFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
-      if (validFiles.length === 0) {
-        alert('No valid image files selected');
-      } else {
-        console.log('Valid image files:', validFiles);
-        setFormData((prevData) => ({
-          ...prevData,
-          images: validFiles, // Store valid images only
-        }));
-      }
-    }
+    const files = Array.from(e.target.files).filter((file) =>
+      file.type.startsWith('image/')
+    );
+    setFormData((prevData) => ({
+      ...prevData,
+      images: files,
+    }));
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    // Combine date and time for both start and end
-    const startDateTime = new Date(`${formData.dateStart}T${formData.timeStart}:00`);
-    const endDateTime = new Date(`${formData.dateEnd}T${formData.timeEnd}:00`);
-  
-    // Ensure images are selected
     if (formData.images.length === 0) {
       alert('Please select at least one image.');
       return;
     }
   
+    const startDateTime = new Date(
+      `${formData.dateStart}T${formData.timeStart}:00`
+    );
+    const endDateTime = new Date(
+      `${formData.dateEnd}T${formData.timeEnd}:00`
+    );
+  
     const form = new FormData();
     for (const [key, value] of Object.entries(formData)) {
-      if (key !== 'images' && key !== 'dateStart' && key !== 'dateEnd' && key !== 'timeStart' && key !== 'timeEnd') {
+      if (!['images', 'dateStart', 'dateEnd', 'timeStart', 'timeEnd'].includes(key)) {
         form.append(key, value);
       }
     }
   
-    // Append combined date and time as ISO string to the form
     form.append('dateStart', startDateTime.toISOString());
     form.append('dateEnd', endDateTime.toISOString());
+    formData.images.forEach((file) => form.append('images', file));
   
-    // Append images to FormData
-    formData.images.forEach(file => {
-      form.append('images', file);
-    });
-  
-    // Log the form data to verify image handling
-    for (let pair of form.entries()) {
-      console.log(pair[0], pair[1]);
+    // Add 'type' field correctly as ObjectId
+    if (formData.type) {
+      form.append('type', formData.type);  // Should be ObjectId, not name
     }
   
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:4000/api/v1/events/create', {
+      const response = await fetch(`${apiUrl}events/create`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -112,7 +123,7 @@ const EventCreate = () => {
     }
   };
   
-
+  
   return (
     <div className="event-create-container">
       <h2 className="event-create-title">Create Your Event</h2>
@@ -129,30 +140,26 @@ const EventCreate = () => {
               required
             />
           </div>
-
           <div className="form-group">
-            <label htmlFor="type" style={{ fontSize: '0.9rem' }}>Event Type</label>
+            <label htmlFor="type">Event Type</label>
             <select
               id="type"
               name="type"
               value={formData.type}
               onChange={handleChange}
               required
-              style={{ fontSize: '0.8rem' }}
             >
               <option value="">Select Event Type</option>
-              <option value="Academic">Academic</option>
-              <option value="Recreational">Recreational</option>
-              <option value="Sports">Sports</option>
-              <option value="Social and Community">Social and Community</option>
-              <option value="Professional Development">Professional Development</option>
-              <option value="Student Development">Student Development</option>
-              <option value="Competition">Competition</option>
+              {eventTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.eventType}
+                </option>
+              ))}
             </select>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
           </div>
         </div>
 
-        {/* Move Description field below Name and Type */}
         <div className="form-group">
           <label htmlFor="description">Event Description</label>
           <textarea
@@ -162,7 +169,6 @@ const EventCreate = () => {
             onChange={handleChange}
             required
             rows="4"
-            placeholder="Enter event description here"
           />
         </div>
 
@@ -238,7 +244,6 @@ const EventCreate = () => {
         </button>
       </form>
     </div>
-
   );
 };
 

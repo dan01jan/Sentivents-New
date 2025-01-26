@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const Charts = () => {
   const [aggregatedRatings, setAggregatedRatings] = useState([]);
@@ -8,7 +9,7 @@ const Charts = () => {
   useEffect(() => {
     const fetchAggregatedRatings = async () => {
       try {
-        const response = await fetch(`http://localhost:4000/api/v1/events/aggregated-ratings?eventId=${eventId}`);
+        const response = await fetch(`${apiUrl}events/aggregated-ratings?eventId=${eventId}`);
         const data = await response.json();
         if (data.aggregatedRatings) {
           setAggregatedRatings(data.aggregatedRatings);
