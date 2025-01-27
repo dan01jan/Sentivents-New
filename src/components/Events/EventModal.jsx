@@ -57,13 +57,13 @@ const EventModal = ({ selectedEvent, modalIsOpen, handleModalClose, handleViewRe
         {/* Display appropriate buttons */}
         <div className="flex space-x-4 mt-4">
           <button
-            onClick={handleViewReports}
+            onClick={() => navigate('/dashboard/viewreports')}
             className="bg-teal-500 text-white px-3 py-1 rounded-full transition duration-300 hover:bg-teal-600 text-sm"
           >
             View Reports
           </button>
           <button
-            onClick={handleViewAttendance}
+           onClick={() => navigate('/dashboard/attendancechart')}
             className="bg-yellow-500 text-white px-3 py-1 rounded-full transition duration-300 hover:bg-yellow-600 text-sm"
           >
             View Attendance

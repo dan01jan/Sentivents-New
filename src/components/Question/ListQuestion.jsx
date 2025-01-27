@@ -5,9 +5,9 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 const ListQuestion = () => {
     const [traits, setTraits] = useState([]);
-    const [types, setTypes] = useState([]); // Changed from events to types
+    const [types, setTypes] = useState([]);
     const [selectedTrait, setSelectedTrait] = useState('');
-    const [selectedType, setSelectedType] = useState(''); // Changed from selectedEvent
+    const [selectedType, setSelectedType] = useState('');
     const [question, setQuestion] = useState('');
     const [tempQuestions, setTempQuestions] = useState([]);
     const [questions, setQuestions] = useState([]);
@@ -18,7 +18,7 @@ const ListQuestion = () => {
             try {
                 const [traitsResponse, typesResponse, questionsResponse] = await Promise.all([
                     axios.get(`${apiUrl}traits/`),
-                    axios.get(`${apiUrl}types/`), // Changed to fetch types instead of events
+                    axios.get(`${apiUrl}types/`),
                     axios.get(`${apiUrl}questions/`),
                 ]);
 
@@ -43,7 +43,7 @@ const ListQuestion = () => {
         const newQuestion = {
             question,
             traitId: selectedTrait,
-            typeId: selectedType, // Changed from eventId to typeId
+            typeId: selectedType,
         };
 
         setTempQuestions((prev) => [...prev, newQuestion]);
@@ -57,7 +57,7 @@ const ListQuestion = () => {
             alert('No questions to create. Add at least one question.');
             return;
         }
-    
+
         try {
             const response = await axios.post(`${apiUrl}questions/bulk-create-questions`, {
                 questions: tempQuestions,
@@ -72,12 +72,11 @@ const ListQuestion = () => {
 
     return (
         <div style={styles.container}>
-            <h1>Create Questions</h1>
+            <h1 style={styles.heading}>Create Questions</h1>
 
             <form onSubmit={(e) => e.preventDefault()} style={styles.form}>
-                {/* Question input */}
                 <div style={styles.formGroup}>
-                    <label htmlFor="question">Question:</label>
+                    <label htmlFor="question" style={styles.label}>Question:</label>
                     <input
                         id="question"
                         type="text"
@@ -88,9 +87,8 @@ const ListQuestion = () => {
                     />
                 </div>
 
-                {/* Trait selection */}
                 <div style={styles.formGroup}>
-                    <label htmlFor="trait">Select Trait:</label>
+                    <label htmlFor="trait" style={styles.label}>Select Trait:</label>
                     <select
                         id="trait"
                         value={selectedTrait}
@@ -106,9 +104,8 @@ const ListQuestion = () => {
                     </select>
                 </div>
 
-                {/* Type selection */}
                 <div style={styles.formGroup}>
-                    <label htmlFor="type">Select Type:</label>
+                    <label htmlFor="type" style={styles.label}>Select Type:</label>
                     <select
                         id="type"
                         value={selectedType}
@@ -129,14 +126,13 @@ const ListQuestion = () => {
                 </button>
             </form>
 
-            {/* Display temporary questions */}
             {tempQuestions.length > 0 && (
                 <>
-                    <h2>Questions to be Created</h2>
+                    <h2 style={styles.subHeading}>Questions to be Created</h2>
                     <ul style={styles.tempList}>
                         {tempQuestions.map((q, index) => (
-                            <li key={index}>
-                                {q.question} - Trait: {traits.find((t) => t._id === q.traitId)?.trait || 'N/A'}, 
+                            <li key={index} style={styles.tempListItem}>
+                                {q.question} - Trait: {traits.find((t) => t._id === q.traitId)?.trait || 'N/A'},
                                 Type: {types.find((t) => t._id === q.typeId)?.eventType || 'N/A'}
                             </li>
                         ))}
@@ -147,8 +143,7 @@ const ListQuestion = () => {
                 </>
             )}
 
-            {/* Display created questions */}
-            <h2>Created Questions</h2>
+            <h2 style={styles.subHeading}>Created Questions</h2>
             <div style={styles.questionList}>
                 {questions.map((q) => (
                     <div key={q._id} style={styles.questionCard}>
@@ -159,88 +154,119 @@ const ListQuestion = () => {
                 ))}
             </div>
 
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {error && <p style={styles.error}>{error}</p>}
         </div>
     );
 };
 
-// Styling for a cute and user-friendly interface
+// Styling with a sleek design and user-friendly interface
 const styles = {
     container: {
-        padding: '20px',
+        padding: '30px',
         fontFamily: 'Arial, sans-serif',
-        backgroundColor: '#f5f5f5',
-        borderRadius: '8px',
-        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-        width: '60%',
-        margin: 'auto',
+        backgroundColor: '#f1f3f6',
+        borderRadius: '10px',
+        boxShadow: '0 5px 15px rgba(0, 0, 0, 0.1)',
+        width: '75%',
+        margin: '30px auto',
         textAlign: 'center',
     },
-    form: {
+    heading: {
+        fontSize: '2.5rem',
+        color: '#4a90e2',
         marginBottom: '20px',
-        padding: '20px',
-        backgroundColor: '#ffffff',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+    },
+    form: {
+        marginBottom: '30px',
+        padding: '25px',
+        backgroundColor: '#fff',
+        borderRadius: '12px',
+        boxShadow: '0 3px 10px rgba(0, 0, 0, 0.1)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
     },
     formGroup: {
-        marginBottom: '15px',
+        marginBottom: '20px',
+        width: '80%',
+        textAlign: 'left',
+    },
+    label: {
+        fontSize: '1.1rem',
+        fontWeight: '500',
+        marginBottom: '8px',
+        color: '#333',
     },
     input: {
-        padding: '8px',
-        width: '250px',
-        borderRadius: '5px',
-        border: '1px solid #ccc',
-        marginTop: '5px',
+        padding: '12px',
+        width: '100%',
+        maxWidth: '350px',
+        borderRadius: '8px',
+        border: '2px solid #ccc',
+        marginTop: '8px',
+        fontSize: '1rem',
     },
     select: {
-        padding: '8px',
-        width: '250px',
-        borderRadius: '5px',
-        border: '1px solid #ccc',
-        marginTop: '5px',
-        backgroundColor: '#ffffff',
+        padding: '12px',
+        width: '100%',
+        maxWidth: '350px',
+        borderRadius: '8px',
+        border: '2px solid #ccc',
+        marginTop: '8px',
+        backgroundColor: '#fff',
+        fontSize: '1rem',
     },
     button: {
-        padding: '10px 20px',
+        padding: '12px 30px',
         backgroundColor: '#6c5ce7',
         color: '#fff',
         border: 'none',
-        borderRadius: '5px',
+        borderRadius: '8px',
         cursor: 'pointer',
-        fontSize: '16px',
+        fontSize: '1.2rem',
+        marginTop: '20px',
+        transition: 'background-color 0.3s ease',
+    },
+    buttonHover: {
+        backgroundColor: '#5a4cd8',
+    },
+    tempList: {
+        listStyle: 'none',
+        padding: '0',
+        marginTop: '20px',
+        textAlign: 'left',
+    },
+    tempListItem: {
+        padding: '12px',
+        backgroundColor: '#f7f7f7',
+        borderRadius: '8px',
+        marginBottom: '10px',
+        boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
     },
     questionList: {
         display: 'flex',
         flexWrap: 'wrap',
         gap: '20px',
         justifyContent: 'center',
-        marginTop: '20px',
+        marginTop: '30px',
     },
     questionCard: {
-        padding: '15px',
-        border: '1px solid #ccc',
-        borderRadius: '8px',
-        backgroundColor: '#ffffff',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        width: '200px',
+        padding: '20px',
+        width: '250px',
+        backgroundColor: '#fff',
+        borderRadius: '10px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         textAlign: 'left',
     },
-    scaleContainer: {
-        display: 'flex',
-        gap: '10px',
-        marginTop: '10px',
+    subHeading: {
+        fontSize: '1.5rem',
+        color: '#333',
+        marginBottom: '15px',
     },
-    scaleBox: {
-        width: '30px',
-        height: '30px',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f0f0f0',
-        borderRadius: '5px',
-        border: '1px solid #ccc',
-        cursor: 'pointer',
+    error: {
+        color: '#ff4d4d',
+        fontWeight: 'bold',
+        fontSize: '1.1rem',
     },
 };
 
