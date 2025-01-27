@@ -4,26 +4,23 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 const Attendance = () => {
   const [eventId, setEventId] = useState("");
-  const [eventName, setEventName] = useState("");  // New state to store selected event name
+  const [eventName, setEventName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [events, setEvents] = useState([]);
   const [attendees, setAttendees] = useState([]);
   const [selectedAttendees, setSelectedAttendees] = useState([]);
-  const [eventStatus, setEventStatus] = useState(""); // To check event status
+  const [eventStatus, setEventStatus] = useState("");
 
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${apiUrl}events/events`);
-        if (response.data.success) {
-          setEvents(response.data.data || []);
-          if (response.data.data.length === 0) {
-            setError("No events found");
-          }
+        const response = await axios.get(`${apiUrl}events/adminEvents`);
+        if (response.data && response.data.length > 0) {
+          setEvents(response.data);
         } else {
-          setError("Failed to fetch events");
+          setError("No events found");
         }
       } catch (err) {
         setError("Error fetching events");
@@ -48,9 +45,8 @@ const Attendance = () => {
       const eventResponse = await axios.get(`${apiUrl}events/${eventId}`);
 
       setAttendees(response.data || []);
-      setEventName(eventResponse.data.name);  // Set the selected event name
+      setEventName(eventResponse.data.name);
 
-      // Check if the event is done
       const eventEndDate = new Date(eventResponse.data.dateEnd);
       const currentDate = new Date();
       const isDone = currentDate > eventEndDate;
@@ -63,7 +59,7 @@ const Attendance = () => {
     }
   };
 
-  const handleCheckboxChange = (userId) => {
+  const handleCircleChange = (userId) => {
     setSelectedAttendees((prevSelected) =>
       prevSelected.includes(userId)
         ? prevSelected.filter((id) => id !== userId)
@@ -93,7 +89,7 @@ const Attendance = () => {
       });
 
       alert("Attendance approved successfully!");
-      fetchAttendees(); // Refresh the attendees list
+      fetchAttendees();
     } catch (err) {
       setError("Error approving attendance");
     } finally {
@@ -127,13 +123,13 @@ const Attendance = () => {
             )}
           </select>
 
-          {/* Display the selected event name inside the select dropdown */}
           {eventId && events.length > 0 && (
             <p className="mt-2 text-lg font-medium text-gray-600">
               Selected Event: {events.find((event) => event._id === eventId)?.name}
             </p>
           )}
         </div>
+
         <button
           onClick={fetchAttendees}
           disabled={loading}
@@ -149,35 +145,37 @@ const Attendance = () => {
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">Event Attendees</h2>
 
             <div className="grid grid-cols-3 gap-8">
-              {/* Registered Column */}
               <div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Registered</h3>
                 <ul>
                   {attendees.map((attendee) => (
                     <li key={attendee.userId} className="text-lg flex items-center">
                       {eventStatus === "ongoing" && !attendee.hasAttended && (
-                        <input
-                          type="checkbox"
-                          checked={selectedAttendees.includes(attendee.userId)}
-                          onChange={() => handleCheckboxChange(attendee.userId)}
-                          className="mr-2 transform scale-75"
+                        <div
+                          onClick={() => handleCircleChange(attendee.userId)}
+                          className={`w-6 h-6 rounded-full border-2 mr-2 cursor-pointer ${
+                            selectedAttendees.includes(attendee.userId)
+                              ? "bg-blue-500 border-blue-500"
+                              : "border-gray-300"
+                          }`}
                         />
                       )}
                       {eventStatus === "ongoing" && attendee.hasAttended && (
-                        <input
-                          type="checkbox"
-                          checked
-                          disabled
-                          className="mr-2 transform scale-75 opacity-50"
+                        <div
+                          className="w-6 h-6 rounded-full border-2 mr-2 cursor-not-allowed bg-gray-200"
                         />
                       )}
-                      {attendee.firstName} {attendee.lastName}
+                      {eventStatus === "done" && attendee.hasAttended && (
+                        <div
+                          className="w-6 h-6 rounded-full border-2 mr-2 cursor-not-allowed bg-gray-200"
+                        />
+                      )}
+                      <span className="ml-4">{attendee.firstName} {attendee.lastName}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Attended Column */}
               <div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Attended</h3>
                 <ul>
@@ -191,7 +189,6 @@ const Attendance = () => {
                 </ul>
               </div>
 
-              {/* Absent Column */}
               <div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Absent</h3>
                 {eventStatus === "done" ? (
