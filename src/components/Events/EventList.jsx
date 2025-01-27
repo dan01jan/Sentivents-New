@@ -54,6 +54,18 @@ const Pagination = ({ currentPage, totalPages, paginate }) => {
   );
 };
 
+const groupEventsByType = (events) => {
+  return events.reduce((acc, event) => {
+    const type = event.type.eventType || 'Unknown';
+    if (!acc[type]) {
+      acc[type] = [];
+    }
+    acc[type].push(event);
+    return acc;
+  }, {});
+};
+
+
 const EventList = () => {
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
@@ -67,6 +79,8 @@ const EventList = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState(null);
+  const groupedEvents = groupEventsByType(filteredEvents);
+
 
 
   useEffect(() => {
@@ -132,6 +146,7 @@ const EventList = () => {
       closeDeleteModal();
     }
   };
+  
   
   
   const filterEvents = (filter) => {
@@ -242,61 +257,67 @@ const EventList = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-4">
-        {currentEvents.map((event) => (
-          <div
-            key={event._id}
-            className="rounded-lg overflow-hidden shadow-lg bg-white max-w-xs hover:shadow-xl transition duration-300 ease-in-out"
-          >
-            {event.images && event.images.length > 0 && (
-              <img
-                className="w-full h-24 object-cover"
-                src={event.images[0]}
-                alt={event.name}
-              />
-            )}
-            <div className="px-2 py-2">
-              <div className="font-bold text-sm mb-1 truncate">{event.name}</div>
-              <p className="text-gray-700 text-xs mb-1 line-clamp-2">{event.description}</p>
-              <p className="text-xs text-gray-600">
-                <span className="font-semibold">Type:</span> {event.type ? event.type.eventType : 'Unknown'}
-              </p>
-              <p className="text-xs text-gray-600">
-                <span className="font-semibold">Date:</span> {new Date(event.dateStart).toLocaleDateString()}
-              </p>
-              <p className="text-xs text-gray-600 truncate">
-                <span className="font-semibold">Location:</span> {event.location}
-              </p>
-            </div>
-            <div className="px-2 pt-1 pb-2 flex justify-between items-center">
-              <span className="inline-block bg-teal-200 text-teal-800 text-xs font-semibold px-2 py-1 rounded-full">
-                {event.type.eventType}
-              </span>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => handleUpdate(event)}
-                  className="bg-yellow-200 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full transition duration-300 hover:bg-yellow-300"
-                >
-                  UPDATE
-                </button>
-                <button
-                  onClick={() => openDeleteModal(event._id)}
-                  className="bg-red-200 text-red-800 text-xs font-semibold px-3 py-1 rounded-full transition duration-300 hover:bg-red-300"
-                >
-                  DELETE
-                </button>
+      {Object.entries(groupedEvents).map(([type, events]) => (
+          <div key={type} className="mb-6">
+            <h3 className="text-2xl font-semibold text-teal-600">{type}</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-4">
+              {events.slice((currentPage - 1) * eventsPerPage, currentPage * eventsPerPage).map((event) => (
+                <div key={event._id} className="rounded-lg overflow-hidden shadow-lg bg-white max-w-xs hover:shadow-xl transition duration-300 ease-in-out">
+                  {/* Check for images */}
+                  {event.images && event.images.length > 0 ? (
+                    <img className="w-full h-24 object-cover" src={event.images[0]} alt={event.name || 'Event Image'} />
+                  ) : (
+                    <div className="w-full h-24 bg-gray-200"></div> // Placeholder if no image
+                  )}
 
-                <button
-                  onClick={() => handleModalOpen(event)}
-                  className="bg-pink-200 text-pink-800 text-xs font-semibold px-3 py-1 rounded-full transition duration-300 hover:bg-pink-300"
-                >
-                  More Info
-                </button>
-              </div>
+                  <div className="px-2 py-2">
+                    {/* Check for name */}
+                    <div className="font-bold text-sm mb-1 truncate">{event.name || 'No Name'}</div>
+                    {/* Check for description */}
+                    <p className="text-gray-700 text-xs mb-1 line-clamp-2">{event.description || 'No Description'}</p>
+                    {/* Check for dateStart */}
+                    <p className="text-xs text-gray-600">
+                      <span className="font-semibold">Date:</span> {event.dateStart ? new Date(event.dateStart).toLocaleDateString() : 'No Date'}
+                    </p>
+                    {/* Check for location */}
+                    <p className="text-xs text-gray-600 truncate">
+                      <span className="font-semibold">Location:</span> {event.location || 'No Location'}
+                    </p>
+                  </div>
+
+                  <div className="px-2 pt-1 pb-2 flex justify-between items-center">
+                    {/* Check for eventType */}
+                    <span className="inline-block bg-teal-200 text-teal-800 text-xs font-semibold px-2 py-1 rounded-full">
+                      {event.type?.eventType || 'No Type'}
+                    </span>
+
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleUpdate(event)}
+                        className="bg-yellow-200 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full transition duration-300 hover:bg-yellow-300"
+                      >
+                        UPDATE
+                      </button>
+                      <button
+                        onClick={() => openDeleteModal(event._id)}
+                        className="bg-red-200 text-red-800 text-xs font-semibold px-3 py-1 rounded-full transition duration-300 hover:bg-red-300"
+                      >
+                        DELETE
+                      </button>
+
+                      <button
+                        onClick={() => handleModalOpen(event)}
+                        className="bg-pink-200 text-pink-800 text-xs font-semibold px-3 py-1 rounded-full transition duration-300 hover:bg-pink-300"
+                      >
+                        More Info
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         ))}
-      </div>
 
       <Pagination
         currentPage={currentPage}

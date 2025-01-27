@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -62,9 +64,17 @@ const ListQuestion = () => {
             const response = await axios.post(`${apiUrl}questions/bulk-create-questions`, {
                 questions: tempQuestions,
             });
+
             setQuestions((prev) => [...prev, ...response.data]);
             setTempQuestions([]);
-            alert('Questions created successfully!');
+
+            // Show toast notification
+            toast.success('Questions created successfully!');
+
+            // Refresh the page after 3 seconds
+            setTimeout(() => {
+                window.location.href = '/dashboard/questions'; // Redirect to refresh the page
+            }, 3000);
         } catch (error) {
             console.error('Error creating questions:', error.message);
         }
@@ -155,9 +165,13 @@ const ListQuestion = () => {
             </div>
 
             {error && <p style={styles.error}>{error}</p>}
+
+            {/* ToastContainer to show the toast notifications */}
+            <ToastContainer />
         </div>
     );
 };
+
 
 // Styling with a sleek design and user-friendly interface
 const styles = {
