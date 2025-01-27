@@ -16,10 +16,13 @@ import ViewReports from './components/Events/ViewReports';
 import AttendanceChart from './components/Layouts/AttendanceChart';
 import ListTraits from './components/Question/ListTraits';
 import ListQuestion from './components/Question/ListQuestion';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
     <Router>
+       <ToastContainer />
       <Routes>
         {/* Route for Login */}
         <Route path="/" element={<Login />} />

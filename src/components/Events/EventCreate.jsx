@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './EventCreate.css';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom'; // import useNavigate
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -21,6 +24,7 @@ const EventCreate = () => {
 
   const [eventTypes, setEventTypes] = useState([]);
   const [error, setError] = useState('');
+  const navigate = useNavigate(); // initialize navigate
 
   useEffect(() => {
     const fetchEventTypes = async () => {
@@ -73,35 +77,35 @@ const EventCreate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (formData.images.length === 0) {
       alert('Please select at least one image.');
       return;
     }
-  
+
     const startDateTime = new Date(
       `${formData.dateStart}T${formData.timeStart}:00`
     );
     const endDateTime = new Date(
       `${formData.dateEnd}T${formData.timeEnd}:00`
     );
-  
+
     const form = new FormData();
     for (const [key, value] of Object.entries(formData)) {
       if (!['images', 'dateStart', 'dateEnd', 'timeStart', 'timeEnd'].includes(key)) {
         form.append(key, value);
       }
     }
-  
+
     form.append('dateStart', startDateTime.toISOString());
     form.append('dateEnd', endDateTime.toISOString());
     formData.images.forEach((file) => form.append('images', file));
-  
+
     // Add 'type' field correctly as ObjectId
     if (formData.type) {
       form.append('type', formData.type);  // Should be ObjectId, not name
     }
-  
+
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch(`${apiUrl}events/create`, {
@@ -111,21 +115,27 @@ const EventCreate = () => {
         },
         body: form,
       });
-  
+      
       const data = await response.json();
+      console.log('API Response:', data);
+      
       if (response.ok) {
-        alert('Event created successfully!');
-      } else {
-        alert('Error creating event: ' + data.message);
+        toast.success('Event Created Successfully!', {
+          position: "bottom-right",
+          autoClose: 3000,
+        });
+        setTimeout(() => {
+          navigate('/dashboard/events');
+        }, 3000);
       }
     } catch (error) {
-      alert('Error creating event: ' + error.message);
+      toast.error('Error creating event: ' + error.message);
     }
   };
-  
-  
+
   return (
-    <div className="event-create-container">
+    <>
+    <ToastContainer position="bottom-right" autoClose={3000} />
       <h2 className="event-create-title">Create Your Event</h2>
       <form onSubmit={handleSubmit} className="event-create-form">
         <div className="form-row">
@@ -243,7 +253,7 @@ const EventCreate = () => {
           Create Event
         </button>
       </form>
-    </div>
+    </>
   );
 };
 

@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 const apiUrl = import.meta.env.VITE_API_URL;
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
+
 
 const Attendance = () => {
   const [eventId, setEventId] = useState("");
@@ -11,6 +15,9 @@ const Attendance = () => {
   const [attendees, setAttendees] = useState([]);
   const [selectedAttendees, setSelectedAttendees] = useState([]);
   const [eventStatus, setEventStatus] = useState("");
+  const navigate = useNavigate();
+  const [fetchClicked, setFetchClicked] = useState(false);
+
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -36,21 +43,22 @@ const Attendance = () => {
       setError("Event ID is required");
       return;
     }
-
+  
     setError("");
     setLoading(true);
-
+    setFetchClicked(true); // Set to true when fetch is initiated
+  
     try {
       const response = await axios.get(`${apiUrl}attendance/getUsersByEvent/${eventId}`);
       const eventResponse = await axios.get(`${apiUrl}events/${eventId}`);
-
+  
       setAttendees(response.data || []);
       setEventName(eventResponse.data.name);
-
+  
       const eventEndDate = new Date(eventResponse.data.dateEnd);
       const currentDate = new Date();
       const isDone = currentDate > eventEndDate;
-
+  
       setEventStatus(isDone ? "done" : "ongoing");
     } catch (err) {
       setError("Error fetching attendees");
@@ -58,6 +66,7 @@ const Attendance = () => {
       setLoading(false);
     }
   };
+  
 
   const handleCircleChange = (userId) => {
     setSelectedAttendees((prevSelected) =>
@@ -72,10 +81,10 @@ const Attendance = () => {
       setError("Please select an event and attendees to approve.");
       return;
     }
-
+  
     setError("");
     setLoading(true);
-
+  
     try {
       const attendeesToUpdate = attendees
         .filter((attendee) => selectedAttendees.includes(attendee.userId))
@@ -83,12 +92,18 @@ const Attendance = () => {
           userId: attendee.userId,
           hasAttended: true,
         }));
-
+  
       await axios.put(`${apiUrl}attendance/updateUsersAttendance/${eventId}`, {
         attendees: attendeesToUpdate,
       });
-
-      alert("Attendance approved successfully!");
+  
+      toast.success("Approved User Attendance");
+  
+      // Navigate after 3 seconds
+      setTimeout(() => {
+        navigate("/dashboard/attendance");
+      }, 3000);
+  
       fetchAttendees();
     } catch (err) {
       setError("Error approving attendance");
@@ -105,38 +120,58 @@ const Attendance = () => {
         </h1>
 
         <div className="space-y-6">
-          <label className="block text-lg font-medium text-gray-700">Select Event</label>
-          <select
-            value={eventId}
-            onChange={(e) => setEventId(e.target.value)}
-            className="w-full p-4 border-2 rounded-lg shadow-md focus:ring focus:ring-blue-200 transition duration-300"
-          >
-            <option value="">Select an event</option>
-            {events.length > 0 ? (
-              events.map((event) => (
-                <option key={event._id} value={event._id}>
-                  {event.name}
-                </option>
-              ))
-            ) : (
-              <option disabled>No events available</option>
-            )}
-          </select>
+        <label className="block text-lg font-medium text-gray-700">Select Event</label>
 
-          {eventId && events.length > 0 && (
-            <p className="mt-2 text-lg font-medium text-gray-600">
-              Selected Event: {events.find((event) => event._id === eventId)?.name}
-            </p>
-          )}
-        </div>
+        {events.length > 0 ? (
+          <div className="space-y-4">
+            {events.map((event) => (
+              <div key={event._id} className="flex items-center">
+                <input
+                  type="radio"
+                  id={`event-${event._id}`}
+                  name="selectedEvent"
+                  value={event._id}
+                  checked={eventId === event._id}
+                  onChange={(e) => {
+                    setEventId(e.target.value);
+                    setAttendees([]); // Clear attendees
+                    setFetchClicked(false); // Reset fetchClicked
+                  }}
+                  className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                />
+
+                <label
+                  htmlFor={`event-${event._id}`}
+                  className="ml-3 text-lg font-medium text-gray-700"
+                >
+                  {event.name}
+                </label>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500">No events available</p>
+        )}
+
+        {eventId && events.length > 0 && (
+          <p className="mt-2 text-lg font-medium text-gray-600">
+            Selected Event: {events.find((event) => event._id === eventId)?.name}
+          </p>
+        )}
+
+        {/* Only show the message after clicking the Fetch Attendees button */}
+        {fetchClicked && eventId && !loading && attendees.length === 0 && (
+          <p className="mt-4 text-red-500 text-center">Event doesn't have attendees</p>
+        )}
 
         <button
           onClick={fetchAttendees}
-          disabled={loading}
+          disabled={loading || !eventId}
           className="w-full mt-6 py-3 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl shadow-lg hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 transition disabled:opacity-50"
         >
           {loading ? "Loading..." : "Fetch Attendees"}
         </button>
+
 
         {error && <p className="mt-4 text-red-500 text-center">{error}</p>}
 
@@ -218,6 +253,8 @@ const Attendance = () => {
           </button>
         )}
       </div>
+      <ToastContainer />
+    </div>
     </div>
   );
 };

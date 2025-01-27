@@ -4,6 +4,9 @@ import Modal from 'react-modal';
 import './EventList.css';
 import EventModal from './EventModal';
 const apiUrl = import.meta.env.VITE_API_URL;
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 Modal.setAppElement('#root');
 
@@ -62,6 +65,9 @@ const EventList = () => {
   const [filter, setFilter] = useState({ type: '', date: '' });
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState(null);
+
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -95,6 +101,39 @@ const EventList = () => {
     filterEvents(newFilter);
   };
 
+  const handleDelete = async () => {
+    if (!eventToDelete) return;
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${apiUrl}events/${eventToDelete}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to delete event');
+      }
+  
+      setEvents(events.filter((event) => event._id !== eventToDelete));
+      setFilteredEvents(filteredEvents.filter((event) => event._id !== eventToDelete));
+  
+      toast.success('Event deleted successfully!', {
+        position: 'bottom-right',
+        autoClose: 3000,
+      });
+    } catch (error) {
+      toast.error('Error: ' + error.message, {
+        position: 'bottom-right',
+        autoClose: 3000,
+      });
+    } finally {
+      closeDeleteModal();
+    }
+  };
+  
+  
   const filterEvents = (filter) => {
     let filtered = [...events];
 
@@ -149,6 +188,16 @@ const EventList = () => {
   const handleModalClose = () => {
     setModalIsOpen(false);
     setSelectedEvent(null);
+  };
+
+  const openDeleteModal = (eventId) => {
+    setEventToDelete(eventId);
+    setIsDeleteModalOpen(true);
+  };
+  
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setEventToDelete(null);
   };
 
   return (
@@ -231,11 +280,12 @@ const EventList = () => {
                   UPDATE
                 </button>
                 <button
-                  onClick={() => handleDelete(event._id)}
+                  onClick={() => openDeleteModal(event._id)}
                   className="bg-red-200 text-red-800 text-xs font-semibold px-3 py-1 rounded-full transition duration-300 hover:bg-red-300"
                 >
                   DELETE
                 </button>
+
                 <button
                   onClick={() => handleModalOpen(event)}
                   className="bg-pink-200 text-pink-800 text-xs font-semibold px-3 py-1 rounded-full transition duration-300 hover:bg-pink-300"
@@ -263,6 +313,31 @@ const EventList = () => {
         handleViewAttendance={() => {/* Implement this function */}}
         handleCreateQuestionnaire={() => {/* Implement this function */}}
       />
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onRequestClose={closeDeleteModal}
+        contentLabel="Delete Confirmation"
+        className="modal"
+        overlayClassName="overlay"
+      >
+        <h2 className="text-lg font-semibold">Are you sure you want to delete this event?</h2>
+        <div className="mt-4 flex justify-end space-x-2">
+          <button
+            onClick={closeDeleteModal}
+            className="bg-gray-200 text-gray-800 px-4 py-2 rounded-full"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleDelete}
+            className="bg-red-500 text-white px-4 py-2 rounded-full"
+          >
+            Delete
+          </button>
+        </div>
+      </Modal>
+
     </div>
   );
 };

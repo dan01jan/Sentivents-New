@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './EventCreate.css';
+
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const EventUpdate = () => {
   const { eventId } = useParams();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -23,19 +27,17 @@ const EventUpdate = () => {
   const [eventTypes, setEventTypes] = useState([]); // For event types
 
   useEffect(() => {
-    // Fetch event types from the API
     const fetchEventTypes = async () => {
       try {
         const response = await fetch(`${apiUrl}types/`);
         if (!response.ok) throw new Error('Failed to fetch event types.');
         const data = await response.json();
-        setEventTypes(data); // Set the event types
+        setEventTypes(data);
       } catch (err) {
         setError(err.message);
       }
     };
 
-    // Fetch event details
     const fetchEventDetails = async () => {
       try {
         const response = await fetch(`${apiUrl}events/${eventId}`);
@@ -48,7 +50,7 @@ const EventUpdate = () => {
         setFormData({
           name: data.name,
           description: data.description,
-          type: data.type, // Assuming event type is an ObjectId or valid identifier
+          type: data.type,
           dateStart: dateStart.toISOString().split('T')[0],
           timeStart: dateStart.toTimeString().split(' ')[0].slice(0, 5),
           dateEnd: dateEnd.toISOString().split('T')[0],
@@ -63,8 +65,8 @@ const EventUpdate = () => {
       }
     };
 
-    fetchEventTypes(); // Fetch event types when the component mounts
-    fetchEventDetails(); // Fetch event details
+    fetchEventTypes();
+    fetchEventDetails();
   }, [eventId]);
 
   const handleChange = (e) => {
@@ -92,21 +94,18 @@ const EventUpdate = () => {
 
     const formDataToSend = new FormData();
 
-    // Combine date and time into full Date objects
     const dateStart = new Date(`${formData.dateStart}T${formData.timeStart}:00`);
     const dateEnd = new Date(`${formData.dateEnd}T${formData.timeEnd}:00`);
 
-    formDataToSend.append('dateStart', dateStart);  // full Date object
-    formDataToSend.append('dateEnd', dateEnd);      // full Date object
+    formDataToSend.append('dateStart', dateStart);
+    formDataToSend.append('dateEnd', dateEnd);
 
-    // Add other fields as usual
     Object.entries(formData).forEach(([key, value]) => {
       if (key !== 'images' && key !== 'dateStart' && key !== 'timeStart' && key !== 'dateEnd' && key !== 'timeEnd') {
         formDataToSend.append(key, value);
       }
     });
 
-    // Handle existing images and new ones
     if (Array.isArray(formData.images)) {
       formData.images.forEach((imageUrl) => {
         formDataToSend.append('existingImages', imageUrl);
@@ -130,9 +129,11 @@ const EventUpdate = () => {
       if (!response.ok) throw new Error('Failed to update event.');
 
       const data = await response.json();
-      alert('Event updated successfully!');
+      toast.success('Event updated successfully!');
+      setTimeout(() => navigate('/dashboard/events'), 3000);
     } catch (err) {
       setError(err.message);
+      toast.error('Failed to update event. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -141,8 +142,10 @@ const EventUpdate = () => {
   if (loading) return <p>Loading event details...</p>;
   if (error) return <p className="error-message">Error: {error}</p>;
 
+
   return (
     <div className="event-update-container">
+      <ToastContainer position="bottom-right" autoClose={3000} />
       <h2 className="event-update-title">Update Your Event</h2>
       <form onSubmit={handleSubmit} className="event-update-form">
         <div className="form-group">
