@@ -221,7 +221,7 @@ const styles = {
         fontSize: '1rem',
     },
     select: {
-        padding: '12px',
+        padding: '8px',
         width: '100%',
         maxWidth: '350px',
         borderRadius: '8px',

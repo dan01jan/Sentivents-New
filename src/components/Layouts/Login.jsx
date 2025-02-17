@@ -1,107 +1,123 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import logo from "../../assets/website/v_darkerlogo.png";
+import { FaGoogle } from "react-icons/fa";
+
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       const response = await fetch(`${apiUrl}users/weblogin`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email: credentials.email,
-          password: credentials.password,
-        }),
+        body: JSON.stringify(credentials),
       });
-  
+
       if (!response.ok) {
-        throw new Error('Invalid credentials');
+        throw new Error("Invalid credentials");
       }
-  
+
       const data = await response.json();
-      console.log('Login response data:', data); // Log the entire response to debug
-      console.log('Is Admin:', data.user.isAdmin); // Check if isAdmin is true
-  
-      if (data.user) {
-        console.log('User data:', data.user); // Log the user object
-  
-        // Save the JWT token and user details in localStorage
-        localStorage.setItem('authToken', data.token);
-  
-        // Save user details to localStorage
-        localStorage.setItem('userData', JSON.stringify({
-          name: `${data.user.name} ${data.user.surname}`,
-          email: data.user.email,
-          organization: data.user.organization,
-          department: data.user.department,
-          course: data.user.course,
-          isAdmin: data.user.isAdmin, // Make sure you're accessing isAdmin from data.user
-          userId: data.user.userId // Add the userId here
-        }));
-        
-  
-        console.log('User details saved:', data.user); // Log saved user data
+      localStorage.setItem("authToken", data.token);
+      localStorage.setItem("userData", JSON.stringify(data.user));
+
+      if (data.user.isAdmin) {
+        navigate("/dashboard/calendar");
       } else {
-        console.log('User data not available.');
+        alert("You are not an admin.");
       }
-  
-      // Check if the user is an admin
-      if (data.user.isAdmin === true && data.token) {
-        console.log('Admin logged in, redirecting...');
-        navigate('/dashboard/calendar');
-      } else {
-        alert('You are not an admin.');
-      }
-  
     } catch (error) {
-      alert(error.message || 'Something went wrong');
+      alert(error.message || "Something went wrong");
     }
   };
-  
-  
+
+  const handleGoogleLogin = () => {
+    // Implement Google login logic here
+    alert("Google login not implemented yet");
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-pink-300 to-indigo-300">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Login</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex flex-col">
-            <label htmlFor="email" className="text-lg text-gray-700">Email</label>
-            <input
-              id="email"
-              type="email"
-              value={credentials.email}
-              onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
-              placeholder="Enter your email"
-              required
-              className="mt-2 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-            />
-          </div>
-          <div className="flex flex-col">
-            <label htmlFor="password" className="text-lg text-gray-700">Password</label>
-            <input
-              id="password"
-              type="password"
-              value={credentials.password}
-              onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-              placeholder="Enter your password"
-              required
-              className="mt-2 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-            />
+    <div className="min-h-screen h-screen flex items-center justify-center bg-[#3a1078]">
+      <div className="bg-[#f7f7f8] flex rounded-3xl shadow-2xl overflow-hidden max-w-7xl w-full h-[80vh]">
+        {/* Left Side - Image Section */}
+        <div
+          className="w-1/2 bg-cover bg-center"
+          style={{ backgroundImage: `url(${logo})` }}
+        ></div>
+
+        {/* Right Side - Login Form */}
+        <div className="w-1/2 p-12 flex flex-col justify-center h-full">
+          <h2 className="text-4xl font-bold text-[#3a1078] mb-8">Login</h2>
+          <p className="text-lg text-gray-500 mb-8">
+            Welcome back! Please login to your account.
+          </p>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="flex flex-col">
+              <label htmlFor="email" className="text-xl text-[#3a1078]">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={credentials.email}
+                onChange={(e) =>
+                  setCredentials({ ...credentials, email: e.target.value })
+                }
+                placeholder="Enter your email"
+                required
+                className="mt-2 px-5 py-6 text-xl border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="password" className="text-xl text-[#3a1078]">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={credentials.password}
+                onChange={(e) =>
+                  setCredentials({ ...credentials, password: e.target.value })
+                }
+                placeholder="Enter your password"
+                required
+                className="mt-2 px-5 py-6 text-xl border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full py-4 mt-6 font-bold bg-[#3a1078] text-white rounded-lg hover:bg-[#4e31aa] transition duration-300 text-lg"
+            >
+              Login
+            </button>
+          </form>
+          <div className="flex items-center my-3">
+            <hr className="flex-grow border-t-2 border-gray-300" />
+            <span className="mx-4 text-gray-500">or</span>
+            <hr className="flex-grow border-t-2 border-gray-300" />
           </div>
           <button
-            type="submit"
-            className="w-full py-2 mt-4 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition duration-300"
+            onClick={handleGoogleLogin}
+            className="w-full py-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 text-lg font-bold flex items-center justify-center"
           >
-            Login
+            <FaGoogle className="w-6 h-6 mr-3" />
+            Login with Google
           </button>
-        </form>
+          <Link
+            to="/forgot-password"
+            className="mt-4 text-center text-[#3a1078] hover:underline"
+          >
+            Forgot Password?
+          </Link>
+        </div>
       </div>
     </div>
   );
