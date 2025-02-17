@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './CreateQuestionnaire.css';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -102,24 +101,24 @@ const CreateQuestionnaire = () => {
   };
 
   return (
-    <div className="questionnaire-container">
-      <h1>Create Event Questionnaire</h1>
-      {selectedEventId && <p>Selected Event ID: {selectedEventId}</p>}
+    <div className="container mx-auto px-4 py-6">
+      <h1 className="text-3xl font-semibold mb-4">Create Event Questionnaire</h1>
+      {selectedEventId && <p className="text-lg mb-4">Selected Event ID: {selectedEventId}</p>}
 
       {loading ? (
         <p>Loading questions...</p>
       ) : (
-        <div className="traits-container">
+        <div className="space-y-6">
           {Object.keys(groupedQuestions).map((trait) => (
-            <div key={trait} className="trait-section">
-              <h2 className="trait-title">{trait}</h2>
-              <ul className="question-list">
+            <div key={trait} className="bg-gray-100 p-4 rounded-md shadow-md">
+              <h2 className="text-xl font-medium text-gray-800">{trait}</h2>
+              <ul className="space-y-4">
                 {groupedQuestions[trait].map((question) => (
-                  <li key={question._id} className="question-item">
-                    <div className="question-wrapper">
+                  <li key={question._id} className="flex flex-col">
+                    <div className="flex items-center space-x-3">
                       <input
                         type="checkbox"
-                        className="small-checkbox"
+                        className="h-5 w-5"
                         checked={selectedQuestions[question._id] || false}
                         onChange={(e) => {
                           const isChecked = e.target.checked;
@@ -137,14 +136,14 @@ const CreateQuestionnaire = () => {
                           }));
                         }}
                       />
-                      <p>{question.question}</p>
+                      <p className="text-gray-700">{question.question}</p>
                     </div>
-                    <div className="likert-scale-boxes">
+                    <div className="flex space-x-2 mt-2">
                       {[1, 2, 3, 4, 5].map((value) => (
                         <div
                           key={value}
-                          className={`likert-box ${
-                            ratings[question._id] === value ? 'selected' : ''
+                          className={`w-10 h-10 flex justify-center items-center border rounded-full cursor-pointer ${
+                            ratings[question._id] === value ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-700'
                           }`}
                           onClick={() =>
                             setRatings((prev) => ({
@@ -165,8 +164,11 @@ const CreateQuestionnaire = () => {
         </div>
       )}
 
-      <div className="create-button-container">
-        <button className="create-button" onClick={handleCreateQuestionnaire}>
+      <div className="mt-6 text-center">
+        <button
+          className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          onClick={handleCreateQuestionnaire}
+        >
           Create Questionnaire
         </button>
       </div>

@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Modal from 'react-modal';
-import './EventList.css';
-import EventModal from './EventModal';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Modal from "react-modal";
+import "./EventList.css";
+import EventModal from "./EventModal";
 const apiUrl = import.meta.env.VITE_API_URL;
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-
-Modal.setAppElement('#root');
+Modal.setAppElement("#root");
 
 const Pagination = ({ currentPage, totalPages, paginate }) => {
   const pageNumbers = [];
@@ -38,7 +37,9 @@ const Pagination = ({ currentPage, totalPages, paginate }) => {
         <button
           key={number}
           onClick={() => paginate(number)}
-          className={`mx-1 px-3 py-1 rounded-full ${currentPage === number ? 'bg-blue-500 text-white' : 'bg-pink-200'}`}
+          className={`mx-1 px-3 py-1 rounded-full ${
+            currentPage === number ? "bg-blue-500 text-white" : "bg-pink-200"
+          }`}
         >
           {number}
         </button>
@@ -54,46 +55,32 @@ const Pagination = ({ currentPage, totalPages, paginate }) => {
   );
 };
 
-const groupEventsByType = (events) => {
-  return events.reduce((acc, event) => {
-    const type = event.type.eventType || 'Unknown';
-    if (!acc[type]) {
-      acc[type] = [];
-    }
-    acc[type].push(event);
-    return acc;
-  }, {});
-};
-
-
 const EventList = () => {
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 6;
-  const [filter, setFilter] = useState({ type: '', date: '' });
+  const [filter, setFilter] = useState({ type: "", date: "" });
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState(null);
-  const groupedEvents = groupEventsByType(filteredEvents);
-
-
+  const [groupByType, setGroupByType] = useState(true); // State to toggle grouping by type
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem("authToken");
         const response = await fetch(`${apiUrl}events/adminevents`, {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         if (!response.ok) {
-          throw new Error('Failed to fetch events');
+          throw new Error("Failed to fetch events");
         }
         const data = await response.json();
         setEvents(data);
@@ -104,7 +91,7 @@ const EventList = () => {
         setLoading(false);
       }
     };
-    
+
     fetchEvents();
   }, []);
 
@@ -118,47 +105,51 @@ const EventList = () => {
   const handleDelete = async () => {
     if (!eventToDelete) return;
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       const response = await fetch(`${apiUrl}events/${eventToDelete}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (!response.ok) {
-        throw new Error('Failed to delete event');
+        throw new Error("Failed to delete event");
       }
-  
+
       setEvents(events.filter((event) => event._id !== eventToDelete));
-      setFilteredEvents(filteredEvents.filter((event) => event._id !== eventToDelete));
-  
-      toast.success('Event deleted successfully!', {
-        position: 'bottom-right',
+      setFilteredEvents(
+        filteredEvents.filter((event) => event._id !== eventToDelete)
+      );
+
+      toast.success("Event deleted successfully!", {
+        position: "bottom-right",
         autoClose: 3000,
       });
     } catch (error) {
-      toast.error('Error: ' + error.message, {
-        position: 'bottom-right',
+      toast.error("Error: " + error.message, {
+        position: "bottom-right",
         autoClose: 3000,
       });
     } finally {
       closeDeleteModal();
     }
   };
-  
-  
-  
+
   const filterEvents = (filter) => {
     let filtered = [...events];
 
     if (filter.type) {
-      filtered = filtered.filter((event) => event.type && event.type.eventType === filter.type);
+      filtered = filtered.filter(
+        (event) => event.type && event.type.eventType === filter.type
+      );
     }
 
     if (filter.date) {
       filtered = filtered.filter(
-        (event) => new Date(event.dateStart).toLocaleDateString() === new Date(filter.date).toLocaleDateString()
+        (event) =>
+          new Date(event.dateStart).toLocaleDateString() ===
+          new Date(filter.date).toLocaleDateString()
       );
     }
 
@@ -167,6 +158,17 @@ const EventList = () => {
   };
 
   const eventTypes = [...new Set(events.map((event) => event.type.eventType))];
+
+  const groupEventsByType = (events) => {
+    return events.reduce((acc, event) => {
+      const type = event.type.eventType || "Unknown";
+      if (!acc[type]) {
+        acc[type] = [];
+      }
+      acc[type].push(event);
+      return acc;
+    }, {});
+  };
 
   if (loading) {
     return <p>Loading events...</p>;
@@ -178,13 +180,16 @@ const EventList = () => {
 
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-  const currentEvents = filteredEvents.slice(indexOfFirstEvent, indexOfLastEvent);
+  const currentEvents = filteredEvents.slice(
+    indexOfFirstEvent,
+    indexOfLastEvent
+  );
   const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleNavigate = () => {
-    navigate('/dashboard/createevents');
+    navigate("/dashboard/createevents");
   };
 
   const handleUpdate = (event) => {
@@ -193,12 +198,10 @@ const EventList = () => {
   };
 
   const handleModalOpen = (event) => {
-    console.log("Event selected:", event); // Log to ensure the correct event is selected
     setSelectedEvent(event);
-    localStorage.setItem('selectedEventId', event._id); // Store the event ID in local storage
+    localStorage.setItem("selectedEventId", event._id); // Store the event ID in local storage
     setModalIsOpen(true);
   };
-  
 
   const handleModalClose = () => {
     setModalIsOpen(false);
@@ -209,16 +212,23 @@ const EventList = () => {
     setEventToDelete(eventId);
     setIsDeleteModalOpen(true);
   };
-  
+
   const closeDeleteModal = () => {
     setIsDeleteModalOpen(false);
     setEventToDelete(null);
   };
 
+  // Group events if necessary
+  const groupedEvents = groupByType
+    ? groupEventsByType(filteredEvents)
+    : { "No Grouping": filteredEvents };
+
   return (
     <div className="py-4">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-semibold text-teal-600 font-pacifico">EVENTS</h2>
+        <h2 className="text-3xl font-semibold text-teal-600 font-pacifico">
+          EVENTS
+        </h2>
         <button
           type="button"
           onClick={handleNavigate}
@@ -230,7 +240,9 @@ const EventList = () => {
 
       <div className="mb-4 flex justify-between">
         <div>
-          <label htmlFor="type" className="mr-2">Filter by Type:</label>
+          <label htmlFor="type" className="mr-2">
+            Filter by Type:
+          </label>
           <select
             id="type"
             name="type"
@@ -240,12 +252,16 @@ const EventList = () => {
           >
             <option value="">All</option>
             {eventTypes.map((type) => (
-              <option key={type} value={type}>{type}</option>
+              <option key={type} value={type}>
+                {type}
+              </option>
             ))}
           </select>
         </div>
         <div>
-          <label htmlFor="date" className="mr-2">Filter by Date:</label>
+          <label htmlFor="date" className="mr-2">
+            Filter by Date:
+          </label>
           <input
             type="date"
             id="date"
@@ -255,68 +271,85 @@ const EventList = () => {
             className="px-4 py-2 rounded-full bg-gray-100"
           />
         </div>
+        <div>
+          <label className="mr-2">Group by Type</label>
+          <input
+            type="checkbox"
+            checked={groupByType}
+            onChange={() => setGroupByType(!groupByType)}
+            className="mr-2"
+          />
+        </div>
       </div>
 
+      {/* Display events */}
       {Object.entries(groupedEvents).map(([type, events]) => (
-          <div key={type} className="mb-6">
-            <h3 className="text-2xl font-semibold text-teal-600">{type}</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-4">
-              {events.slice((currentPage - 1) * eventsPerPage, currentPage * eventsPerPage).map((event) => (
-                <div key={event._id} className="rounded-lg overflow-hidden shadow-lg bg-white max-w-xs hover:shadow-xl transition duration-300 ease-in-out">
-                  {event.images && event.images.length > 0 ? (
-                    <img className="w-full h-24 object-cover" src={event.images[0]} alt={event.name || 'Event Image'} />
-                  ) : (
-                    <div className="w-full h-24 bg-gray-200"></div> // Placeholder if no image
-                  )}
+        <div key={type} className="mb-6">
+          <h3 className="text-2xl font-semibold text-teal-600">{type}</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {events.map((event) => (
+              <div
+                key={event._id}
+                className="rounded-lg overflow-hidden shadow-lg bg-white max-w-full hover:shadow-2xl transition duration-300 ease-in-out mt-5"
+              >
+                {/* Event Image */}
+                {event.images && event.images.length > 0 ? (
+                  <img
+                    className="w-full h-48 object-cover"
+                    src={event.images[0]}
+                    alt={event.name || "Event Image"}
+                  />
+                ) : (
+                  <div className="w-full h-48 bg-gray-200"></div> // Placeholder if no image
+                )}
 
-                  <div className="px-2 py-2">
-                    {/* Check for name */}
-                    <div className="font-bold text-sm mb-1 truncate">{event.name || 'No Name'}</div>
-                    {/* Check for description */}
-                    <p className="text-gray-700 text-xs mb-1 line-clamp-2">{event.description || 'No Description'}</p>
-                    {/* Check for dateStart */}
-                    <p className="text-xs text-gray-600">
-                      <span className="font-semibold">Date:</span> {event.dateStart ? new Date(event.dateStart).toLocaleDateString() : 'No Date'}
-                    </p>
-                    {/* Check for location */}
-                    <p className="text-xs text-gray-600 truncate">
-                      <span className="font-semibold">Location:</span> {event.location || 'No Location'}
-                    </p>
+                <div className="px-4 py-4">
+                  <div className="font-bold text-lg mb-2 truncate">
+                    {event.name || "No Name"}
                   </div>
+                  <p className="text-gray-700 text-sm mb-2 line-clamp-3">
+                    {event.description || "No Description"}
+                  </p>
+                  <p className="text-xs text-gray-600 mb-2">
+                    <span className="font-semibold">Date:</span>{" "}
+                    {event.dateStart
+                      ? new Date(event.dateStart).toLocaleDateString()
+                      : "No Date"}
+                  </p>
+                  <p className="text-xs text-gray-600 truncate">
+                    <span className="font-semibold">Location:</span>{" "}
+                    {event.location || "No Location"}
+                  </p>
+                </div>
 
-                  <div className="px-2 pt-1 pb-2 flex justify-between items-center">
-                    {/* Check for eventType */}
-                    <span className="inline-block bg-teal-200 text-teal-800 text-xs font-semibold px-2 py-1 rounded-full">
-                      {event.type?.eventType || 'No Type'}
-                    </span>
-
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleUpdate(event)}
-                        className="bg-yellow-200 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full transition duration-300 hover:bg-yellow-300"
-                      >
-                        UPDATE
-                      </button>
-                      <button
-                        onClick={() => openDeleteModal(event._id)}
-                        className="bg-red-200 text-red-800 text-xs font-semibold px-3 py-1 rounded-full transition duration-300 hover:bg-red-300"
-                      >
-                        DELETE
-                      </button>
-
-                      <button
-                        onClick={() => handleModalOpen(event)}
-                        className="bg-pink-200 text-pink-800 text-xs font-semibold px-3 py-1 rounded-full transition duration-300 hover:bg-pink-300"
-                      >
-                        More Info
-                      </button>
-                    </div>
+                <div className="px-4 py-2 flex justify-between items-center border-t border-gray-200">
+                  {/* Action Buttons */}
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => handleUpdate(event)}
+                      className="bg-yellow-200 text-yellow-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-yellow-300"
+                    >
+                      UPDATE
+                    </button>
+                    <button
+                      onClick={() => openDeleteModal(event._id)}
+                      className="bg-red-200 text-red-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-red-300"
+                    >
+                      DELETE
+                    </button>
+                    <button
+                      onClick={() => handleModalOpen(event)}
+                      className="bg-pink-200 text-pink-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-pink-300"
+                    >
+                      VIEW
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+      ))}
 
       <Pagination
         currentPage={currentPage}
@@ -324,40 +357,46 @@ const EventList = () => {
         paginate={paginate}
       />
 
-      {/* Modal */}
       <EventModal
         selectedEvent={selectedEvent}
         modalIsOpen={modalIsOpen}
         handleModalClose={handleModalClose}
-        handleViewReports={() => {/* Implement this function */}}
-        handleViewAttendance={() => {/* Implement this function */}}
-        handleCreateQuestionnaire={() => {/* Implement this function */}}
+        handleViewReports={() => {
+          /* Implement this function */
+        }}
+        handleViewAttendance={() => {
+          /* Implement this function */
+        }}
+        handleCreateQuestionnaire={() => {
+          /* Implement this function */
+        }}
       />
 
       <Modal
         isOpen={isDeleteModalOpen}
         onRequestClose={closeDeleteModal}
-        contentLabel="Delete Confirmation"
+        contentLabel="Confirm Delete"
         className="modal"
         overlayClassName="overlay"
       >
-        <h2 className="text-lg font-semibold">Are you sure you want to delete this event?</h2>
-        <div className="mt-4 flex justify-end space-x-2">
+        <h2 className="text-lg font-semibold mb-4">
+          Are you sure you want to delete this event?
+        </h2>
+        <div className="flex justify-between">
           <button
             onClick={closeDeleteModal}
-            className="bg-gray-200 text-gray-800 px-4 py-2 rounded-full"
+            className="bg-gray-300 px-4 py-2 rounded-full text-sm"
           >
             Cancel
           </button>
           <button
             onClick={handleDelete}
-            className="bg-red-500 text-white px-4 py-2 rounded-full"
+            className="bg-red-600 px-4 py-2 rounded-full text-white text-sm"
           >
-            Delete
+            Confirm
           </button>
         </div>
       </Modal>
-
     </div>
   );
 };
