@@ -6,9 +6,8 @@ const Wordtag = () => {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState("");
   const [comments, setComments] = useState([]);
-  const [eventType, setEventType] = useState(""); // For filtering by type
+  const [eventType, setEventType] = useState("");
 
-  // Fetch events with optional filtering by type
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -16,21 +15,15 @@ const Wordtag = () => {
           `${apiUrl}events${eventType ? `?type=${eventType}` : ""}`
         );
         const data = await response.json();
-        if (Array.isArray(data)) {
-          setEvents(data);
-        } else {
-          console.error("No events found:", data);
-          setEvents([]);
-        }
+        setEvents(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching events:", error);
+        setEvents([]);
       }
     };
-
     fetchEvents();
   }, [eventType]);
 
-  // Fetch comments for the selected event
   const fetchComments = async (eventId) => {
     try {
       const response = await fetch(`${apiUrl}events/${eventId}/comments`);
@@ -47,39 +40,19 @@ const Wordtag = () => {
     if (eventId) fetchComments(eventId);
   };
 
-  const handleTypeChange = (e) => {
-    setEventType(e.target.value);
-  };
-
-  // Prepare words for Word Cloud
   const words = comments.map((comment) => ({
-    text: comment.text, // Assuming comments have a "text" field
-    value: Math.floor(Math.random() * 100) + 10, // Random size for demonstration
+    text: comment.text,
+    value: Math.floor(Math.random() * 100) + 10,
   }));
 
   return (
-    <div style={{ textAlign: "center", margin: "20px" }}>
-      <h1 style={{ color: "#ff6b6b", fontFamily: "Comic Sans MS" }}>
-        Word Cloud
-      </h1>
-      <div
-        style={{
-          marginBottom: "20px",
-          display: "flex",
-          justifyContent: "center",
-          gap: "10px",
-        }}
-      >
+    <div className="text-center my-6">
+      <h1 className="text-red-500 font-bold text-2xl mb-4">Word Cloud</h1>
+      <div className="mb-4 flex justify-center gap-4">
         <select
           value={selectedEvent}
           onChange={handleEventChange}
-          style={{
-            padding: "10px",
-            borderRadius: "20px",
-            border: "2px solid #ff6b6b",
-            fontFamily: "Comic Sans MS",
-            fontSize: "0.8rem", // Move fontSize here
-          }}
+          className="px-4 py-2 rounded-full border-2 border-red-500 text-sm"
         >
           <option value="">Select an Event</option>
           {events.map((event) => (
@@ -90,7 +63,7 @@ const Wordtag = () => {
         </select>
       </div>
       {comments.length > 0 ? (
-        <div style={{ width: "80%", margin: "0 auto" }}>
+        <div className="w-4/5 mx-auto">
           <WordCloud
             words={words}
             options={{
@@ -103,9 +76,7 @@ const Wordtag = () => {
           />
         </div>
       ) : (
-        <p style={{ color: "#6b6b6b", fontFamily: "Comic Sans MS" }}>
-          No comments to display.
-        </p>
+        <p className="text-gray-500">No comments to display.</p>
       )}
     </div>
   );

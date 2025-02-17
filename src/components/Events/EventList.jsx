@@ -263,7 +263,6 @@ const EventList = () => {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-4">
               {events.slice((currentPage - 1) * eventsPerPage, currentPage * eventsPerPage).map((event) => (
                 <div key={event._id} className="rounded-lg overflow-hidden shadow-lg bg-white max-w-xs hover:shadow-xl transition duration-300 ease-in-out">
-                  {/* Check for images */}
                   {event.images && event.images.length > 0 ? (
                     <img className="w-full h-24 object-cover" src={event.images[0]} alt={event.name || 'Event Image'} />
                   ) : (

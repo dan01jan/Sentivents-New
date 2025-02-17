@@ -28,7 +28,10 @@ const Sidebar = () => {
           isExpanded ? "w-60" : "w-20"
         } flex flex-col justify-between relative`}
       >
-        <div className="flex items-center justify-center px-2 py-4 text-white rounded-lg">
+        <a
+          href="/dashboard/calendar"
+          className="flex items-center justify-center px-2 py-4 text-white rounded-lg"
+        >
           <img
             src={logo}
             alt="Logo"
@@ -36,13 +39,14 @@ const Sidebar = () => {
               isExpanded ? "w-24" : "w-10"
             }`}
           />
-        </div>
+        </a>
+
         <nav className="px-2 py-4 mt-6 space-y-4 flex-grow">
           <ul>
             <li>
               <Link
                 to="/dashboard/wordtag"
-                className="flex items-center space-x-3 text-lg text-white hover:text-pink-500 transition duration-200 ease-in-out"
+                className="flex items-center space-x-3 text-lg text-white font-bold hover:text-pink-500 transition duration-200 ease-in-out"
               >
                 <FaHome size={30} />
                 {isExpanded && <span>Dashboard</span>}
@@ -51,7 +55,7 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/dashboard/events"
-                className="flex items-center space-x-3 text-lg text-white hover:text-pink-500 transition duration-200 ease-in-out mt-7"
+                className="flex items-center space-x-3 text-lg text-white font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-7"
               >
                 <FaCalendarAlt size={30} />
                 {isExpanded && <span>Events</span>}
@@ -60,7 +64,7 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/dashboard/attendance"
-                className="flex items-center space-x-3 text-lg text-white hover:text-pink-500 transition duration-200 ease-in-out mt-7"
+                className="flex items-center space-x-3 text-lg text-white font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-7"
               >
                 <FaUserCheck size={30} />
                 {isExpanded && <span>Attendance</span>}
@@ -69,7 +73,7 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/dashboard/questions"
-                className="flex items-center space-x-3 text-lg text-white hover:text-pink-500 transition duration-200 ease-in-out mt-7"
+                className="flex items-center space-x-3 text-lg text-white font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-7"
               >
                 <FaQuestionCircle size={30} />
                 {isExpanded && <span>Questions</span>}
