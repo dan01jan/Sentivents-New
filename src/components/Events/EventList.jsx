@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
-import "./EventList.css";
 import EventModal from "./EventModal";
 const apiUrl = import.meta.env.VITE_API_URL;
 import { toast } from "react-toastify";
