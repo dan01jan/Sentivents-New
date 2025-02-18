@@ -27,7 +27,7 @@ function App() {
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
-    }, 2000); // Show loader for 2 seconds
+    }, 2000); 
   }, []);
 
   return (
