@@ -285,7 +285,7 @@ const EventList = () => {
       {Object.entries(groupedEvents).map(([type, events]) => (
         <div key={type} className="mb-6">
           <h3 className="text-2xl font-semibold text-teal-600">{type}</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
             {events.map((event) => (
               <div
                 key={event._id}
@@ -315,15 +315,21 @@ const EventList = () => {
                       ? new Date(event.dateStart).toLocaleDateString()
                       : "No Date"}
                   </p>
-                  <p className="text-xs text-gray-600 truncate">
+                  <p className="text-xs text-gray-600 truncate mb-2">
                     <span className="font-semibold">Location:</span>{" "}
                     {event.location || "No Location"}
                   </p>
+                  <p className="text-xs text-gray-600 truncate">
+                    <span className="font-semibold">Type:</span>{" "}
+                    {event.type && event.type.eventType
+                      ? event.type.eventType
+                      : "Unknown"}
+                  </p>
                 </div>
 
-                <div className="px-4 py-2 flex justify-between items-center border-t border-gray-200">
+                <div className="px-4 py-2 flex justify-center items-center border-t border-gray-200">
                   {/* Action Buttons */}
-                  <div className="flex space-x-3">
+                  <div className="flex space-x-3 "> 
                     <button
                       onClick={() => handleUpdate(event)}
                       className="bg-yellow-200 text-yellow-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-yellow-300"
@@ -371,33 +377,33 @@ const EventList = () => {
         }}
       />
 
-     <Modal
-      isOpen={isDeleteModalOpen}
-      onRequestClose={closeDeleteModal}
-      contentLabel="Confirm Delete"
-      className="fixed inset-0 flex items-center justify-center z-50"
-      overlayClassName="fixed inset-0 bg-black bg-opacity-70 z-40"
-    >
-      <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Are you sure you want to delete this event?
-        </h2>
-        <div className="flex justify-end gap-3">
-          <button
-            onClick={closeDeleteModal}
-            className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-full text-sm transition"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleDelete}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full text-sm transition"
-          >
-            Confirm
-          </button>
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onRequestClose={closeDeleteModal}
+        contentLabel="Confirm Delete"
+        className="fixed inset-0 flex items-center justify-center z-50"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-70 z-40"
+      >
+        <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Are you sure you want to delete this event?
+          </h2>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={closeDeleteModal}
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-full text-sm transition"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full text-sm transition"
+            >
+              Confirm
+            </button>
+          </div>
         </div>
-      </div>
-    </Modal>
+      </Modal>
     </div>
   );
 };

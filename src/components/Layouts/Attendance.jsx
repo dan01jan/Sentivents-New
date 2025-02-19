@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-const apiUrl = import.meta.env.VITE_API_URL;
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const Attendance = () => {
   const [eventId, setEventId] = useState("");
@@ -15,20 +15,16 @@ const Attendance = () => {
   const [attendees, setAttendees] = useState([]);
   const [selectedAttendees, setSelectedAttendees] = useState([]);
   const [eventStatus, setEventStatus] = useState("");
-  const navigate = useNavigate();
   const [fetchClicked, setFetchClicked] = useState(false);
-
+  
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
         const response = await axios.get(`${apiUrl}events/adminEvents`);
-        if (response.data && response.data.length > 0) {
-          setEvents(response.data);
-        } else {
-          setError("No events found");
-        }
+        setEvents(response.data || []);
       } catch (err) {
         setError("Error fetching events");
       } finally {
@@ -43,36 +39,25 @@ const Attendance = () => {
       setError("Event ID is required");
       return;
     }
-  
     setError("");
     setLoading(true);
-    setFetchClicked(true); // Set to true when fetch is initiated
-  
+    setFetchClicked(true);
     try {
       const response = await axios.get(`${apiUrl}attendance/getUsersByEvent/${eventId}`);
       const eventResponse = await axios.get(`${apiUrl}events/${eventId}`);
-  
       setAttendees(response.data || []);
       setEventName(eventResponse.data.name);
-  
-      const eventEndDate = new Date(eventResponse.data.dateEnd);
-      const currentDate = new Date();
-      const isDone = currentDate > eventEndDate;
-  
-      setEventStatus(isDone ? "done" : "ongoing");
+      setEventStatus(new Date() > new Date(eventResponse.data.dateEnd) ? "done" : "ongoing");
     } catch (err) {
       setError("Error fetching attendees");
     } finally {
       setLoading(false);
     }
   };
-  
 
   const handleCircleChange = (userId) => {
-    setSelectedAttendees((prevSelected) =>
-      prevSelected.includes(userId)
-        ? prevSelected.filter((id) => id !== userId)
-        : [...prevSelected, userId]
+    setSelectedAttendees((prev) =>
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
     );
   };
 
@@ -81,29 +66,19 @@ const Attendance = () => {
       setError("Please select an event and attendees to approve.");
       return;
     }
-  
     setError("");
     setLoading(true);
-  
     try {
       const attendeesToUpdate = attendees
-        .filter((attendee) => selectedAttendees.includes(attendee.userId))
-        .map((attendee) => ({
-          userId: attendee.userId,
-          hasAttended: true,
-        }));
-  
+        .filter((att) => selectedAttendees.includes(att.userId))
+        .map((att) => ({ userId: att.userId, hasAttended: true }));
+      
       await axios.put(`${apiUrl}attendance/updateUsersAttendance/${eventId}`, {
         attendees: attendeesToUpdate,
       });
-  
+      
       toast.success("Approved User Attendance");
-  
-      // Navigate after 3 seconds
-      setTimeout(() => {
-        navigate("/dashboard/attendance");
-      }, 3000);
-  
+      setTimeout(() => navigate("/dashboard/attendance"), 3000);
       fetchAttendees();
     } catch (err) {
       setError("Error approving attendance");
@@ -113,148 +88,83 @@ const Attendance = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200 flex items-center justify-center p-6">
-      <div className="bg-white shadow-lg rounded-2xl p-8 max-w-4xl w-full">
-        <h1 className="text-4xl font-extrabold text-gradient mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-          Attendance Approval
-        </h1>
-
-        <div className="space-y-6">
-        <label className="block text-lg font-medium text-gray-700">Select Event</label>
-
-        {events.length > 0 ? (
-          <div className="space-y-4">
-            {events.map((event) => (
-              <div key={event._id} className="flex items-center">
-                <input
-                  type="radio"
-                  id={`event-${event._id}`}
-                  name="selectedEvent"
-                  value={event._id}
-                  checked={eventId === event._id}
-                  onChange={(e) => {
-                    setEventId(e.target.value);
-                    setAttendees([]); // Clear attendees
-                    setFetchClicked(false); // Reset fetchClicked
-                  }}
-                  className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                />
-
-                <label
-                  htmlFor={`event-${event._id}`}
-                  className="ml-3 text-lg font-medium text-gray-700"
-                >
-                  {event.name}
-                </label>
-              </div>
-            ))}
+    <div className="min-h-screen flex flex-col items-center p-6">
+      <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">
+        Attendance Approval
+      </h1>
+      <div className="flex w-full max-w-5xl gap-6">
+        <div className="bg-white shadow-lg rounded-2xl p-8 w-1/2">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Select Event</h2>
+          <div className="space-y-2">
+            {events.length > 0 ? (
+              events.map((event) => (
+                <div key={event._id} className="flex items-center space-x-3">
+                  <input
+                    type="radio"
+                    id={`event-${event._id}`}
+                    name="selectedEvent"
+                    value={event._id}
+                    checked={eventId === event._id}
+                    onChange={(e) => {
+                      setEventId(e.target.value);
+                      setAttendees([]);
+                      setFetchClicked(false);
+                    }}
+                    className="h-4 w-4 text-blue-600"
+                  />
+                  <label htmlFor={`event-${event._id}`} className="text-lg font-medium text-gray-700">
+                    {event.name}
+                  </label>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500">No events available</p>
+            )}
           </div>
-        ) : (
-          <p className="text-gray-500">No events available</p>
-        )}
-
-        {eventId && events.length > 0 && (
-          <p className="mt-2 text-lg font-medium text-gray-600">
-            Selected Event: {events.find((event) => event._id === eventId)?.name}
-          </p>
-        )}
-
-        {/* Only show the message after clicking the Fetch Attendees button */}
-        {fetchClicked && eventId && !loading && attendees.length === 0 && (
-          <p className="mt-4 text-red-500 text-center">Event doesn't have attendees</p>
-        )}
-
-        <button
-          onClick={fetchAttendees}
-          disabled={loading || !eventId}
-          className="w-full mt-6 py-3 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl shadow-lg hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 transition disabled:opacity-50"
-        >
-          {loading ? "Loading..." : "Fetch Attendees"}
-        </button>
-
-
-        {error && <p className="mt-4 text-red-500 text-center">{error}</p>}
+          <button
+            onClick={fetchAttendees}
+            disabled={loading || !eventId}
+            className="w-full py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50 mt-5"
+          >
+            {loading ? "Loading..." : "Fetch Attendees"}
+          </button>
+          {fetchClicked && attendees.length === 0 && (
+            <p className="text-red-500 mt-4">No attendees found</p>
+          )}
+        </div>
 
         {attendees.length > 0 && (
-          <div className="mt-8 p-6 bg-gradient-to-r from-indigo-100 to-pink-100 rounded-2xl shadow-lg">
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4">Event Attendees</h2>
-
-            <div className="grid grid-cols-3 gap-8">
-              <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Registered</h3>
-                <ul>
-                  {attendees.map((attendee) => (
-                    <li key={attendee.userId} className="text-lg flex items-center">
-                      {eventStatus === "ongoing" && !attendee.hasAttended && (
-                        <div
-                          onClick={() => handleCircleChange(attendee.userId)}
-                          className={`w-6 h-6 rounded-full border-2 mr-2 cursor-pointer ${
-                            selectedAttendees.includes(attendee.userId)
-                              ? "bg-blue-500 border-blue-500"
-                              : "border-gray-300"
-                          }`}
-                        />
-                      )}
-                      {eventStatus === "ongoing" && attendee.hasAttended && (
-                        <div
-                          className="w-6 h-6 rounded-full border-2 mr-2 cursor-not-allowed bg-gray-200"
-                        />
-                      )}
-                      {eventStatus === "done" && attendee.hasAttended && (
-                        <div
-                          className="w-6 h-6 rounded-full border-2 mr-2 cursor-not-allowed bg-gray-200"
-                        />
-                      )}
-                      <span className="ml-4">{attendee.firstName} {attendee.lastName}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Attended</h3>
-                <ul>
-                  {attendees
-                    .filter((attendee) => attendee.hasAttended)
-                    .map((attendee) => (
-                      <li key={attendee.userId} className="text-lg">
-                        {attendee.firstName} {attendee.lastName}
-                      </li>
-                    ))}
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Absent</h3>
-                {eventStatus === "done" ? (
-                  <ul>
-                    {attendees
-                      .filter((attendee) => !attendee.hasAttended)
-                      .map((attendee) => (
-                        <li key={attendee.userId} className="text-lg">
-                          {attendee.firstName} {attendee.lastName}
-                        </li>
-                      ))}
-                  </ul>
-                ) : (
-                  <p className="text-lg text-gray-500">Event not completed yet.</p>
-                )}
-              </div>
+          <div className="bg-white shadow-lg rounded-2xl p-8 w-1/2 flex flex-col justify-between h-full">
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">Event Attendees</h2>
+              <ul>
+                {attendees.map((attendee) => (
+                  <li key={attendee.userId} className="flex items-center space-x-3 text-lg">
+                    <div
+                      onClick={() => handleCircleChange(attendee.userId)}
+                      className={`w-6 h-6 rounded-full border-2 cursor-pointer ${
+                        selectedAttendees.includes(attendee.userId) ? "bg-blue-500" : "border-gray-300"
+                      }`}
+                    />
+                    <span>
+                      {attendee.firstName} {attendee.lastName}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
+            {selectedAttendees.length > 0 && (
+              <button
+                onClick={approveAttendance}
+                className="w-full mt-4 py-2 bg-green-500 text-white rounded-lg"
+              >
+                Approve Attendance
+              </button>
+            )}
           </div>
-        )}
-
-        {attendees.length > 0 && selectedAttendees.length > 0 && (
-          <button
-            onClick={approveAttendance}
-            className="w-full mt-6 py-3 px-6 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl shadow-lg hover:bg-gradient-to-r hover:from-green-600 hover:to-teal-600 transition"
-          >
-            Approve Attendance
-          </button>
         )}
       </div>
       <ToastContainer />
-    </div>
     </div>
   );
 };
