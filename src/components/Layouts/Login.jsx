@@ -45,16 +45,15 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen h-screen flex items-center justify-center bg-[#3a1078]">
-      <div className="bg-[#f7f7f8] flex rounded-3xl shadow-2xl overflow-hidden max-w-7xl w-full h-[80vh]">
-        {/* Left Side - Image Section */}
-        <div
-          className="w-1/2 bg-cover bg-center"
-          style={{ backgroundImage: `url(${logo})` }}
-        ></div>
+    <div className="min-h-screen h-screen flex items-center justify-center bg-[#3a1078] p-4">
+      <div className="bg-[#f7f7f8] flex flex-col md:flex-row rounded-3xl shadow-2xl overflow-hidden max-w-7xl w-full h-auto md:h-[80vh]">
+
+        <div className="w-full md:w-1/2 h-64 md:h-auto flex items-center justify-center bg-[#f7f7f8]">
+          <img src={logo} alt="Logo" className="max-w-full max-h-full" />
+        </div>
 
         {/* Right Side - Login Form */}
-        <div className="w-1/2 p-12 flex flex-col justify-center h-full">
+        <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center h-full">
           <h2 className="text-4xl font-bold text-[#3a1078] mb-8">Login</h2>
           <p className="text-lg text-gray-500 mb-8">
             Welcome back! Please login to your account.
@@ -73,7 +72,7 @@ const Login = () => {
                 }
                 placeholder="Enter your email"
                 required
-                className="mt-2 px-5 py-6 text-xl border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                className="mt-2 px-5 py-4 text-m border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
               />
             </div>
             <div className="flex flex-col">
@@ -89,12 +88,12 @@ const Login = () => {
                 }
                 placeholder="Enter your password"
                 required
-                className="mt-2 px-5 py-6 text-xl border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                className="mt-2 px-5 py-4 text-m border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
               />
             </div>
             <button
               type="submit"
-              className="w-full py-4 mt-6 font-bold bg-[#3a1078] text-white rounded-lg hover:bg-[#4e31aa] transition duration-300 text-lg"
+              className="w-full py-4 mt-6 font-bold bg-[#3a1078] text-white rounded-lg hover:bg-[#4e31aa] transition duration-300 text-m"
             >
               Login
             </button>
@@ -106,7 +105,7 @@ const Login = () => {
           </div>
           <button
             onClick={handleGoogleLogin}
-            className="w-full py-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 text-lg font-bold flex items-center justify-center"
+            className="w-full py-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 text-m font-bold flex items-center justify-center"
           >
             <FaGoogle className="w-6 h-6 mr-3" />
             Login with Google
