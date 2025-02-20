@@ -8,7 +8,7 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/" />;
   }
 
-  return children; // If authToken exists, render the children (protected routes)
+  return children; 
 }
 
 export default ProtectedRoute;
