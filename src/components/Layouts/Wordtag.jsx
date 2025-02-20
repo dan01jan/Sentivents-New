@@ -40,10 +40,19 @@ const Wordtag = () => {
     if (eventId) fetchComments(eventId);
   };
 
-  const words = comments.map((comment) => ({
-    text: comment.text,
-    value: Math.floor(Math.random() * 100) + 10,
-  }));
+  // Group similar comments
+  const processComments = (comments) => {
+    const commentMap = {};
+
+    comments.forEach((comment) => {
+      const text = comment.text.trim().toLowerCase(); // Normalize text
+      commentMap[text] = (commentMap[text] || 0) + 1; // Count occurrences
+    });
+
+    return Object.entries(commentMap).map(([text, value]) => ({ text, value }));
+  };
+
+  const words = processComments(comments);
 
   return (
     <div className="text-center my-6">
