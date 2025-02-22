@@ -73,14 +73,24 @@ const EventList = () => {
     const fetchEvents = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const response = await fetch(`${apiUrl}events/adminevents`, {
+        const userData = JSON.parse(localStorage.getItem("userData")); // Get user data
+        const organization = userData ? userData.organization : null; // Get organization (as a string)
+  
+        if (!organization) {
+          throw new Error("Organization not found in local storage");
+        }
+  
+        // Fetch events filtered by organization string
+        const response = await fetch(`${apiUrl}events/adminevents?userId=${userData.userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
+  
         if (!response.ok) {
           throw new Error("Failed to fetch events");
         }
+  
         const data = await response.json();
         setEvents(data);
         setFilteredEvents(data);
@@ -90,10 +100,10 @@ const EventList = () => {
         setLoading(false);
       }
     };
-
+  
     fetchEvents();
   }, []);
-
+  
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     const newFilter = { ...filter, [name]: value };
@@ -305,6 +315,9 @@ const EventList = () => {
                 <div className="px-4 py-4">
                   <div className="font-bold text-lg mb-2 truncate">
                     {event.name || "No Name"}
+                  </div>
+                  <div className="font-bold text-lg mb-2 truncate">
+                    {event.organization || "No Name"}
                   </div>
                   <p className="text-gray-700 text-sm mb-2 line-clamp-3">
                     {event.description || "No Description"}
