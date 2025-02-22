@@ -10,18 +10,28 @@ const CalendarComponent = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const navigate = useNavigate();
 
-  useEffect(() => {
+useEffect(() => {
     const fetchEvents = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const response = await fetch(`${apiUrl}events/adminevents`, {
+        const userData = JSON.parse(localStorage.getItem("userData")); // Get user data
+        const organization = userData ? userData.organization : null; // Get organization (as a string)
+  
+        if (!organization) {
+          throw new Error("Organization not found in local storage");
+        }
+  
+        // Fetch events filtered by organization string
+        const response = await fetch(`${apiUrl}events/adminevents?userId=${userData.userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
+  
         if (!response.ok) {
           throw new Error("Failed to fetch events");
         }
+  
         const data = await response.json();
         setEvents(data);
         setFilteredEvents(data);
@@ -31,7 +41,7 @@ const CalendarComponent = () => {
         setLoading(false);
       }
     };
-
+  
     fetchEvents();
   }, []);
 
@@ -80,12 +90,20 @@ const CalendarComponent = () => {
 
   const tileContent = ({ date, view }) => {
     if (view === "month") {
+      // Normalize the selected date to only have year, month, and date (no time)
+      const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  
       const dayEvents = events.filter((event) => {
         const eventStart = new Date(event.dateStart);
         const eventEnd = new Date(event.dateEnd);
-        return date >= eventStart && date <= eventEnd;
+  
+        // Normalize the event dates to remove time part
+        const normalizedEventStart = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate());
+        const normalizedEventEnd = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate());
+  
+        return normalizedDate >= normalizedEventStart && normalizedDate <= normalizedEventEnd;
       });
-
+  
       return dayEvents.length > 0 ? (
         <div>
           <ul className="list-disc list-inside text-left">
@@ -113,7 +131,7 @@ const CalendarComponent = () => {
   return (
     <div className="h-screen">
       <div className="py-4">
-        <p>TITLE</p>
+        <h1>CALENDAR OF EVENTS</h1>
       </div>
       {/* <h1 className="text-2xl font-bold text-center text-red-500 mb-6">
         Event Calendar
