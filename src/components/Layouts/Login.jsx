@@ -28,11 +28,13 @@ const Login = () => {
       const data = await response.json();
       localStorage.setItem("authToken", data.token);
       localStorage.setItem("userData", JSON.stringify(data.user));
+     
 
       if (data.user.isAdmin) {
         navigate("/dashboard/calendar");
       } else {
-        alert("You are not an admin.");
+        navigate("/");
+        window.location.reload();
       }
     } catch (error) {
       alert(error.message || "Something went wrong");
