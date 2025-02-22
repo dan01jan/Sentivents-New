@@ -21,8 +21,8 @@ function HomeScreen() {
           <div className="mb-10 text-2xl font-semibold text-white">
             An Event Management System with Sentiment Analysis
           </div>
-          <div className="p-2 border-2 border-double border-white rounded-lg">
-            <button className="px-9 py-4 bg-[#3a1078] text-white text-lg font-semibold rounded-lg hover:bg-[#2a0858] transition">
+          <div className="p-1 border-2 border-double border-white">
+            <button className="px-9 py-4 bg-[#3795bd] text-white text-lg font-semibold hover:bg-[#2a0858] transition">
               Download our App
             </button>
           </div>

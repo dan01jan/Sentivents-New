@@ -28,19 +28,19 @@ function Header({ isAdmin, user }) {
               onClick={() => navigate("/home")}
               className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer relative group"
             >
-              <span className="text-m font-tungsten font-semibold text-white">
+              <span className="text-m font-poppins font-semibold text-white">
                 HOME
               </span>
-              <div className="absolute left-0 bottom-0 w-full h-1 bg-[#3795bd] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
             </div>
             <div
               onClick={() => navigate("/events")}
               className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer relative group"
             >
-              <span className="text-m font-tungsten font-semibold text-white">
+              <span className="text-m font-poppins font-semibold text-white">
                 EVENTS
               </span>
-              <div className="absolute left-0 bottom-0 w-full h-1 bg-[#3795bd] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
             </div>
             <div
               onClick={() => navigate("/about")}
@@ -49,7 +49,7 @@ function Header({ isAdmin, user }) {
               <span className="text-m font-tungsten font-semibold text-white">
                 ABOUT
               </span>
-              <div className="absolute left-0 bottom-0 w-full h-1 bg-[#3795bd] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
             </div>
           </div>
         </div>
