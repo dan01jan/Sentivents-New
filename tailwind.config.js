@@ -11,6 +11,7 @@ export default {
         sans: ["Roboto", "sans-serif"], 
         tungsten: ["Tungsten-Bold", "sans-serif"],
         poppins: ["Poppins", "sans-serif"],
+        anton: ["Anton", "sans-serif"],
       },
       colors: {
         primary: "#f42c37",
