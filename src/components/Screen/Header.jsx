@@ -1,9 +1,12 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import logo from "../../assets/website/V_LightLogo.png";
-import hoverLogo from "../../assets/website/V_Logo.png"; 
+import hoverLogo from "../../assets/website/V_Logo.png"; // Import the hover logo
+import "./Header.css";
+import "../../index.css";
 
 function Header({ isAdmin, user }) {
-  console.log("User:", user); 
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
@@ -13,39 +16,51 @@ function Header({ isAdmin, user }) {
 
   return (
     <header className="bg-[#3a1078] shadow-md fixed top-0 left-0 w-full z-50">
-      <div className="container mx-auto flex justify-between items-center p-4">
-        <div className="flex items-center">
-          <a href="/" className="relative h-12 w-auto">
-            <img src={logo} alt="Logo" className="h-12 w-auto absolute opacity-100 transition-opacity duration-600 hover:opacity-0" />
-            <img src={hoverLogo} alt="Hover Logo" className="h-12 w-auto opacity-0 transition-opacity duration-600 hover:opacity-100" />
+      <div className="mx-5 flex justify-between items-center p-4">
+        <div className="flex items-center space-x-8">
+          <a href="/" className="logo-container">
+            <img src={logo} alt="Logo" className="h-12 w-auto logo" />
           </a>
+
+          {/* Nav items closer to the logo */}
+          <div className="hidden md:flex space-x-8 items-center">
+            <div
+              onClick={() => navigate("/home")}
+              className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer relative group"
+            >
+              <span className="text-m font-tungsten font-semibold text-white">
+                HOME
+              </span>
+              <div className="absolute left-0 bottom-0 w-full h-1 bg-[#3795bd] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+            </div>
+            <div
+              onClick={() => navigate("/events")}
+              className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer relative group"
+            >
+              <span className="text-m font-tungsten font-semibold text-white">
+                EVENTS
+              </span>
+              <div className="absolute left-0 bottom-0 w-full h-1 bg-[#3795bd] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+            </div>
+            <div
+              onClick={() => navigate("/about")}
+              className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer relative group"
+            >
+              <span className="text-m font-tungsten font-semibold text-white">
+                ABOUT
+              </span>
+              <div className="absolute left-0 bottom-0 w-full h-1 bg-[#3795bd] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+            </div>
+          </div>
         </div>
-        <nav className="hidden md:flex space-x-8 flex-grow justify-center items-center">
-          <a
-            href="/home"
-            className="text-lg font-semibold text-white hover:text-gray-500 transition"
-          >
-            Home
-          </a>
-          <a
-            href="/events"
-            className="text-lg font-semibold text-white hover:text-gray-500 transition"
-          >
-            Events
-          </a>
-          <a
-            href="/about"
-            className="text-lg font-semibold text-white hover:text-gray-500 transition"
-          >
-            About
-          </a>
-        </nav>
 
         {/* User Section */}
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="hidden md:flex items-center space-x-4 ">
           {user ? (
             <>
-              <span className="text-lg font-semibold text-white">Welcome, {user.name}</span>
+              <span className="text-lg font-semibold text-white">
+                Welcome, {user.name}
+              </span>
               <button
                 onClick={handleLogout}
                 className="px-4 py-2 bg-red-600 text-white text-lg font-semibold rounded-lg hover:bg-red-700 transition"
@@ -54,12 +69,12 @@ function Header({ isAdmin, user }) {
               </button>
             </>
           ) : (
-            <a
-              href="/login"
-              className="px-4 py-2 bg-[#f7f7f8] text-[#3a1078] text-lg font-semibold rounded-lg hover:bg-[#3795bd] transition"
+            <button
+              onClick={() => navigate("/login")}
+              className="px-5 py-1 font-tungsten font-semibold bg-gradient-to-r from-[#FF0000] to-[#b60202] text-white text-lg rounded-lg hover:from-[#b60202] hover:to-[#FF0000] transition"
             >
-              Sign In
-            </a>
+              SIGN IN
+            </button>
           )}
         </div>
 

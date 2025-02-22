@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import "./Calendar.css"; // Import the custom CSS file
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const CalendarComponent = () => {
@@ -46,9 +47,9 @@ const CalendarComponent = () => {
     });
 
     return filteredEvents.length > 0 ? (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
         {filteredEvents.map((event) => (
-          <div key={event._id} className="p-4 bg-white shadow-md rounded-lg">
+          <div key={event._id} className="p-4 bg-white shadow-md rounded-lg ">
             <div className="flex flex-wrap gap-2">
               {event.images && event.images.length > 0 ? (
                 <img
@@ -110,18 +111,37 @@ const CalendarComponent = () => {
   };
 
   return (
-    <div className="min-h-screen h-screen flex flex-col">
-      <h1 className="text-2xl font-bold text-center text-red-500 mb-6">
+    <div className="h-screen">
+      <div className="py-4">
+        <p>TITLE</p>
+      </div>
+      {/* <h1 className="text-2xl font-bold text-center text-red-500 mb-6">
         Event Calendar
       </h1>
-      <div className="flex flex-1">
+      <div className="flex flex-1 h-full max-h-1/2 ">
         <Calendar
           onChange={handleDateChange}
           value={selectedDate}
-          className="flex-1 border-2 border-gray-300 rounded-lg p-4"
+          className="flex-1 border-2 border-gray-300 rounded-lg p-4 "
           tileContent={tileContent}
         />
         <div className="flex-1 p-6">
+          <h2 className="text-xl font-semibold text-gray-700 mb-4">
+            Events on {selectedDate.toDateString()}:
+          </h2>
+          {renderEvents()}
+        </div>
+      </div> */}
+      <div className="grid grid-cols-2 w-full gap-4">
+        <div className="">
+        <Calendar
+            onChange={handleDateChange}
+            value={selectedDate}
+            className="border-2 border-gray-300 rounded-lg p-4 custom-calendar-width"
+            tileContent={tileContent}
+          />
+        </div>
+        <div className="">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">
             Events on {selectedDate.toDateString()}:
           </h2>

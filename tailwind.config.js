@@ -7,7 +7,12 @@ export default {
   darkMode: "class",
   theme: {
     extend: {
-      colors:{
+      fontFamily: {
+        sans: ["Roboto", "sans-serif"], 
+        tungsten: ["Tungsten-Bold", "sans-serif"],
+        poppins: ["Poppins", "sans-serif"],
+      },
+      colors: {
         primary: "#f42c37",
         secondary: "#f42c37",
         brandYellow: "#fdc62e",
@@ -15,9 +20,9 @@ export default {
         brandBlue: "#1376f4",
         brandWhite: "#eeeeee",
       },
-      container:{
+      container: {
         center: true,
-        padding:{
+        padding: {
           DEFAULT: '1rem',
           sm: '2rem',
           lg: '4rem',
