@@ -18,8 +18,8 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/");
-    windows.location.reload();
+    navigate("/login");
+    window.location.reload();
   };
 
   return (
