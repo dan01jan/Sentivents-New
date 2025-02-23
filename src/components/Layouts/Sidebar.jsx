@@ -19,7 +19,7 @@ const Sidebar = () => {
   const handleLogout = () => {
     localStorage.clear();
     navigate("/");
-    windows.location.reload(2);
+    windows.location.reload();
   };
 
   return (

@@ -23,6 +23,7 @@ import Loader from "./components/Loader";
 import HomeScreen from "./components/Screen/HomeScreen";
 import Header from "./components/Screen/Header";
 import Events from "./components/Screen/Events";
+import About from "./components/Screen/About";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -72,6 +73,7 @@ function AppContent({ loading, user }) {
               />
               <Route path="/login" element={<Login />} />
               <Route path="/events" element={<Events />} />
+              <Route path="/about" element={<About />} />
               <Route
                 path="/dashboard"
                 element={

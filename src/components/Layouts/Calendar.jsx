@@ -43,6 +43,9 @@ useEffect(() => {
     };
   
     fetchEvents();
+    const intervalId = setInterval(fetchEvents, 500); 
+
+    return () => clearInterval(intervalId); 
   }, []);
 
   const handleDateChange = (date) => {

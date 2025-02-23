@@ -11,7 +11,54 @@ import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { Link } from "react-router-dom";
 import "../Loader.jsx";
+import TUPLogo from "../../assets/website/TUP LOGO.png";
+import ACES from "../../assets/website/org/Association of Civil Engineering Students of TUP Taguig Campus(ACES).jpg";
+import ASE from "../../assets/website/org/Automotive Society of Engineering(ASE).jpg";
+import BSEEG from "../../assets/website/org/Bachelor of Science in Electrical Engineering Guild(BSEEG).jpg";
+import CYM from "../../assets/website/org/Catholic Youth Movement.jpg";
+import CBI from "../../assets/website/org/Christian Brotherhood International.png";
+import DSAITECH from "../../assets/website/org/D_Saitech.jpg";
+import DMMS from "../../assets/website/org/Die and Mould Maker Society-TUP Taguig(DMMS).jpg";
+import ELECMECHS from "../../assets/website/org/Electromechanics Society(EleMechS).jpg";
+import GREECS from "../../assets/website/org/Green Chemistry Society(GreeCS).jpg";
+import IECEP from "../../assets/website/org/Institute of Electronics Engineers of the Philippines-TUPT Student Chapter ( IECEP).jpg";
+import ICS from "../../assets/website/org/Instrumentation and Control Society-TUPT Student Chapter (ICS).jpg";
+import JPSME from "../../assets/website/org/Junior Philippine Society of Mechanical Engineers (JPSME).jpg";
+import JSHRAE from "../../assets/website/org/Junior Society of Heating, Refrigeration and Air Conditioning Engineers (JSHRAE).jpg";
+import LSTEP from "../../assets/website/org/LANI Scholars of Technology and Engineering Pioneers.jpg";
+import MTICF from "../../assets/website/org/Manila Technician Institute Christian Fellowship.jpg";
+import MTICS from "../../assets/website/org/Manila Technician Institute Computer Society (MTICS).jpg";
+import MRSP from "../../assets/website/org/Mechatronics and Robotics Society of the Philippines Taguig Student Chapter (MRSP).jpg";
+import PEERS from "../../assets/website/org/Peer Facilitator_s Group.jpg";
+import TEST from "../../assets/website/org/Technical Educators Society-TUP Taguig (TEST).jpg";
+import TSNT from "../../assets/website/org/TUP Taguig Society of Nondestructive Testing (TSNT).jpg";
+import TPLUSN from "../../assets/website/org/TUPT Positive Lifestyle Under the Son Network.jpg";
+
 const apiUrl = import.meta.env.VITE_API_URL;
+
+const orgImages = [
+  ACES,
+  ASE,
+  BSEEG,
+  CYM,
+  CBI,
+  DSAITECH,
+  DMMS,
+  ELECMECHS,
+  GREECS,
+  IECEP,
+  ICS,
+  JPSME,
+  JSHRAE,
+  LSTEP,
+  MTICF,
+  MTICS,
+  MRSP,
+  PEERS,
+  TEST,
+  TSNT,
+  TPLUSN,
+];
 
 function HomeScreen() {
   const [events, setEvents] = useState([]);
@@ -28,11 +75,11 @@ function HomeScreen() {
           },
         });
         if (!response.ok) {
-          throw new Error("Failed to fetch events");
+          throw new Error("There are no events available at the moment.");
         }
         const data = await response.json();
         const sortedEvents = data.sort(
-          (a, b) => new Date(b.date) - new Date(a.date)
+          (a, b) => new Date(b.dateStart) - new Date(a.dateStart)
         );
         setEvents(sortedEvents.slice(0, 3));
       } catch (error) {
@@ -43,6 +90,9 @@ function HomeScreen() {
     };
 
     fetchEvents();
+    const intervalId = setInterval(fetchEvents, 500);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const settings = {
@@ -66,6 +116,62 @@ function HomeScreen() {
           slidesToShow: 1,
           slidesToScroll: 1,
           dots: true,
+        },
+      },
+    ],
+  };
+
+  const CustomArrow = ({ className, style, onClick, direction }) => (
+    <div
+      className={`${className} ${
+        direction === "prev" ? "left-0" : "right-0"
+      } absolute cursor-pointer`}
+      style={{
+        ...style,
+        display: "flex",
+        width: "50px",
+        height: "100px",
+        backgroundColor: "rgba(0, 0, 0, 0.2)",
+        textAlign: "center",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: "10",
+        margin: "0 10px",
+      }}
+      onClick={onClick}
+    >
+      {direction === "prev" ? "<" : ">"}
+    </div>
+  );
+
+  const footerSliderSettings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 15,
+    slidesToScroll: 1,
+    prevArrow: <CustomArrow direction="prev" />,
+    nextArrow: <CustomArrow direction="next" />,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 3,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
         },
       },
     ],
@@ -100,7 +206,7 @@ function HomeScreen() {
       {/* Latest Events Section */}
       <section className="w-full h-[80vh] bg-[#f7f7f8] py-16 px-10">
         <div className="flex flex-col md:flex-row justify-between items-center py-10 px-10">
-          <h2 className="text-4xl tracking-wide font-anton">LATEST EVENTS</h2>
+          <h2 className="text-4xl tracking-wide font-anton">UPCOMING EVENTS</h2>
           <Link
             to="/events"
             className="mt-4 md:mt-0 px-6 py-2 text-black text-sm transition hover:text-[#3795bd] uppercase"
@@ -167,11 +273,11 @@ function HomeScreen() {
         )}
       </section>
       <section className="w-full min-h-[80vh] bg-[#ffffff] py-16 px-10 grid grid-cols-1 md:grid-cols-2 items-center">
-        <div className="flex justify-center md:justify-end mr-8">
+        <div className="flex justify-center items-center">
           <img
             src={logo}
             alt="About Us"
-            className="w-full max-w-[500px] h-[60vh]"
+            className="w-full max-w-[500px] h-auto md:h-[60vh] object-contain"
           />
         </div>
         <div className="text-center md:text-left max-w-[600px] mx-auto md:mx-0">
@@ -181,7 +287,7 @@ function HomeScreen() {
             </h2>
             <Link
               to="/about"
-              className="px-6 py-2 text-black text-sm transition hover:text-[#3795bd] uppercase"
+              className="py-2 text-black text-sm transition hover:text-[#3795bd] uppercase"
             >
               Go to About Page
             </Link>
@@ -214,8 +320,37 @@ function HomeScreen() {
         </div>
       </section>
 
-      <footer className="w-full bg-gray-800 py-20 text-center text-white">
-        <h2 className="text-2xl font-semibold">3rd screen</h2>
+      <section className="w-full bg-[#3a1078] py-5 px-5 text-center text-white">
+        <Slider {...footerSliderSettings}>
+          {orgImages.map((image, index) => (
+            <div key={index} className="flex flex-col items-center p-1">
+              {" "}
+              <img
+                src={image}
+                alt={`Organization ${index + 1}`}
+                className="w-20 h-20 rounded-full object-cover border-4 hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+          ))}
+        </Slider>
+      </section>
+
+      <footer className="w-full bg-[#ffffff] py-10 px-10 text-center text-gray-800 flex flex-col items-center gap-4">
+        <div className="flex justify-center items-center gap-4">
+          <img
+            src={logo}
+            alt="VOYS Logo"
+            className="h-12 w-auto"
+          />
+          <img
+            src={TUPLogo}
+            alt="TUP Logo"
+            className="h-12 w-auto"
+          />
+        </div>
+        <p className="text-sm">
+          &copy; 2024-2025. Empowering Events, Amplifying Voices — VOYS Event Management System
+        </p>
       </footer>
     </div>
   );
