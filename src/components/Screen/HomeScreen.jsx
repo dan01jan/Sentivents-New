@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import backgroundVideo from "../../assets/website/events.mp4";
+import logo from "../../assets/website/V_DarkerLogo.png";
+import teamMember1 from "../../assets/website/google-logo.png";
+import teamMember2 from "../../assets/website/google-logo.png";
+import teamMember3 from "../../assets/website/google-logo.png";
+import teamMember4 from "../../assets/website/google-logo.png";
 import "../../index.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { Link } from "react-router-dom";
 import "../Loader.jsx";
-
 const apiUrl = import.meta.env.VITE_API_URL;
 
 function HomeScreen() {
@@ -161,6 +165,53 @@ function HomeScreen() {
             ))}
           </Slider>
         )}
+      </section>
+      <section className="w-full min-h-[80vh] bg-[#ffffff] py-16 px-10 grid grid-cols-1 md:grid-cols-2 items-center">
+        <div className="flex justify-center md:justify-end mr-8">
+          <img
+            src={logo}
+            alt="About Us"
+            className="w-full max-w-[500px] h-[60vh]"
+          />
+        </div>
+        <div className="text-center md:text-left max-w-[600px] mx-auto md:mx-0">
+          <div className="flex justify-between items-center">
+            <h2 className="text-5xl font-anton text-black leading-tight uppercase">
+              About Us
+            </h2>
+            <Link
+              to="/about"
+              className="px-6 py-2 text-black text-sm transition hover:text-[#3795bd] uppercase"
+            >
+              Go to About Page
+            </Link>
+          </div>
+          <p className="text-black text-lg mt-2">
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Provident,
+            ullam nihil repudiandae consequuntur ducimus necessitatibus eveniet
+            velit eaque voluptatem pariatur aliquam, praesentium nostrum magnam
+            accusantium explicabo quae sint vero sed.
+          </p>
+          <h3 className="text-4xl font-anton text-black mb-8 uppercase mt-5">
+            Our Team
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[teamMember1, teamMember2, teamMember3, teamMember4].map(
+              (member, index) => (
+                <div key={index} className="flex flex-col items-center">
+                  <img
+                    src={member}
+                    alt={`Team Member ${index + 1}`}
+                    className="w-32 h-32 rounded-full object-cover border-4 border-[#3795bd] hover:scale-105 transition-transform duration-300"
+                  />
+                  <p className="text-black mt-4 font-semibold">
+                    Team Member {index + 1}
+                  </p>
+                </div>
+              )
+            )}
+          </div>
+        </div>
       </section>
 
       <footer className="w-full bg-gray-800 py-20 text-center text-white">
