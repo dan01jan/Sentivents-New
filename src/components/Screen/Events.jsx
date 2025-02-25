@@ -12,11 +12,15 @@ function Events() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [visibleEvents, setVisibleEvents] = useState(6); // Number of events to display initially
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    setIsLoggedIn(!!token);
+
     const fetchEvents = async () => {
+      if (!token) return;
       try {
-        const token = localStorage.getItem("authToken");
         const response = await fetch(`${apiUrl}events/`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -78,7 +82,13 @@ function Events() {
         </div>
       </div>
       <section className="w-auto h-auto flex flex-col justify-center items-center bg-[#f7f7f8] py-16">
-        {loading ? (
+        {!isLoggedIn ? (
+          <Link to="/login">
+            <button className="px-6 py-2 bg-[#3a1078] text-white text-lg font-semibold rounded hover:bg-[#2a0858] transition">
+              Login to View Events
+            </button>
+          </Link>
+        ) : loading ? (
           <p className="text-center text-lg">Loading...</p>
         ) : error ? (
           <p className="text-center text-red-500">{error}</p>
@@ -108,9 +118,7 @@ function Events() {
                         {event.type.eventType}
                       </strong>
                     ) : (
-                      <strong className="uppercase text-red-600">
-                        Unknown
-                      </strong>
+                      <strong className="uppercase text-red-600">Unknown</strong>
                     )}
                     <span className="mx-2 opacity-50">|</span>
                     <span className="text-gray-500 text-sm">

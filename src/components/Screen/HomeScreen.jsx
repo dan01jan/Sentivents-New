@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import backgroundVideo from "../../assets/website/events.mp4";
+import backgroundVideo from "../../assets/website/bg.mp4";
 import logo from "../../assets/website/V_DarkerLogo.png";
 import teamMember1 from "../../assets/website/google-logo.png";
 import teamMember2 from "../../assets/website/google-logo.png";
@@ -194,7 +194,7 @@ function HomeScreen() {
           </h2>
           <Link
             to="/events"
-            className="mt-4 md:mt-0 px-6 py-2 text-black text-sm transition hover:text-[#3795bd] uppercase"
+            className="mt-4 md:mt-0 px-6 py-2 text-[#3a1078] text-sm transition hover:text-[#3795bd] uppercase"
           >
             Go to Event Page
           </Link>
