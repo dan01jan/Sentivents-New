@@ -122,12 +122,7 @@ function HomeScreen() {
   };
 
   const CustomArrow = ({ className, style, onClick, direction }) => (
-    <div
-      
-      onClick={onClick}
-    >
-      {direction === "prev" ? "" : ""}
-    </div>
+    <div onClick={onClick}>{direction === "prev" ? "" : ""}</div>
   );
 
   const footerSliderSettings = {
@@ -194,7 +189,9 @@ function HomeScreen() {
       {/* Latest Events Section */}
       <section className="w-full h-[80vh] bg-[#f7f7f8] py-16 px-10">
         <div className="flex flex-col md:flex-row justify-between items-center py-10 px-10">
-          <h2 className="text-4xl tracking-wide font-anton">UPCOMING EVENTS</h2>
+          <h2 className="text-[6vh] font-tungsten text-[#3a1078] leading-tight uppercase">
+            UPCOMING EVENTS
+          </h2>
           <Link
             to="/events"
             className="mt-4 md:mt-0 px-6 py-2 text-black text-sm transition hover:text-[#3795bd] uppercase"
@@ -268,14 +265,14 @@ function HomeScreen() {
             className="w-full max-w-[500px] h-auto md:h-[60vh] object-contain"
           />
         </div>
-        <div className="text-center md:text-left max-w-[600px] mx-auto md:mx-0">
+        <div className="text-center md:text-left max-w-[700px] mx-auto md:mx-0">
           <div className="flex justify-between items-center">
-            <h2 className="text-5xl font-anton text-black leading-tight uppercase">
+            <h2 className="text-[6vh] font-tungsten text-[#3a1078] leading-tight uppercase">
               About Us
             </h2>
             <Link
               to="/about"
-              className="py-2 text-black text-sm transition hover:text-[#3795bd] uppercase"
+              className="py-2 text-[#3a1078] text-sm transition hover:text-[#3795bd] uppercase"
             >
               Go to About Page
             </Link>
@@ -286,23 +283,31 @@ function HomeScreen() {
             velit eaque voluptatem pariatur aliquam, praesentium nostrum magnam
             accusantium explicabo quae sint vero sed.
           </p>
-          <h3 className="text-4xl font-anton text-black mb-8 uppercase mt-5">
+          <h3 className="text-[6vh] font-tungsten text-[#3a1078] leading-tight uppercase mt-8">
             Our Team
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[teamMember1, teamMember2, teamMember3, teamMember4].map(
-              (member, index) => (
-                <div key={index} className="flex flex-col items-center">
-                  <img
-                    src={member}
-                    alt={`Team Member ${index + 1}`}
-                    className="w-32 h-32 rounded-full object-cover border-4 border-[#3795bd] hover:scale-105 transition-transform duration-300"
-                  />
-                  <p className="text-black mt-4 font-semibold">
-                    Team Member {index + 1}
-                  </p>
-                </div>
-              )
+              (member, index) => {
+                const names = [
+                  "Twinkle Ascano",
+                  "Danize Armyn Fadullo",
+                  "Ej Cezar Falogme",
+                  "John Paul Francisco",
+                ];
+                return (
+                  <div key={index} className="flex flex-col items-center">
+                    <img
+                      src={member}
+                      alt="team member"
+                      className="w-32 h-32 rounded-full object-cover border-4 border-[#3795bd] hover:scale-105 transition-transform duration-300"
+                    />
+                    <p className="text-black mt-4 font-semibold whitespace-nowrap overflow-hidden text-ellipsis">
+                      {names[index]}
+                    </p>
+                  </div>
+                );
+              }
             )}
           </div>
         </div>
