@@ -23,7 +23,7 @@ const Attendance = () => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${apiUrl}events/adminEvents`);
+        const response = await axios.get(`${apiUrl}events`);
         setEvents(response.data || []);
       } catch (err) {
         setError("Error fetching events");
@@ -41,10 +41,11 @@ const Attendance = () => {
     }
     setError("");
     setLoading(true);
-    setFetchClicked(true);
+    setFetchClicked(false); // Prevent early "No attendees found" message
     try {
       const response = await axios.get(`${apiUrl}attendance/getUsersByEvent/${eventId}`);
       const eventResponse = await axios.get(`${apiUrl}events/${eventId}`);
+
       setAttendees(response.data || []);
       setEventName(eventResponse.data.name);
       setEventStatus(new Date() > new Date(eventResponse.data.dateEnd) ? "done" : "ongoing");
@@ -52,6 +53,7 @@ const Attendance = () => {
       setError("Error fetching attendees");
     } finally {
       setLoading(false);
+      setFetchClicked(true); // Only show "No attendees found" after fetch completes
     }
   };
 
@@ -76,10 +78,27 @@ const Attendance = () => {
       await axios.put(`${apiUrl}attendance/updateUsersAttendance/${eventId}`, {
         attendees: attendeesToUpdate,
       });
-      
-      toast.success("Approved User Attendance");
+
+      // Show toast only once, with close button
+      toast.success("Approved User Attendance", {
+        autoClose: 3000,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true
+      });
+
+      // Update attendees list locally to reflect approval
+      setAttendees((prev) =>
+        prev.map((att) =>
+          selectedAttendees.includes(att.userId) ? { ...att, hasAttended: true } : att
+        )
+      );
+
+      // Reset selected attendees
+      setSelectedAttendees([]);
+
+      // Navigate after a delay
       setTimeout(() => navigate("/dashboard/attendance"), 3000);
-      fetchAttendees();
     } catch (err) {
       setError("Error approving attendance");
     } finally {
@@ -128,7 +147,7 @@ const Attendance = () => {
           >
             {loading ? "Loading..." : "Fetch Attendees"}
           </button>
-          {fetchClicked && attendees.length === 0 && (
+          {fetchClicked && !loading && attendees.length === 0 && (
             <p className="text-red-500 mt-4">No attendees found</p>
           )}
         </div>
@@ -147,7 +166,8 @@ const Attendance = () => {
                       }`}
                     />
                     <span>
-                      {attendee.firstName} {attendee.lastName}
+                      {attendee.firstName} {attendee.lastName}{" "}
+                      {attendee.hasAttended && <span className="text-green-600 font-bold">✔ Approved</span>}
                     </span>
                   </li>
                 ))}
