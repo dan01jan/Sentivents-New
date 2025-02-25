@@ -123,24 +123,10 @@ function HomeScreen() {
 
   const CustomArrow = ({ className, style, onClick, direction }) => (
     <div
-      className={`${className} ${
-        direction === "prev" ? "left-0" : "right-0"
-      } absolute cursor-pointer`}
-      style={{
-        ...style,
-        display: "flex",
-        width: "50px",
-        height: "100px",
-        backgroundColor: "rgba(0, 0, 0, 0.2)",
-        textAlign: "center",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: "10",
-        margin: "0 10px",
-      }}
+      
       onClick={onClick}
     >
-      {direction === "prev" ? "<" : ">"}
+      {direction === "prev" ? "" : ""}
     </div>
   );
 
@@ -150,6 +136,8 @@ function HomeScreen() {
     speed: 500,
     slidesToShow: 15,
     slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 1000,
     prevArrow: <CustomArrow direction="prev" />,
     nextArrow: <CustomArrow direction="next" />,
     responsive: [
@@ -226,7 +214,7 @@ function HomeScreen() {
                 key={event.id}
                 className="overflow-hidden transition-transform transform hover:scale-105 flex flex-col px-10"
               >
-                <div className="w-full h-[250px] flex items-center justify-center overflow-hidden">
+                <div className="w-full h-[300px] flex items-center justify-center overflow-hidden">
                   {event.images && event.images.length > 0 ? (
                     <img
                       src={event.images[0]}
@@ -337,19 +325,12 @@ function HomeScreen() {
 
       <footer className="w-full bg-[#ffffff] py-10 px-10 text-center text-gray-800 flex flex-col items-center gap-4">
         <div className="flex justify-center items-center gap-4">
-          <img
-            src={logo}
-            alt="VOYS Logo"
-            className="h-12 w-auto"
-          />
-          <img
-            src={TUPLogo}
-            alt="TUP Logo"
-            className="h-12 w-auto"
-          />
+          <img src={logo} alt="VOYS Logo" className="h-12 w-auto" />
+          <img src={TUPLogo} alt="TUP Logo" className="h-12 w-auto" />
         </div>
         <p className="text-sm">
-          &copy; 2024-2025. Empowering Events, Amplifying Voices — VOYS Event Management System
+          &copy; 2024-2025. Empowering Events, Amplifying Voices — VOYS Event
+          Management System
         </p>
       </footer>
     </div>

@@ -9,7 +9,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Roboto", "sans-serif"], 
-        tungsten: ["Tungsten-Bold", "sans-serif"],
+        tungsten: ["Tungsten", "sans-serif"],
         poppins: ["Poppins", "sans-serif"],
         anton: ["Anton", "sans-serif"],
       },
