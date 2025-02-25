@@ -13,16 +13,35 @@ const ViewReports = () => {
   const [eventSentiments, setEventSentiments] = useState([]);
   const [loading, setLoading] = useState(true);
   
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userInfo, setUserInfo] = useState(null); // Add state for storing user info
+
   const selectedEvent = localStorage.getItem('selectedEventId'); // or use context for selected event
 
   useEffect(() => {
     if (selectedEvent) {
       fetchData(selectedEvent);
+      fetchData1(selectedEvent);
     } else {
       console.error("No event selected.");
     }
   }, [selectedEvent]);
 
+  useEffect(() => {
+    console.log("Selected Event:", selectedEvent);
+    console.log("Selected User:", selectedUser);
+
+    if (selectedEvent) {
+      if (selectedUser === "All Users") {
+        console.log("Fetching data for all users");
+        fetchData1();
+      } else {
+        console.log("Fetching data for specific user:", selectedUser);
+        fetchUserRatings();
+      }
+    }
+  }, [selectedEvent, selectedUser]);
   const fetchData = async (eventId) => {
     try {
       console.log('Fetching data for event ID:', eventId);
@@ -33,10 +52,25 @@ const ViewReports = () => {
       setSentimentCounts(sentimentResponse.data);
 
       // Fetch aggregated ratings
-      const ratingsResponse = await axios.get(`${apiUrl}questionnaires/aggregated-ratings?eventId=${eventId}`);
-      console.log('Aggregated ratings data:', ratingsResponse.data);
-      setAggregatedRatings(ratingsResponse.data.aggregatedRatings);
+      // const ratingsResponse = await axios.get(`${apiUrl}questionnaires/aggregated-ratings?eventId=${eventId}`);
+      // console.log('Aggregated ratings data:', ratingsResponse.data);
+      // setAggregatedRatings(ratingsResponse.data.aggregatedRatings || []);
+      // const token = localStorage.getItem("authToken");
+      // const userInfos = ratingsResponse.data.users.map(async (userId) => {
+      //   const userResponse = await axios.get(`${apiUrl}users/${userId}`, {
+      //     headers: { Authorization: `Bearer ${token}` },
+      //   });
+      //   return {
+      //     userId,
+      //     name: `${userResponse.data.name} ${userResponse.data.surname}`,
+      //   };
+      // });
 
+      // // Wait for all user info to be fetched
+      // const usersWithNames = await Promise.all(userInfos);
+      // setUsers(usersWithNames); // Populate users with names
+      // console.log("sino kayo!", users)
+    
       // Fetch user sentiment details
       const sentimentsResponse = await axios.get(`${apiUrl}ratings/${eventId}?type=details`);
       console.log('User sentiment details:', sentimentsResponse.data);
@@ -53,6 +87,8 @@ const ViewReports = () => {
         console.log('No sentiments data found for this event.');
         setEventSentiments([]);
       }
+      setSelectedUser("All Users");
+
 
     } catch (error) {
       console.error("Error fetching data", error);
@@ -60,6 +96,80 @@ const ViewReports = () => {
       setLoading(false);
     }
   };
+
+  const fetchData1 = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (selectedEvent && token) {
+        const response = await axios.get(
+          `${apiUrl}questionnaires/aggregated-ratings`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            params: { eventId: selectedEvent }, // Only eventId for all users
+          }
+        );
+
+        console.log("Response data:", response.data);
+
+        if (response.data) {
+          setAggregatedRatings(response.data.aggregatedRatings || []); // Populate aggregated ratings for all users
+
+          // Fetch user info for each userId
+          const userInfos = response.data.users.map(async (userId) => {
+            const userResponse = await axios.get(`${apiUrl}users/${userId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            return {
+              userId,
+              name: `${userResponse.data.name} ${userResponse.data.surname}`,
+            };
+          });
+
+          // Wait for all user info to be fetched
+          const usersWithNames = await Promise.all(userInfos);
+          setUsers(usersWithNames); // Populate users with names
+          console.log("sino sino kayo", users)
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error.message);
+    }
+  };
+
+
+  const fetchUserRatings = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (selectedEvent && token) {
+        // Only include userId in params if selectedUser is set
+        const params = { eventId: selectedEvent };
+        if (selectedUser) {
+          params.userId = selectedUser;
+        }
+
+        const response = await axios.get(`${apiUrl}questionnaires/aggregated-ratings`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            params: params,
+          }
+        );
+
+        if (response.data) {
+          // Set aggregated ratings
+          setAggregatedRatings(response.data.aggregatedRatings || []);
+
+          // Set user info if available
+          if (response.data.userInfo) {
+            setUserInfo(response.data.userInfo);
+            console.log("User Info:", userInfo);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user-specific ratings:", error.message);
+    }
+  };
+
 
   if (loading) {
     return <div>Loading...</div>;
@@ -159,6 +269,22 @@ const ViewReports = () => {
         {/* Behavioral Ratings Bar Chart (Horizontal Bars) */}
         <div style={{ flex: 1, padding: '20px', border: '1px solid #ddd', borderRadius: '8px' }}>
           <h3 style={{ fontSize: '1.5rem', color: '#2c3e50' }}>Behavioral Ratings</h3>
+          <div style={{ marginBottom: '20px' }}>
+      <label htmlFor="userDropdown" style={{ fontWeight: 'bold', marginRight: '10px' }}>Select User:</label>
+      <select
+        id="userDropdown"
+        value={selectedUser || ''}
+        onChange={(e) => setSelectedUser(e.target.value)}
+        style={{ padding: '5px', borderRadius: '5px', border: '1px solid #ccc' }}
+      >
+        <option value="All Users">All Users</option>
+        {users.map((user) => (
+          <option key={user.userId} value={user.userId}>
+            {user.name}
+          </option>
+        ))}
+      </select>
+    </div>
           <Bar data={aggregatedRatingsChartData} options={behavioralChartOptions} />
         </div>
       </div>
@@ -205,8 +331,9 @@ const ViewReports = () => {
           <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
             {aggregatedRatings.map(rating => (
               <li key={rating.trait} style={{ padding: '5px 0', fontSize: '1rem' }}>
-                <span style={{ fontWeight: 'bold' }}>{rating.trait}:</span> {rating.averageRating} (Total Responses: {rating.totalResponses})
-              </li>
+                <span style={{ fontWeight: 'bold' }}>{rating.trait}:</span> {rating.averageRating} 
+                {selectedUser === "All Users" && ` (Total Responses: ${rating.totalResponses})`}
+                </li>
             ))}
           </ul>
         </div>

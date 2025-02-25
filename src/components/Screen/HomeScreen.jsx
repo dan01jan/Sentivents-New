@@ -69,7 +69,7 @@ function HomeScreen() {
     const fetchEvents = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const response = await fetch(`${apiUrl}events/adminevents`, {
+        const response = await fetch(`${apiUrl}events/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
