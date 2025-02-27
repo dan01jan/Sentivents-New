@@ -113,6 +113,12 @@ const Login = () => {
           >
             Forgot Password?
           </Link>
+          <Link
+            to="/register"
+            className="mt-4 text-center text-[#3a1078] hover:underline"
+          >
+            Not yet Registered? Create an Account
+          </Link>
         </div>
       </div>
     </div>
