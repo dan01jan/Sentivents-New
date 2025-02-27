@@ -56,6 +56,7 @@ const Pagination = ({ currentPage, totalPages, paginate }) => {
 
 const EventList = () => {
   const [events, setEvents] = useState([]);
+  const [user, setUser] = useState(null);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -74,36 +75,65 @@ const EventList = () => {
       try {
         const token = localStorage.getItem("authToken");
         const userData = JSON.parse(localStorage.getItem("userData")); // Get user data
-        const organization = userData ? userData.organization : null; // Get organization (as a string)
-  
-        if (!organization) {
-          throw new Error("Organization not found in local storage");
-        }
-  
-        // Fetch events filtered by organization string
-        const response = await fetch(`${apiUrl}events/adminevents?userId=${userData.userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-  
+
+        // Fetch events filtered by user ID
+        const response = await fetch(
+          `${apiUrl}events/adminevents?userId=${userData.userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
         if (!response.ok) {
           throw new Error("Failed to fetch events");
         }
-  
+
         const data = await response.json();
         setEvents(data);
         setFilteredEvents(data);
+
+        console.log("Fetched events:", data);
       } catch (error) {
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchEvents();
   }, []);
-  
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const userData = JSON.parse(localStorage.getItem("userData")); // Get user data
+
+        // Fetch user data
+        const response = await fetch(`${apiUrl}users/officer/${userData.userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user");
+        }
+
+        const data = await response.json();
+        setUser(data);
+
+        console.log("Logged in:", userData);
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     const newFilter = { ...filter, [name]: value };
@@ -227,7 +257,6 @@ const EventList = () => {
     setEventToDelete(null);
   };
 
-  // Group events if necessary
   const groupedEvents = groupByType
     ? groupEventsByType(filteredEvents)
     : { "No Grouping": filteredEvents };
@@ -317,7 +346,9 @@ const EventList = () => {
                     {event.name || "No Name"}
                   </div>
                   <div className="font-bold text-lg mb-2 truncate">
-                    {event.organization || "No Name"}
+                    {user && user.organization
+                      ? user.organization.name
+                      : "No Organization"}
                   </div>
                   <p className="text-gray-700 text-sm mb-2 line-clamp-3">
                     {event.description || "No Description"}
@@ -342,7 +373,7 @@ const EventList = () => {
 
                 <div className="px-4 py-2 flex justify-center items-center border-t border-gray-200">
                   {/* Action Buttons */}
-                  <div className="flex space-x-3 "> 
+                  <div className="flex space-x-3 ">
                     <button
                       onClick={() => handleUpdate(event)}
                       className="bg-yellow-200 text-yellow-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-yellow-300"

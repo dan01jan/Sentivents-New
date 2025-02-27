@@ -10,7 +10,7 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import "./Sidebar.css";
-import logo from "../../assets/website/V_LightLogo.png";
+import logo from "../../../assets/website/V_LightLogo.png";
 
 const Sidebar = () => {
   const navigate = useNavigate();

@@ -29,7 +29,7 @@ const Login = () => {
       localStorage.setItem("authToken", data.token);
       localStorage.setItem("userData", JSON.stringify(data.user));
 
-      if (data.user.isAdmin) {
+      if (data.user.isOfficer) {
         navigate("/dashboard/calendar");
       } else {
         navigate("/");

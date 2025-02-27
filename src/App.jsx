@@ -1,30 +1,43 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
-import Sidebar from "./components/Layouts/Sidebar";
-import Login from "./components/Layouts/Login";
-import EventList from "./components/Events/EventList";
-import EventCreate from "./components/Events/EventCreate";
-import Charts from "./components/Layouts/Charts";
-import Wordtag from "./components/Layouts/Wordtag";
-import Attendance from "./components/Layouts/Attendance";
-import CalendarComponent from "./components/Layouts/Calendar";
-import ProtectedRoute from "./ProtectedRoute";
-import EventUpdate from "./components/Events/EventUpdate";
-import EventModal from "./components/Events/EventModal";
-import CreateQuestionnaire from "./components/Events/CreateQuestionnaire";
-import ViewQuestionnaire from "./components/Events/ViewQuestionnaire";
-import ViewReports from "./components/Events/ViewReports";
-import AttendanceChart from "./components/Layouts/AttendanceChart";
-import ListTraits from "./components/Question/ListTraits";
-import ListQuestion from "./components/Question/ListQuestion";
-import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Loader from "./components/Loader";
-import HomeScreen from "./components/Screen/HomeScreen";
-import Header from "./components/Screen/Header";
-import Events from "./components/Screen/Events";
-import About from "./components/Screen/About";
+import ProtectedRoute from "./ProtectedRoute";
+import { ToastContainer } from "react-toastify";
+
+// Admin Dashboard
+import AttendanceChart from "./components/Officers/Dashboard/AttendanceChart";
+import Attendance from "./components/Officers/Dashboard/Attendance";
+import Sidebar from "./components/Officers/Dashboard/Sidebar";
+import Charts from "./components/Officers/Dashboard/Charts";
+import CalendarComponent from "./components/Officers/Dashboard/Calendar";
+import Wordtag from "./components/Officers/Dashboard/Wordtag";
+
+// Admin Events
+import CreateQuestionnaire from "./components/Officers/Events/CreateQuestionnaire";
+import EventList from "./components/Officers/Events/EventList";
+import EventCreate from "./components/Officers/Events/EventCreate";
+import EventModal from "./components/Officers/Events/EventModal";
+import EventUpdate from "./components/Officers/Events/EventUpdate";
+import ViewQuestionnaire from "./components/Officers/Events/ViewQuestionnaire";
+import ViewReports from "./components/Officers/Events/ViewReports";
+
+// Admin Question
+import ListTraits from "./components/Officers/Question/ListTraits";
+import ListQuestion from "./components/Officers/Question/ListQuestion";
+
+// Layouts
+import Login from "./components/Layouts/Login";
+import Loader from "./components/Layouts/Loader";
+import Header from "./components/Layouts/Header";
 import Register from "./components/Layouts/Register";
+
+// User 
+import HomeScreen from "./components/User/HomeScreen";
+import Events from "./components/User/Events";
+import About from "./components/User/About";
+import Organization from "./components/User/Organization";
+import OrgDetails from "./components/User/OrgDetails";
+
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -50,8 +63,9 @@ function App() {
 
 function AppContent({ loading, user }) {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith("/dashboard");
+  const isOfficerRoute = location.pathname.startsWith("/dashboard");
   const isLoginRoute = location.pathname === "/login";
+  const isRegisterRoute = location.pathname === "/register";
 
   return (
     <>
@@ -60,8 +74,8 @@ function AppContent({ loading, user }) {
         <Loader />
       ) : (
         <>
-          {!isAdminRoute && !isLoginRoute && <Header user={user} />}
-          <div className={!isAdminRoute && !isLoginRoute ? "mt-20" : ""}>
+          {!isOfficerRoute && !isLoginRoute && !isRegisterRoute && <Header user={user} />}
+          <div className={!isOfficerRoute && !isLoginRoute && !isRegisterRoute? "mt-20" : ""}>
             <Routes>
               <Route path="/" element={<HomeScreen />} />
               <Route
@@ -76,6 +90,8 @@ function AppContent({ loading, user }) {
               <Route path="/register" element={<Register />} />
               <Route path="/events" element={<Events />} />
               <Route path="/about" element={<About />} />
+              <Route path="/organization" element={<Organization />} />
+              <Route path="/organization/details" element={<OrgDetails />} />
               <Route
                 path="/dashboard"
                 element={

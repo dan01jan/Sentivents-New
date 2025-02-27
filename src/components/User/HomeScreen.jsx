@@ -10,7 +10,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { Link } from "react-router-dom";
-import "../Loader.jsx";
+import "../Layouts/Loader.jsx";
 import TUPLogo from "../../assets/website/TUP LOGO.png";
 import ACES from "../../assets/website/org/Association of Civil Engineering Students of TUP Taguig Campus(ACES).jpg";
 import ASE from "../../assets/website/org/Automotive Society of Engineering(ASE).jpg";

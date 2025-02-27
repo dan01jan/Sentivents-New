@@ -1,11 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/website/V_LightLogo.png";
-import hoverLogo from "../../assets/website/V_Logo.png"; // Import the hover logo
 import "./Header.css";
 import "../../index.css";
 
-function Header({ isAdmin, user }) {
+function Header({ isOfficer, user }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -39,6 +38,15 @@ function Header({ isAdmin, user }) {
             >
               <span className="text-sm font-medium text-white">
                 EVENTS
+              </span>
+              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+            </div>
+            <div
+              onClick={() => navigate("/organization")}
+              className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer relative group"
+            >
+              <span className="text-sm font-medium text-white">
+                ORGANIZATION
               </span>
               <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
             </div>
