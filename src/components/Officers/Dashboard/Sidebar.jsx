@@ -10,7 +10,7 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import "./Sidebar.css";
-import logo from "../../../assets/website/V_LightLogo.png";
+import logo from "../../../assets/website/V_DarkerLogo.png";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -23,15 +23,15 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-r from-pink-50 via-purple-100 to-blue-200">
+    <div className="flex h-screen bg-white">
       <aside
-        className={`bg-[#3A1078] rounded-tr-lg shadow-lg p-4 transition-all duration-300 ease-in-out ${
+        className={`bg-[#f7f7f8] rounded-tr-lg shadow-lg p-4 transition-all duration-300 ease-in-out ${
           isExpanded ? "w-60" : "w-20"
         } flex flex-col justify-between relative`}
       >
         <a
-          href="/dashboard/calendar"
-          className="flex items-center justify-center px-2 py-4 text-white rounded-lg"
+          href="/dashboard/"
+          className="flex items-center justify-center px-2 py-4 text-[#3a1078] rounded-lg"
         >
           <img
             src={logo}
@@ -47,7 +47,7 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/dashboard/wordtag"
-                className="flex items-center space-x-3 text-lg text-white font-bold hover:text-pink-500 transition duration-200 ease-in-out"
+                className="flex items-center space-x-3 text-lg text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out"
               >
                 <FaHome size={30} />
                 {isExpanded && <span>Dashboard</span>}
@@ -56,7 +56,7 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/dashboard/events"
-                className="flex items-center space-x-3 text-lg text-white font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-7"
+                className="flex items-center space-x-3 text-lg text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-7"
               >
                 <FaCalendarAlt size={30} />
                 {isExpanded && <span>Events</span>}
@@ -65,7 +65,7 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/dashboard/attendance"
-                className="flex items-center space-x-3 text-lg text-white font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-7"
+                className="flex items-center space-x-3 text-lg text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-7"
               >
                 <FaUserCheck size={30} />
                 {isExpanded && <span>Attendance</span>}
@@ -74,7 +74,7 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/dashboard/questions"
-                className="flex items-center space-x-3 text-lg text-white font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-7"
+                className="flex items-center space-x-3 text-lg text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-7"
               >
                 <FaQuestionCircle size={30} />
                 {isExpanded && <span>Questions</span>}

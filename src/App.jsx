@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoute from "./ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 
-// Admin Dashboard
+// Officer Dashboard
 import AttendanceChart from "./components/Officers/Dashboard/AttendanceChart";
 import Attendance from "./components/Officers/Dashboard/Attendance";
 import Sidebar from "./components/Officers/Dashboard/Sidebar";
@@ -12,7 +12,7 @@ import Charts from "./components/Officers/Dashboard/Charts";
 import CalendarComponent from "./components/Officers/Dashboard/Calendar";
 import Wordtag from "./components/Officers/Dashboard/Wordtag";
 
-// Admin Events
+// Officer Events
 import CreateQuestionnaire from "./components/Officers/Events/CreateQuestionnaire";
 import EventList from "./components/Officers/Events/EventList";
 import EventCreate from "./components/Officers/Events/EventCreate";
@@ -21,7 +21,7 @@ import EventUpdate from "./components/Officers/Events/EventUpdate";
 import ViewQuestionnaire from "./components/Officers/Events/ViewQuestionnaire";
 import ViewReports from "./components/Officers/Events/ViewReports";
 
-// Admin Question
+// Officer Question
 import ListTraits from "./components/Officers/Question/ListTraits";
 import ListQuestion from "./components/Officers/Question/ListQuestion";
 
@@ -37,6 +37,7 @@ import Events from "./components/User/Events";
 import About from "./components/User/About";
 import Organization from "./components/User/Organization";
 import OrgDetails from "./components/User/OrgDetails";
+import Home from "./components/Officers/Dashboard/Home";
 
 
 function App() {
@@ -105,6 +106,14 @@ function AppContent({ loading, user }) {
                   element={
                     <ProtectedRoute>
                       <EventList />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path=""
+                  element={
+                    <ProtectedRoute>
+                      <Home />
                     </ProtectedRoute>
                   }
                 />
