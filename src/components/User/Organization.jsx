@@ -22,9 +22,7 @@ function Organization() {
           },
         });
         if (!response.ok) {
-          throw new Error(
-            "There are no organizations available at the moment."
-          );
+          throw new Error("There are no organizations available at the moment.");
         }
         const data = await response.json();
         console.log("Fetched organizations data:", data);
@@ -65,8 +63,8 @@ function Organization() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 w-full max-w-[150vh] px-5">
           {organizations.map((org) => (
             <Link
-              to={`/organization/details/${org.id}`}
-              key={org.id}
+              to={`/organization/${org._id}`} // Fix: Use org._id instead of org.id
+              key={org._id} // Fix: Use org._id instead of org.id
               className="max-w-sm w-full shadow-lg"
             >
               <div className="relative bg-white shadow-md rounded-lg overflow-hidden">

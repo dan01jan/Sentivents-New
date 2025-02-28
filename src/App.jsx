@@ -92,7 +92,7 @@ function AppContent({ loading, user }) {
               <Route path="/events" element={<Events />} />
               <Route path="/about" element={<About />} />
               <Route path="/organization" element={<Organization />} />
-              <Route path="/organization/details" element={<OrgDetails />} />
+              <Route path="/organization/:id" element={<OrgDetails />} />
               <Route
                 path="/dashboard"
                 element={
