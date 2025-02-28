@@ -13,6 +13,8 @@ function Home() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [userOrganizationName, setUserOrganizationName] = useState("");
+  const [userName, setUserName] = useState("");
+
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -52,6 +54,14 @@ function Home() {
     };
 
     fetchEvents();
+  }, []);
+
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (userData && userData.organizationName && userData.name) {
+      setUserOrganizationName(userData.organizationName);
+      setUserName(userData.name); // Set the organization name from localStorage
+    }
   }, []);
 
   const handleDateChange = (date) => {
@@ -161,12 +171,12 @@ function Home() {
     <>
       <div className="h-[10vh] w-full bg-[#3a1078] rounded-full flex items-center justify-between shadow-lg px-10">
         <p className="text-white text-[50px] font-bold tracking-wide uppercase">
-          Organization Name Dashboard
+          {userOrganizationName ? `${userOrganizationName} Dashboard` : "Organization Dashboard"}
         </p>
 
         <div className="flex items-center gap-4">
           <p className="text-white text-[25px] font-bold tracking-wide">
-            Welcome, Ej
+            Welcome, {userName ? `${userName}` : "Officer"}
           </p>
           <img
             src={logo}
