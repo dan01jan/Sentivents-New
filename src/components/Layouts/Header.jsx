@@ -27,19 +27,16 @@ function Header({ isOfficer, user }) {
               onClick={() => navigate("/home")}
               className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer relative group"
             >
-              <span className="text-sm  font-medium text-white ">
-                HOME
-              </span>
-              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+              <span className="text-sm font-medium text-white">HOME</span>
+              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </div>
+
             <div
               onClick={() => navigate("/events")}
               className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer relative group"
             >
-              <span className="text-sm font-medium text-white">
-                EVENTS
-              </span>
-              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+              <span className="text-sm font-medium text-white">EVENTS</span>
+              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </div>
             <div
               onClick={() => navigate("/organization")}
@@ -48,16 +45,14 @@ function Header({ isOfficer, user }) {
               <span className="text-sm font-medium text-white">
                 ORGANIZATION
               </span>
-              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </div>
             <div
               onClick={() => navigate("/about")}
               className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer relative group"
             >
-              <span className="text-sm font-medium text-white">
-                ABOUT
-              </span>
-              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+              <span className="text-sm font-medium text-white">ABOUT</span>
+              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </div>
           </div>
         </div>
