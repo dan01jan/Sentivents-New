@@ -11,35 +11,34 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const response = await fetch(`${apiUrl}users/weblogin`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
       });
-
-      if (!response.ok) {
-        throw new Error("Invalid credentials");
-      }
-
+  
+      if (!response.ok) throw new Error("Invalid credentials");
+  
       const data = await response.json();
       localStorage.setItem("authToken", data.token);
-      localStorage.setItem("userData", JSON.stringify(data.user));
-
-      if (data.user.isOfficer) {
-        navigate("/dashboard/calendar");
-      } else {
-        navigate("/");
-        window.location.reload();
-      }
+      localStorage.setItem(
+        "userData",
+        JSON.stringify({
+          ...data.user,
+          organizationId: data.user.organizationId,
+          organizationName: data.user.organizationName,
+        })
+      );
+  
+      navigate(data.user.isOfficer ? "/dashboard/" : "/");
+      window.location.reload();
     } catch (error) {
       alert(error.message || "Something went wrong");
     }
   };
-
+  
   const handleGoogleLogin = () => {
     alert("Google login not implemented yet");
   };

@@ -49,7 +49,7 @@ const EventCreate = () => {
     if (userData) {
       setFormData((prevData) => ({
         ...prevData,
-        organization: userData.organization || "",
+        organization: userData.organizationName || "",
         department: userData.department || "",
         userId: userData.userId || "",
       }));

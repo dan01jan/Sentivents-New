@@ -8,45 +8,50 @@ const apiUrl = import.meta.env.VITE_API_URL;
 const CalendarComponent = () => {
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [loading, setLoading] = useState(true);
+  const [userOrganizationName, setUserOrganizationName] = useState("");
   const navigate = useNavigate();
 
-useEffect(() => {
+  useEffect(() => {
     const fetchEvents = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const userData = JSON.parse(localStorage.getItem("userData")); // Get user data
-        const organization = userData ? userData.organization : null; // Get organization (as a string)
-  
-        if (!organization) {
-          throw new Error("Organization not found in local storage");
+        const userData = JSON.parse(localStorage.getItem("userData"));
+
+        if (!userData || !userData.organizationName) {
+          throw new Error("Organization name not found in user data.");
         }
-  
-        // Fetch events filtered by organization string
-        const response = await fetch(`${apiUrl}events/adminevents?userId=${userData.userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-  
+
+        const organizationName = userData.organizationName;
+        setUserOrganizationName(organizationName);
+
+        const response = await fetch(
+          `${apiUrl}events/adminevents?organization=${organizationName}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
         if (!response.ok) {
           throw new Error("Failed to fetch events");
         }
-  
+
         const data = await response.json();
         setEvents(data);
         setFilteredEvents(data);
+
       } catch (error) {
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchEvents();
-    const intervalId = setInterval(fetchEvents, 500); 
 
-    return () => clearInterval(intervalId); 
+    fetchEvents();
   }, []);
+  
 
   const handleDateChange = (date) => {
     setSelectedDate(date);

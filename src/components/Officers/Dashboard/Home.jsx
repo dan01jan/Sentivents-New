@@ -11,21 +11,24 @@ function Home() {
   const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [userOrganizationName, setUserOrganizationName] = useState("");
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const userData = JSON.parse(localStorage.getItem("userData")); // Get user data
-        const organization = userData ? userData.organization : null; // Get organization (as a string)
+        const userData = JSON.parse(localStorage.getItem("userData"));
 
-        if (!organization) {
-          throw new Error("Organization not found in local storage");
+        if (!userData || !userData.organizationName) {
+          throw new Error("Organization name not found in user data.");
         }
 
-        // Fetch events filtered by organization string
+        const organizationName = userData.organizationName;
+        setUserOrganizationName(organizationName);
+
         const response = await fetch(
-          `${apiUrl}events/adminevents?userId=${userData.userId}`,
+          `${apiUrl}events/adminevents?organization=${organizationName}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -40,6 +43,7 @@ function Home() {
         const data = await response.json();
         setEvents(data);
         setFilteredEvents(data);
+
       } catch (error) {
         setError(error.message);
       } finally {
@@ -48,9 +52,6 @@ function Home() {
     };
 
     fetchEvents();
-    const intervalId = setInterval(fetchEvents, 500);
-
-    return () => clearInterval(intervalId);
   }, []);
 
   const handleDateChange = (date) => {
@@ -61,13 +62,19 @@ function Home() {
     const filteredEvents = events.filter((event) => {
       const eventStart = new Date(event.dateStart);
       const eventEnd = new Date(event.dateEnd);
-      return selectedDate >= eventStart && selectedDate <= eventEnd;
+      const normalizedSelectedDate = new Date(selectedDate.setHours(0, 0, 0, 0));
+  
+      // Normalize event dates (set to midnight for comparison)
+      const normalizedEventStart = new Date(eventStart.setHours(0, 0, 0, 0));
+      const normalizedEventEnd = new Date(eventEnd.setHours(0, 0, 0, 0));
+  
+      return normalizedSelectedDate >= normalizedEventStart && normalizedSelectedDate <= normalizedEventEnd;
     });
-
+  
     return filteredEvents.length > 0 ? (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredEvents.map((event) => (
-          <div key={event._id} className="p-4 bg-white shadow-md rounded-lg ">
+          <div key={event._id} className="p-4 bg-white shadow-md rounded-lg">
             <div className="flex flex-wrap gap-2">
               {event.images && event.images.length > 0 ? (
                 <img
@@ -82,11 +89,9 @@ function Home() {
             <h3 className="text-lg font-semibold mt-2">{event.name}</h3>
             <p className="text-gray-600">{event.description}</p>
             <p className="text-sm text-gray-500">
-              <strong>Start:</strong>{" "}
-              {new Date(event.dateStart).toLocaleDateString()}
+              <strong>Start:</strong> {new Date(event.dateStart).toLocaleDateString()}
               <br />
-              <strong>End:</strong>{" "}
-              {new Date(event.dateEnd).toLocaleDateString()}
+              <strong>End:</strong> {new Date(event.dateEnd).toLocaleDateString()}
             </p>
           </div>
         ))}
@@ -95,6 +100,7 @@ function Home() {
       <p className="text-gray-500">No events on this day.</p>
     );
   };
+  
 
   const tileContent = ({ date, view }) => {
     if (view === "month") {

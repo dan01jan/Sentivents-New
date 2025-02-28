@@ -63,6 +63,7 @@ const EventList = () => {
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 6;
+  const [userOrganizationName, setUserOrganizationName] = useState("");
   const [filter, setFilter] = useState({ type: "", date: "" });
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -74,11 +75,17 @@ const EventList = () => {
     const fetchEvents = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const userData = JSON.parse(localStorage.getItem("userData")); // Get user data
+        const userData = JSON.parse(localStorage.getItem("userData"));
 
-        // Fetch events filtered by user ID
+        if (!userData || !userData.organizationName) {
+          throw new Error("Organization name not found in user data.");
+        }
+
+        const organizationName = userData.organizationName;
+        setUserOrganizationName(organizationName);
+
         const response = await fetch(
-          `${apiUrl}events/adminevents?userId=${userData.userId}`,
+          `${apiUrl}events/adminevents?organization=${organizationName}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -94,7 +101,6 @@ const EventList = () => {
         setEvents(data);
         setFilteredEvents(data);
 
-        console.log("Fetched events:", data);
       } catch (error) {
         setError(error.message);
       } finally {
