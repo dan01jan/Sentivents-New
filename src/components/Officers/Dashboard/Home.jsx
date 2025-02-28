@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./Calendar.css"; //
+
 const apiUrl = import.meta.env.VITE_API_URL;
 
 function Home() {
