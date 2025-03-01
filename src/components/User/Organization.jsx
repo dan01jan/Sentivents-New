@@ -83,11 +83,12 @@ function Organization() {
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 w-full max-w-[150vh] px-5 pb-10">
-          {organizations.map((org) => (
+        {organizations.map((org) => (
             <Link
               to={`/organization/${org._id}`}
               key={org._id}
               className="max-w-sm w-full shadow-lg"
+              onClick={() => localStorage.setItem("selectedOrgId", org._id)}
             >
               <div className="relative bg-white shadow-md rounded-lg overflow-hidden">
                 <img
@@ -102,6 +103,7 @@ function Organization() {
               </div>
             </Link>
           ))}
+
         </div>
       </div>
       <footer className="w-full bg-[#ffffff] py-10 px-10 text-center text-gray-800 flex flex-col items-center gap-4">

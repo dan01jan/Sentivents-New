@@ -11,43 +11,53 @@ function OrgDetails() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchOrganizations = async () => {
+    const fetchOrganization = async () => {
       try {
-        const userData = JSON.parse(localStorage.getItem("userData"));
-
-        if (!userData || !userData.organizationId) {
-          throw new Error("Organization id not found in user data.");
+        const organizationId = localStorage.getItem("selectedOrgId");
+    
+        if (!organizationId) {
+          throw new Error("Organization ID not found in local storage.");
         }
-
-        const organizationId = userData.organizationId;
+    
+        console.log("Fetching organization with ID:", organizationId);
+        
         setOrgId(organizationId);
-
-        const token = localStorage.getItem("authToken");
-
-        const response = await fetch(
-          `${apiUrl}/organization/${organizationId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+    
+        // Get token from local storage or cookie
+        const token = localStorage.getItem("authToken");  // Replace with your actual method for getting the token
+    
+        const response = await fetch(`${apiUrl}organizations/${organizationId}`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`, // Include the token here
+            "Content-Type": "application/json"
           }
-        );
-
+        });
+    
+        console.log("Response status:", response.status);
+    
         if (!response.ok) {
-          throw new Error("Failed to fetch organization details");
+          const errorResponse = await response.json();
+          throw new Error(errorResponse.message || "Failed to fetch organization details");
         }
-
+    
         const data = await response.json();
+        console.log("Fetched organization data:", data);
+    
         setOrgDetails(data);
       } catch (error) {
+        console.error("Error fetching organization:", error);
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
+    
 
-    fetchOrganizations();
+    fetchOrganization();
   }, []);
+  
+  
 
   if (loading) {
     return <div>Loading...</div>;
