@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import bgplain1 from "../../assets/website/bg_plain.png";
 import logo from "../../assets/website/V_DarkerLogo.png";
 import TUPLogo from "../../assets/website/TUP logo.png";
+import Loader from "../Layouts/Loader.jsx"
 const apiUrl = import.meta.env.VITE_API_URL;
 
 function Organization() {
@@ -14,7 +15,7 @@ function Organization() {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     setIsLoggedIn(!!token);
-
+    
     const fetchOrganizations = async () => {
       if (!token) return;
       try {
@@ -27,7 +28,7 @@ function Organization() {
           throw new Error("There are no organizations available at the moment.");
         }
         const data = await response.json();
-        console.log("Fetched organizations data:", data);
+        console.log("Fetched organizations data:", data);   
         setOrganizations(data);
       } catch (error) {
         setError(error.message);
@@ -61,7 +62,7 @@ function Organization() {
   }
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <Loader />
   }
 
   if (error) {
