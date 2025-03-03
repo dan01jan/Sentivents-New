@@ -5,6 +5,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import logo from "../../assets/website/v_darkerlogo.png";
+import Loader from "../Layouts/Loader.jsx";
+
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const Register = () => {
@@ -325,6 +327,7 @@ const Register = () => {
         </div>
       </div>
       <ToastContainer />
+      {loading && <Loader />}
     </div>
   );
 };

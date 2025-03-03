@@ -2,25 +2,28 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import logo from "../../assets/website/v_darkerlogo.png";
 import { FaGoogle } from "react-icons/fa";
+import Loader from "../Layouts/Loader.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false); // Add loading state
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    setLoading(true); // Set loading to true when form is submitted
+
     try {
       const response = await fetch(`${apiUrl}users/weblogin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
       });
-  
+
       if (!response.ok) throw new Error("Invalid credentials");
-  
+
       const data = await response.json();
       localStorage.setItem("authToken", data.token);
       localStorage.setItem(
@@ -31,14 +34,22 @@ const Login = () => {
           organizationName: data.user.organizationName,
         })
       );
-  
-      navigate(data.user.isOfficer ? "/dashboard/" : "/");
+
+      if (data.user.isAdmin) {
+        navigate("/admin");
+      } else if (data.user.isOfficer) {
+        navigate("/dashboard");
+      } else {
+        navigate("/");
+      }
       window.location.reload();
     } catch (error) {
       alert(error.message || "Something went wrong");
+    } finally {
+      setLoading(false); // Set loading to false after the request is complete
     }
   };
-  
+
   const handleGoogleLogin = () => {
     alert("Google login not implemented yet");
   };
@@ -49,8 +60,6 @@ const Login = () => {
         <div className="w-full md:w-1/2 h-64 md:h-auto flex items-center justify-center bg-[#f7f7f8]">
           <img src={logo} alt="Logo" className="max-w-full max-h-full" />
         </div>
-
-        {/* Right Side - Login Form */}
         <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center h-full">
           <h2 className="text-4xl font-bold text-[#3a1078] mb-4">
             Welcome to VOYS!
@@ -115,11 +124,13 @@ const Login = () => {
           <Link
             to="/register"
             className="mt-4 text-center text-[#3a1078] hover:underline"
+            onClick={() => setLoading(true)} // Set loading to true when "Register" is clicked
           >
             Not yet Registered? Create an Account
           </Link>
         </div>
       </div>
+      {loading && <Loader />}
     </div>
   );
 };

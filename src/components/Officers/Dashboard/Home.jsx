@@ -60,7 +60,7 @@ function Home() {
     const userData = JSON.parse(localStorage.getItem("userData"));
     if (userData && userData.organizationName && userData.name) {
       setUserOrganizationName(userData.organizationName);
-      setUserName(userData.name); // Set the organization name from localStorage
+      setUserName(userData.name); 
     }
   }, []);
 

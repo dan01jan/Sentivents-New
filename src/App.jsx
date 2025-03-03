@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoute from "./ProtectedRoute";
+import ProtectedAdminRoute from "./ProtectedAdminRoute";
 import { ToastContainer } from "react-toastify";
 
 // Officer Dashboard
@@ -31,7 +37,7 @@ import Loader from "./components/Layouts/Loader";
 import Header from "./components/Layouts/Header";
 import Register from "./components/Layouts/Register";
 
-// User 
+// User
 import HomeScreen from "./components/User/HomeScreen";
 import Events from "./components/User/Events";
 import About from "./components/User/About";
@@ -39,6 +45,9 @@ import Organization from "./components/User/Organization";
 import OrgDetails from "./components/User/OrgDetails";
 import Home from "./components/Officers/Dashboard/Home";
 
+// Admin
+import AdminDashboard from "./components/Admin/Dashboard/AdminDashboard";
+import AdminSidebar from "./components/Admin/Dashboard/AdminSidebar";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -67,6 +76,7 @@ function AppContent({ loading, user }) {
   const isOfficerRoute = location.pathname.startsWith("/dashboard");
   const isLoginRoute = location.pathname === "/login";
   const isRegisterRoute = location.pathname === "/register";
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
   return (
     <>
@@ -75,8 +85,20 @@ function AppContent({ loading, user }) {
         <Loader />
       ) : (
         <>
-          {!isOfficerRoute && !isLoginRoute && !isRegisterRoute && <Header user={user} />}
-          <div className={!isOfficerRoute && !isLoginRoute && !isRegisterRoute? "mt-20" : ""}>
+          {!isOfficerRoute &&
+            !isLoginRoute &&
+            !isRegisterRoute &&
+            !isAdminRoute && <Header user={user} />}
+          <div
+            className={
+              !isOfficerRoute &&
+              !isLoginRoute &&
+              !isRegisterRoute &&
+              !isAdminRoute
+                ? "mt-20"
+                : ""
+            }
+          >
             <Routes>
               <Route path="/" element={<HomeScreen />} />
               <Route
@@ -219,6 +241,23 @@ function AppContent({ loading, user }) {
                     <ProtectedRoute>
                       <ListQuestion />
                     </ProtectedRoute>
+                  }
+                />
+              </Route>
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminSidebar />
+                  </ProtectedAdminRoute>
+                }
+              >
+                <Route
+                  path="admindashboard"
+                  element={
+                    <ProtectedAdminRoute>
+                      <AdminDashboard />
+                    </ProtectedAdminRoute>
                   }
                 />
               </Route>
