@@ -9,6 +9,8 @@ import {
   FaArrowRight,
   FaSignOutAlt,
 } from "react-icons/fa";
+import { RiTeamFill } from "react-icons/ri";
+import { IoMdAnalytics } from "react-icons/io";
 import logo from "../../../assets/website/V_DarkerLogo.png";
 
 const AdminSideBar = () => {
@@ -81,7 +83,7 @@ const AdminSideBar = () => {
                 to="/admin/organization"
                 className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
               >
-                <FaUserCheck size={40} />
+                <RiTeamFill  size={40} />
                 {isExpanded && <span>Organization</span>}
               </Link>
             </li>
@@ -90,7 +92,7 @@ const AdminSideBar = () => {
                 to="/admin/"
                 className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
               >
-                <FaQuestionCircle size={40} />
+                <IoMdAnalytics size={40} />
                 {isExpanded && <span>Analysis</span>}
               </Link>
             </li>
