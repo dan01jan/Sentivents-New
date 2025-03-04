@@ -78,7 +78,7 @@ const AdminSideBar = () => {
             </li>
             <li>
               <Link
-                to="/admin/"
+                to="/admin/organization"
                 className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
               >
                 <FaUserCheck size={40} />
@@ -114,8 +114,7 @@ const AdminSideBar = () => {
             {userData && (
               <>
                 <span className="text-[#3a1078] font-bold uppercase">
-                  {userData.name}
-                  {userData.surname}
+                  {userData.name} {userData.surname}
                 </span>
                 <img
                   src={userData.image}

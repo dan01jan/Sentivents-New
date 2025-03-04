@@ -6,6 +6,8 @@ function AdminDashboard() {
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedOrg, setSelectedOrg] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -37,6 +39,16 @@ function AdminDashboard() {
 
     return () => clearInterval(intervalId);
   }, []);
+
+  const handleViewClick = (org) => {
+    setSelectedOrg(org);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrg(null);
+  };
 
   return (
     <div className="flex flex-col px-10">
@@ -90,7 +102,10 @@ function AdminDashboard() {
                       <p className="text-gray-600 text-sm">{org.description}</p>
                     </td>
                     <td className="p-5">
-                      <button className="bg-[#3a1078] text-white px-4 py-2 rounded-lg hover:bg-[#2a0d5e] transition">
+                      <button
+                        className="bg-[#3a1078] text-white px-4 py-2 rounded-lg hover:bg-[#2a0d5e] transition"
+                        onClick={() => handleViewClick(org)}
+                      >
                         <FaEye />
                       </button>
                     </td>
@@ -106,6 +121,26 @@ function AdminDashboard() {
           </div>
         )}
       </section>
+
+      {isModalOpen && selectedOrg && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-5 rounded-lg shadow-lg w-1/2">
+            <h2 className="text-2xl font-bold mb-4">{selectedOrg.name}</h2>
+            <img
+              src={selectedOrg.image}
+              alt={selectedOrg.name}
+              className="w-32 h-32 rounded-full mb-4"
+            />
+            <p className="text-gray-600 mb-4">{selectedOrg.description}</p>
+            <button
+              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+              onClick={closeModal}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -48,6 +48,8 @@ import Home from "./components/Officers/Dashboard/Home";
 // Admin
 import AdminDashboard from "./components/Admin/Dashboard/AdminDashboard";
 import AdminSidebar from "./components/Admin/Dashboard/AdminSidebar";
+import OrgCreate from "./components/Admin/Organization/OrgCreate";
+import AdminOrg from "./components/Admin/Organization/Organization";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -257,6 +259,22 @@ function AppContent({ loading, user }) {
                   element={
                     <ProtectedAdminRoute>
                       <AdminDashboard />
+                    </ProtectedAdminRoute>
+                  }
+                />
+                 <Route
+                  path="organization"
+                  element={
+                    <ProtectedAdminRoute>
+                      <AdminOrg />
+                    </ProtectedAdminRoute>
+                  }
+                />
+                <Route
+                  path="create"
+                  element={
+                    <ProtectedAdminRoute>
+                      <OrgCreate />
                     </ProtectedAdminRoute>
                   }
                 />
