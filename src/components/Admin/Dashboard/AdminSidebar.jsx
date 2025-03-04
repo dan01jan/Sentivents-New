@@ -7,7 +7,7 @@ import {
   FaQuestionCircle,
   FaArrowLeft,
   FaArrowRight,
-  FaSignOutAlt,
+  FaChevronDown,
 } from "react-icons/fa";
 import { RiTeamFill } from "react-icons/ri";
 import { IoMdAnalytics } from "react-icons/io";
@@ -83,7 +83,7 @@ const AdminSideBar = () => {
                 to="/admin/organization"
                 className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
               >
-                <RiTeamFill  size={40} />
+                <RiTeamFill size={40} />
                 {isExpanded && <span>Organization</span>}
               </Link>
             </li>
@@ -112,22 +112,28 @@ const AdminSideBar = () => {
       <div className="flex-1 flex flex-col">
         <header className="w-full flex justify-between items-center p-4 bg-transparent">
           <h1 className="text-2xl font-semibold text-gray-800"></h1>
-          <div className="relative flex items-center gap-3">
+          <div className="relative flex items-center gap-3 mx-4">
             {userData && (
               <>
-                <span className="text-[#3a1078] font-bold uppercase">
-                  {userData.name} {userData.surname}
-                </span>
                 <img
                   src={userData.image}
                   alt="User"
-                  className="w-12 h-12 rounded-full cursor-pointer"
+                  className="w-10 h-10 rounded-full cursor-pointer"
+                  onClick={toggleDropdown}
+                />
+                <span className="text-[#3a1078] font-bold uppercase">
+                  {userData.name} {userData.surname}
+                </span>
+                <FaChevronDown
+                  size={20}
+                  color="#3a1078"
+                  className="cursor-pointer"
                   onClick={toggleDropdown}
                 />
               </>
             )}
             {isDropdownVisible && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg">
+              <div className="absolute right-0 mt-24 w-48 bg-white border border-gray-200 rounded-lg shadow-lg">
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center justify-center py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 ease-in-out"

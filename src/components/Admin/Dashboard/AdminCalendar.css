@@ -1,0 +1,13 @@
+.calendar-custom {
+    width: 100%;
+    max-width: 400px; /* Adjust as needed */
+    border-radius: 20px; /* Rounded corners */
+    padding: 20px;
+    background-color: #fff; /* Clean white background */
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15); /* Slight shadow at the bottom */
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+.calendar-custom:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* Slightly deeper shadow on hover */
+}
