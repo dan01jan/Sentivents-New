@@ -30,6 +30,7 @@ const Register = () => {
 
   const [organizations, setOrganizations] = useState([]);
   const [isDisabled, setIsDisabled] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {

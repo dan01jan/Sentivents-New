@@ -14,6 +14,7 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [userOrganizationName, setUserOrganizationName] = useState("");
   const [userName, setUserName] = useState("");
+  const [eventCount, setEventCount] = useState(0);
 
 
   useEffect(() => {
@@ -62,6 +63,35 @@ function Home() {
       setUserOrganizationName(userData.organizationName);
       setUserName(userData.name); 
     }
+  }, []);
+
+  useEffect(() => {
+    const fetchEventCount = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const userData = JSON.parse(localStorage.getItem("userData"));
+        if (!userData || !userData.organizationName) {
+          throw new Error("Organization name not found in user data.");
+        }
+        
+        const organizationName = userData.organizationName;
+        const response = await fetch(`${apiUrl}events/event-count`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+        if (!response.ok) {
+          throw new Error("Failed to fetch event count");
+        }
+  
+        const data = await response.json();
+        const orgEvent = data.find(org => org._id === organizationName);
+        setEventCount(orgEvent ? orgEvent.totalEvents : 0);
+      } catch (error) {
+        console.error("Error fetching event count:", error);
+      }
+    };
+  
+    fetchEventCount();
   }, []);
 
   const handleDateChange = (date) => {
@@ -190,7 +220,7 @@ function Home() {
           <p className="text-[#3a1078] font-bold text-xl">Box 1</p>
         </div>
         <div className="w-1/4 h-[20vh] bg-[#f7f7f8] rounded-3xl flex items-center justify-center shadow-md">
-          <p className="text-[#3a1078] font-bold text-xl">Box 2</p>
+          <p className="text-[#3a1078] font-bold text-xl">Total Events: {eventCount}</p>
         </div>
         <div className="w-1/4 h-[20vh] bg-[#f7f7f8] rounded-3xl flex items-center justify-center shadow-md">
           <p className="text-[#3a1078] font-bold text-xl">Box 3</p>
