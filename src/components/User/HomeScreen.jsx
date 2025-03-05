@@ -127,14 +127,14 @@ function HomeScreen() {
         />
         <div className="absolute inset-0 sm:bg-gradient-to-r sm:from-black/95 sm:to-black/25"></div>
         <div className="absolute inset-0 flex flex-col items-start justify-center h-full z-10 text-left pl-10">
-          <h1 className="text-[12vh] font-bold text-white tracking-wide font-tungsten leading-none px-5">
+          <h1 className="text-[12vh] font-bold text-white tracking-wide font-tungsten leading-none px-5 fade-in-left">
             Voice Out
             <strong className="block font-extrabold text-red-500">
               Your Sentiments
             </strong>
           </h1>
 
-          <div className="flex flex-col items-start gap-5 mt-5 pl-5 pt-4">
+          <div className="flex flex-col items-start gap-5 mt-5 pl-5 pt-4 fade-in-left">
             <p className="text-2xl text-white font-roboto">
               An Event Management System with Sentiment Analysis
             </p>

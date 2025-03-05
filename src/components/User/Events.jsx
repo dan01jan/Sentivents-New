@@ -57,7 +57,7 @@ function Events() {
         className="w-full h-[70vh] flex justify-center items-center bg-cover bg-center"
         style={{ backgroundImage: `url(${eventBG})` }}
       >
-        <div className="max-w-[150vh] w-full px-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div className="max-w-[150vh] w-full px-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center fade-in-left">
           <div className="flex flex-col gap-4">
             <h2 className="text-[10vw] md:text-[150px] lg:text-[200px] font-tungsten text-[#3a1078] leading-tight uppercase">
               EVENTS
@@ -81,7 +81,7 @@ function Events() {
           </div>
         </div>
       </div>
-      <section className="w-auto h-auto flex flex-col justify-center items-center bg-[#f7f7f8] py-16">
+      <section className="w-auto h-auto flex flex-col justify-center items-center bg-[#f7f7f8] py-16 fade-in-up">
         {!isLoggedIn ? (
           <Link to="/login">
             <button className="px-6 py-2 bg-[#3a1078] text-white text-lg font-semibold rounded hover:bg-[#2a0858] transition">
@@ -98,7 +98,7 @@ function Events() {
               {events.slice(0, visibleEvents).map((event) => (
                 <div
                   key={event.id}
-                  className="relative w-full h-[500px] flex flex-col overflow-hidden group"
+                  className="relative w-full h-[500px] flex flex-col overflow-hidden group fade-in-up"
                 >
                   <div className="w-full h-[500px] bg-gray-200 flex items-center justify-center">
                     {event.images && event.images.length > 0 ? (
