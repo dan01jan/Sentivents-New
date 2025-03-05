@@ -12,53 +12,8 @@ import Slider from "react-slick";
 import { Link } from "react-router-dom";
 import "../Layouts/Loader.jsx";
 import TUPLogo from "../../assets/website/TUP LOGO.png";
-import ACES from "../../assets/website/org/Association of Civil Engineering Students of TUP Taguig Campus(ACES).jpg";
-import ASE from "../../assets/website/org/Automotive Society of Engineering(ASE).jpg";
-import BSEEG from "../../assets/website/org/Bachelor of Science in Electrical Engineering Guild(BSEEG).jpg";
-import CYM from "../../assets/website/org/Catholic Youth Movement.jpg";
-import CBI from "../../assets/website/org/Christian Brotherhood International.png";
-import DSAITECH from "../../assets/website/org/D_Saitech.jpg";
-import DMMS from "../../assets/website/org/Die and Mould Maker Society-TUP Taguig(DMMS).jpg";
-import ELECMECHS from "../../assets/website/org/Electromechanics Society(EleMechS).jpg";
-import GREECS from "../../assets/website/org/Green Chemistry Society(GreeCS).jpg";
-import IECEP from "../../assets/website/org/Institute of Electronics Engineers of the Philippines-TUPT Student Chapter ( IECEP).jpg";
-import ICS from "../../assets/website/org/Instrumentation and Control Society-TUPT Student Chapter (ICS).jpg";
-import JPSME from "../../assets/website/org/Junior Philippine Society of Mechanical Engineers (JPSME).jpg";
-import JSHRAE from "../../assets/website/org/Junior Society of Heating, Refrigeration and Air Conditioning Engineers (JSHRAE).jpg";
-import LSTEP from "../../assets/website/org/LANI Scholars of Technology and Engineering Pioneers.jpg";
-import MTICF from "../../assets/website/org/Manila Technician Institute Christian Fellowship.jpg";
-import MTICS from "../../assets/website/org/Manila Technician Institute Computer Society (MTICS).jpg";
-import MRSP from "../../assets/website/org/Mechatronics and Robotics Society of the Philippines Taguig Student Chapter (MRSP).jpg";
-import PEERS from "../../assets/website/org/Peer Facilitator_s Group.jpg";
-import TEST from "../../assets/website/org/Technical Educators Society-TUP Taguig (TEST).jpg";
-import TSNT from "../../assets/website/org/TUP Taguig Society of Nondestructive Testing (TSNT).jpg";
-import TPLUSN from "../../assets/website/org/TUPT Positive Lifestyle Under the Son Network.jpg";
 
 const apiUrl = import.meta.env.VITE_API_URL;
-
-const orgImages = [
-  ACES,
-  ASE,
-  BSEEG,
-  CYM,
-  CBI,
-  DSAITECH,
-  DMMS,
-  ELECMECHS,
-  GREECS,
-  IECEP,
-  ICS,
-  JPSME,
-  JSHRAE,
-  LSTEP,
-  MTICF,
-  MTICS,
-  MRSP,
-  PEERS,
-  TEST,
-  TSNT,
-  TPLUSN,
-];
 
 function HomeScreen() {
   const [events, setEvents] = useState([]);
@@ -163,9 +118,9 @@ function HomeScreen() {
   return (
     <div className="w-full flex flex-col">
       <div className="relative w-full min-h-[70vh]">
-        <video
+        <img
           className="absolute inset-0 w-full h-full object-cover"
-          src={backgroundVideo}
+          src={logo}
           autoPlay
           loop
           muted
@@ -311,21 +266,6 @@ function HomeScreen() {
             )}
           </div>
         </div>
-      </section>
-
-      <section className="w-full bg-[#3a1078] py-5 px-5 text-center text-white">
-        <Slider {...footerSliderSettings}>
-          {orgImages.map((image, index) => (
-            <div key={index} className="flex flex-col items-center p-1">
-              {" "}
-              <img
-                src={image}
-                alt={`Organization ${index + 1}`}
-                className="w-20 h-20 rounded-full object-cover border-4 hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-          ))}
-        </Slider>
       </section>
 
       <footer className="w-full bg-[#ffffff] py-10 px-10 text-center text-gray-800 flex flex-col items-center gap-4">

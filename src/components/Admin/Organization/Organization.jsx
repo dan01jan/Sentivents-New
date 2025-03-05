@@ -49,7 +49,7 @@ function Organization() {
   };
 
   return (
-    <div className="flex flex-col px-10">
+    <div className="flex flex-col px-10 ">
       {loading ? (
         <p className="text-center">Loading...</p>
       ) : error ? (
