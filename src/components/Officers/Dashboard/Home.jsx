@@ -213,9 +213,6 @@ function Home() {
         </p>
 
         <div className="flex items-center gap-4">
-          <p className="text-[#3a1078] text-[25px] font-bold tracking-wide ">
-            Welcome, {userName ? `${userName}` : "Officer"}
-          </p>
           <img
             src={logo}
             alt="logo"

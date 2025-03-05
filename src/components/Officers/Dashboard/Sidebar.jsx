@@ -8,6 +8,7 @@ import {
   FaArrowLeft,
   FaArrowRight,
   FaSignOutAlt,
+  FaCommentAlt,
 } from "react-icons/fa";
 import "./Sidebar.css";
 import logo from "../../../assets/website/V_DarkerLogo.png";
@@ -30,10 +31,7 @@ const Sidebar = () => {
           isExpanded ? "w-[25vh]" : "w-[10vh]"
         } flex flex-col justify-between relative`}
       >
-        <a
-          href="/dashboard/"
-          className="flex items-center justify-center px-1 py-4 text-[#3a1078] rounded-lg logo-container"
-        >
+        <a className="flex items-center justify-center px-1 py-4 text-[#3a1078] rounded-lg logo-container">
           <img
             src={logo}
             alt="Logo"
@@ -47,11 +45,20 @@ const Sidebar = () => {
           <ul>
             <li>
               <Link
-                to="/dashboard/wordtag"
+                to="/dashboard/"
                 className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out"
               >
                 <FaHome size={40} />
                 {isExpanded && <span>Dashboard</span>}
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/dashboard/wordtag"
+                className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
+              >
+                <FaCommentAlt size={40} />
+                {isExpanded && <span>Word Tag</span>}
               </Link>
             </li>
             <li>
