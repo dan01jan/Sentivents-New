@@ -50,6 +50,7 @@ import AdminDashboard from "./components/Admin/Dashboard/AdminDashboard";
 import AdminSidebar from "./components/Admin/Dashboard/AdminSidebar";
 import OrgCreate from "./components/Admin/Organization/OrgCreate";
 import AdminOrg from "./components/Admin/Organization/Organization";
+import AdminEventList from "./components/Admin/Dashboard/AdminEventList";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -267,6 +268,14 @@ function AppContent({ loading, user }) {
                   element={
                     <ProtectedAdminRoute>
                       <AdminOrg />
+                    </ProtectedAdminRoute>
+                  }
+                />
+                <Route
+                  path="eventlist"
+                  element={
+                    <ProtectedAdminRoute>
+                      <AdminEventList />
                     </ProtectedAdminRoute>
                   }
                 />
