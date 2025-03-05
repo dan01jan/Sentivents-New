@@ -50,7 +50,7 @@ import AdminDashboard from "./components/Admin/Dashboard/AdminDashboard";
 import AdminSidebar from "./components/Admin/Dashboard/AdminSidebar";
 import OrgCreate from "./components/Admin/Organization/OrgCreate";
 import AdminOrg from "./components/Admin/Organization/Organization";
-import AdminEventList from "./components/Admin/Dashboard/AdminEventList";
+import AdminEventList from "./components/Admin/Events/AdminEventList";
 import OrgUpdate from "./components/Admin/Organization/OrgUpdate";
 
 function App() {

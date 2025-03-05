@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { FaPlus } from "react-icons/fa"; // Import the FaPlus icon
-import OrgCreate from "./OrgCreate"; // Import the OrgCreate component
-import OrgUpdate from "./OrgUpdate"; // Import the OrgUpdate component
+import { FaPlus } from "react-icons/fa";
+import OrgCreate from "./OrgCreate";
+import OrgUpdate from "./OrgUpdate";
+import { IoMdSearch } from "react-icons/io";
 const apiUrl = import.meta.env.VITE_API_URL;
-
 function Organization() {
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false); // State to control update modal visibility
-  const [selectedOrg, setSelectedOrg] = useState(null); // State to store the selected organization for update
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [selectedOrg, setSelectedOrg] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -61,14 +62,32 @@ function Organization() {
     setSelectedOrg(null);
   };
 
+  const filteredOrganizations = organizations.filter((org) =>
+    org.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="flex flex-col px-10 ">
+      <div className="flex justify-between items-center mb-6">
+        <div className="relative w-full md:w-1/4">
+          <input
+            type="text"
+            placeholder="Search for organizations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full p-3 pl-10 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <div className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2">
+            <IoMdSearch />
+          </div>
+        </div>
+      </div>
       {loading ? (
         <p className="text-center">Loading...</p>
       ) : error ? (
         <p className="text-red-500 text-center">{error}</p>
       ) : (
-        organizations.map((org) => (
+        filteredOrganizations.map((org) => (
           <div
             key={org.id}
             className="flex flex-col md:flex-row bg-white rounded-2xl shadow-lg overflow-hidden border-2 transition hover:shadow-2xl mb-6"
