@@ -107,8 +107,8 @@ const Attendance = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-6">
-      <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">
+    <div className="p-4 max-w-full mx-auto">
+      <h1 className="text-[8vh] font-bold mb-4 font-tungsten text-[#3a1078]">
         Attendance Approval
       </h1>
       <div className="flex w-full max-w-5xl gap-6">

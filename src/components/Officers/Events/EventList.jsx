@@ -268,9 +268,9 @@ const EventList = () => {
     : { "No Grouping": filteredEvents };
 
   return (
-    <div className="py-4">
+    <div className="p-4 max-w-full mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-semibold text-teal-600 font-pacifico">
+        <h2 className="text-[8vh] font-semibold text-[#3a1078] font-tungsten">
           EVENTS
         </h2>
         <button

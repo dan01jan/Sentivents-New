@@ -98,9 +98,7 @@ const Sidebar = () => {
         </button>
       </aside>
       <main className="flex-1 p-6 overflow-y-auto">
-        <div className="mt-6">
-          <Outlet />
-        </div>
+        <Outlet />
       </main>
     </div>
   );

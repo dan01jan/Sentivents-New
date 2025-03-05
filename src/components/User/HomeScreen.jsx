@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import backgroundVideo from "../../assets/website/bg.mp4";
+import bg2 from "../../assets/website/bg2.png";
 import logo from "../../assets/website/V_DarkerLogo.png";
 import teamMember1 from "../../assets/website/google-logo.png";
 import teamMember2 from "../../assets/website/google-logo.png";
@@ -117,31 +117,36 @@ function HomeScreen() {
 
   return (
     <div className="w-full flex flex-col">
-      <div className="relative w-full min-h-[70vh]">
+      <div className="relative w-full min-h-[70vh] ">
         <img
           className="absolute inset-0 w-full h-full object-cover"
-          src={logo}
+          src={bg2}
           autoPlay
           loop
           muted
         />
-        <div className="absolute inset-0 bg-black opacity-30"></div>
-        <div className="absolute inset-0 flex flex-col items-center justify-center h-full z-10 text-center">
-          <h1 className="mb-8 text-6xl font-bold text-white tracking-wide">
-            VOYS
+        <div className="absolute inset-0 sm:bg-gradient-to-r sm:from-black/95 sm:to-black/25"></div>
+        <div className="absolute inset-0 flex flex-col items-start justify-center h-full z-10 text-left pl-10">
+          <h1 className="text-[12vh] font-bold text-white tracking-wide font-tungsten leading-none px-5">
+            Voice Out
+            <strong className="block font-extrabold text-red-500">
+              Your Sentiments
+            </strong>
           </h1>
-          <p className="mb-10 text-2xl text-white">
-            An Event Management System with Sentiment Analysis
-          </p>
-          <div className="p-1 border-2 border-white">
-            <button className="px-9 py-4 bg-[#3795bd] text-white text-lg font-semibold hover:bg-[#2a0858] transition">
-              Download our App
-            </button>
+
+          <div className="flex flex-col items-start gap-5 mt-5 pl-5 pt-4">
+            <p className="text-2xl text-white font-roboto">
+              An Event Management System with Sentiment Analysis
+            </p>
+            <div className="p-1 border-2 border-white">
+              <button className="px-9 py-4 bg-red-500 text-white text-lg font-semibold hover:bg-[#2a0858] transition">
+                Download our App
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Latest Events Section */}
       <section className="w-full h-[80vh] bg-[#f7f7f8] py-16 px-10">
         <div className="flex flex-col md:flex-row justify-between items-center py-10 px-10">
           <h2 className="text-[6vh] font-tungsten text-[#3a1078] leading-tight uppercase">
