@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Loader from "../../Layouts/Loader";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 // Function to determine department based on organization name
@@ -30,10 +31,11 @@ const getDepartment = (selectedOrganization) => {
 };
 
 function OrgCreate({ isOpen, onClose }) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [department, setDepartment] = useState('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [department, setDepartment] = useState("");
   const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false); // Update loading state
 
   // Update department when name is entered
   const handleNameChange = (e) => {
@@ -45,33 +47,35 @@ function OrgCreate({ isOpen, onClose }) {
   // Function to handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+    setLoading(true); // Set loading to true
+
     const formData = new FormData();
-    formData.append('name', name);
-    formData.append('description', description);
+    formData.append("name", name);
+    formData.append("description", description);
     if (image) {
-      formData.append('image', image);
+      formData.append("image", image);
     }
-  
+
     try {
       const response = await fetch(`${apiUrl}organizations/`, {
-        method: 'POST',
+        method: "POST",
         body: formData,
       });
-  
+
       const data = await response.json();
       if (response.ok) {
-        alert('Organization created successfully!');
+        alert("Organization created successfully!");
         onClose();
       } else {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error('Error creating organization:', error);
-      alert('Failed to create organization');
+      console.error("Error creating organization:", error);
+      alert("Failed to create organization");
+    } finally {
+      setLoading(false); // Set loading to false
     }
   };
-  
 
   return (
     <AnimatePresence>
@@ -84,10 +88,15 @@ function OrgCreate({ isOpen, onClose }) {
             transition={{ duration: 0.3 }}
             className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg"
           >
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">Create Organization</h2>
+            <h2 className="text-3xl font-bold text-gray-800 mb-6">
+              Create Organization
+            </h2>
             <form className="space-y-5" onSubmit={handleSubmit}>
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Organization Name
                 </label>
                 <input
@@ -101,7 +110,10 @@ function OrgCreate({ isOpen, onClose }) {
                 />
               </div>
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Description
                 </label>
                 <textarea
@@ -115,7 +127,10 @@ function OrgCreate({ isOpen, onClose }) {
                 ></textarea>
               </div>
               <div>
-                <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="department"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Department (Auto-filled)
                 </label>
                 <input
@@ -127,7 +142,10 @@ function OrgCreate({ isOpen, onClose }) {
                 />
               </div>
               <div>
-                <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="image"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Add Image
                 </label>
                 <input
@@ -154,6 +172,11 @@ function OrgCreate({ isOpen, onClose }) {
                 </button>
               </div>
             </form>
+            {loading && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <Loader />
+              </div>
+            )}
           </motion.div>
         </div>
       )}
