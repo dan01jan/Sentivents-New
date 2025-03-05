@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaPlus } from "react-icons/fa"; // Import the FaPlus icon
 import OrgCreate from "./OrgCreate"; // Import the OrgCreate component
+import OrgUpdate from "./OrgUpdate"; // Import the OrgUpdate component
 const apiUrl = import.meta.env.VITE_API_URL;
 
 function Organization() {
@@ -8,6 +9,8 @@ function Organization() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false); // State to control update modal visibility
+  const [selectedOrg, setSelectedOrg] = useState(null); // State to store the selected organization for update
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -48,6 +51,16 @@ function Organization() {
     setIsModalOpen(false);
   };
 
+  const openUpdateModal = (org) => {
+    setSelectedOrg(org);
+    setIsUpdateModalOpen(true);
+  };
+
+  const closeUpdateModal = () => {
+    setIsUpdateModalOpen(false);
+    setSelectedOrg(null);
+  };
+
   return (
     <div className="flex flex-col px-10 ">
       {loading ? (
@@ -56,41 +69,44 @@ function Organization() {
         <p className="text-red-500 text-center">{error}</p>
       ) : (
         organizations.map((org) => (
-          <article
+          <div
             key={org.id}
-            className="flex bg-white transition hover:shadow-xl mb-4 border-2"
+            className="flex flex-col md:flex-row bg-white rounded-2xl shadow-lg overflow-hidden border-2 transition hover:shadow-2xl mb-6"
           >
-            <div className="hidden sm:block sm:basis-56">
+            <div className="md:w-[30vh]">
               <img
                 alt={org.name}
                 src={org.image}
-                className="aspect-square h-full w-full object-cover"
+                className="w-full h-56 md:h-full object-cover"
               />
             </div>
 
-            <div className="flex flex-1 flex-col justify-between">
-              <div className="border-s border-gray-900/10 p-4 sm:border-l-transparent sm:p-6">
-                <a href="#">
-                  <h3 className="font-bold uppercase text-gray-900">
-                    {org.name}
-                  </h3>
-                </a>
-
-                <p className="mt-2 line-clamp-3 text-sm/relaxed text-gray-700">
+            <div className="flex-1 p-6 flex flex-col justify-between">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                  {org.name}
+                </h3>
+                <p className="text-gray-700 text-base leading-relaxed line-clamp-3">
                   {org.description}
                 </p>
               </div>
 
-              <div className="sm:flex sm:items-end sm:justify-end">
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => openUpdateModal(org)}
+                  className="bg-indigo-600 text-white text-sm font-semibold uppercase px-6 py-2 rounded-full transition hover:bg-indigo-700"
+                >
+                  Update
+                </button>
                 <a
                   href="#"
-                  className="block bg-yellow-300 px-5 py-3 text-center text-xs font-bold uppercase text-gray-900 transition hover:bg-yellow-400"
+                  className="bg-red-600 text-white text-sm font-semibold uppercase px-6 py-2 rounded-full transition hover:bg-indigo-700"
                 >
-                  Read More
+                  Delete
                 </a>
               </div>
             </div>
-          </article>
+          </div>
         ))
       )}
       <button
@@ -100,6 +116,13 @@ function Organization() {
         <FaPlus size={24} />
       </button>
       <OrgCreate isOpen={isModalOpen} onClose={closeModal} />
+      {selectedOrg && (
+        <OrgUpdate
+          isOpen={isUpdateModalOpen}
+          onClose={closeUpdateModal}
+          organization={selectedOrg}
+        />
+      )}
     </div>
   );
 }
