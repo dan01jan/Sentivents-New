@@ -11,6 +11,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 function AdminDashboard() {
   const navigate = useNavigate();
   const [organizations, setOrganizations] = useState([]);
+  const [orgCount, setOrgCount] = useState(0); // New state for organization count
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedOrg, setSelectedOrg] = useState(null);
@@ -58,6 +59,34 @@ function AdminDashboard() {
     return () => clearInterval(intervalId);
   }, []);
 
+  // New useEffect to fetch the organization count
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    const fetchOrgCount = async () => {
+      if (!token) return;
+      try {
+        const response = await fetch(`${apiUrl}organizations/get/count`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch organization count");
+        }
+        const data = await response.json();
+        setOrgCount(data.orgCount);
+      } catch (error) {
+        console.error("Error fetching organization count:", error);
+      }
+    };
+
+    fetchOrgCount();
+    const countIntervalId = setInterval(fetchOrgCount, 2000);
+
+    return () => clearInterval(countIntervalId);
+  }, []);
+
   const handleViewClick = (org) => {
     setSelectedOrg(org);
     setIsModalOpen(true);
@@ -92,8 +121,11 @@ function AdminDashboard() {
           </div>
         )}
         <div className="h-[30vh] w-full bg-[#f7f7f9] flex rounded-3xl justify-center items-center shadow-lg px-10 gap-8 hover:shadow-xl transition-shadow duration-300">
+          {/* Updated Box 1 to display total organizations */}
           <div className="w-1/4 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
-            <p className="text-[#f7f7f8] font-bold text-xl">Box 1</p>
+            <p className="text-[#f7f7f8] font-bold text-xl">
+              Org. Count: {orgCount}
+            </p>
           </div>
           <div className="w-1/4 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
             <p className="text-[#f7f7f8] font-bold text-xl">Box 2</p>

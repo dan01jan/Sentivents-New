@@ -51,47 +51,63 @@ const Register = () => {
     setFormData({ ...formData, [name]: value });
 
     if (name === "organization") {
-      const selectedOrganization = organizations.find(
+      const selectedOrganizationName = organizations.find(
         (org) => org._id === value
       )?.name;
       let department = "";
       let newIsDisabled = true;
-
-      switch (selectedOrganization) {
+    
+      switch (selectedOrganizationName) {
         case "ACES":
+        case "Association of Civil Engineering Students of TUP Taguig Campus":
         case "GreeCS":
-          department = "CAAD";
+        case "Green Chemistry Society TUP - Taguig":
+          department = "Civil and Allied Department";
           break;
         case "TEST":
-          department = "BASD";
+        case "Technical Educators Society – TUP Taguig":
+          department = "Basic Arts and Sciences Department";
           break;
         case "BSEEG":
+        case "Bachelor of Science in Electrical Engineering Guild":
         case "IECEP":
+        case "Institute of Electronics Engineers of the Philippines – TUPT Student Chapter":
         case "ICS":
+        case "Instrumentation and Control Society – TUPT Student Chapter":
         case "MTICS":
+        case "Manila Technician Institute Computer Society":
         case "MRSP":
-          department = "EAAD";
+        case "Mechatronics and Robotics Society of the Philippines Taguig Student Chapter":
+          department = "Electrical and Allied Department";
           break;
         case "ASE":
+        case "Automotive Society of Engineering":
         case "DMMS":
+        case "Die and Mould Maker Society – TUP Taguig":
         case "EleMechS":
+        case "Electromechanics Society":
         case "JPSME":
+        case "Junior Philippine Society of Mechanical Engineers":
         case "JSHRAE":
+        case "Junior Society of Heating, Refrigeration and Air Conditioning Engineers":
         case "METALS":
+        case "Mechanical Technologies and Leader’s Society":
         case "TSNT":
-          department = "MAAD";
+        case "TUP Taguig Society of Nondestructive Testing":
+          department = "Mechanical and Allied Department";
           break;
         default:
           department = "";
           newIsDisabled = false;
       }
-
+    
       setFormData((prevData) => ({
         ...prevData,
         department: department,
       }));
       setIsDisabled(newIsDisabled);
     }
+    
   };
 
   const handleImageChange = (e) => {
@@ -278,10 +294,10 @@ const Register = () => {
                     <option value="" selected disabled>
                       Select department
                     </option>
-                    <option value="EAAD">EAAD</option>
-                    <option value="MAAD">MAAD</option>
-                    <option value="CAAD">CAAD</option>
-                    <option value="BASD">BASD</option>
+                    <option value="Electrical and Allied Department">Electrical and Allied Department</option>
+                    <option value="Mechanical and Allied Department">Mechanical and Allied Department</option>
+                    <option value="Civil and Allied Department">Civil and Allied Department</option>
+                    <option value="Basic Arts and Sciences Department">Basic Arts and Sciences Department</option>
                   </select>
                 </div>
               </div>

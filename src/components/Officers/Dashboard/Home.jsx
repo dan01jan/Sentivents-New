@@ -16,6 +16,7 @@ function Home() {
   const [userOrganizationName, setUserOrganizationName] = useState("");
   const [userName, setUserName] = useState("");
   const [eventCount, setEventCount] = useState(0);
+  const [userCount, setUserCount] = useState(0); // New state for user count
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
@@ -47,7 +48,7 @@ function Home() {
         const data = await response.json();
         setEvents(data);
       } catch (error) {
-        setError(error.message);
+        console.error(error.message);
       } finally {
         setLoading(false);
       }
@@ -92,6 +93,38 @@ function Home() {
     };
 
     fetchEventCount();
+  }, []);
+
+  // New useEffect to fetch the user count for the organization
+  useEffect(() => {
+    const fetchUserCount = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const userData = JSON.parse(localStorage.getItem("userData"));
+        if (!userData || !userData.organizationId) {
+          throw new Error("Organization ID not found in user data.");
+        }
+
+        const orgId = userData.organizationId;
+        const response = await fetch(
+          `${apiUrl}users/organization/${orgId}/count`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user count");
+        }
+
+        const data = await response.json();
+        setUserCount(data.userCount);
+      } catch (error) {
+        console.error("Error fetching user count:", error);
+      }
+    };
+
+    fetchUserCount();
   }, []);
 
   const handleDateChange = (date) => {
@@ -275,18 +308,21 @@ function Home() {
 
         <div className="w-1/4 flex flex-col gap-5">
           <div className="w-full h-[20vh] bg-[#f7f7f8] rounded-3xl flex items-center justify-center shadow-md">
-            <p className="text-[#3a1078] font-bold text-xl">Box 1</p>
+            <p className="text-[#3a1078] font-bold text-xl">Members: 1500</p>
           </div>
           <div className="w-full h-[20vh] bg-[#f7f7f8] rounded-3xl flex items-center justify-center shadow-md">
             <p className="text-[#3a1078] font-bold text-xl">
-              Total Events: {eventCount}
+              Events: {eventCount}
             </p>
           </div>
           <div className="w-full h-[20vh] bg-[#f7f7f8] rounded-3xl flex items-center justify-center shadow-md">
             <p className="text-[#3a1078] font-bold text-xl">Box 3</p>
           </div>
+          {/* Updated Box 4 to show total users */}
           <div className="w-full h-[20vh] bg-[#f7f7f8] rounded-3xl flex items-center justify-center shadow-md">
-            <p className="text-[#3a1078] font-bold text-xl">Box 4</p>
+            <p className="text-[#3a1078] font-bold text-xl">
+              Registered Users: {userCount}
+            </p>
           </div>
         </div>
       </div>

@@ -53,8 +53,6 @@ const AdminApproval = () => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
           },
-          // If using session authentication with cookies, uncomment the line below:
-          // credentials: 'include'
         }
       );
       if (!response.ok) {
@@ -72,7 +70,6 @@ const AdminApproval = () => {
       console.error(error);
     }
   };
-  
 
   const handleDecline = (officerId) => {
     setDeclinedOfficers((prev) => new Set(prev).add(officerId));
@@ -119,9 +116,9 @@ const AdminApproval = () => {
             }}
           >
             <h2 style={{ color: '#ad1457' }}>{org.name}</h2>
-            {org.officers && org.officers.length > 0 ? (
+            {org.officers && org.officers.filter(officer => !officer.isAdmin).length > 0 ? (
               <ul style={{ listStyleType: 'none', padding: 0 }}>
-                {org.officers.map((officer) => (
+                {org.officers.filter(officer => !officer.isAdmin).map((officer) => (
                   <li key={officer._id} style={{ marginBottom: '10px' }}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <input
@@ -141,9 +138,9 @@ const AdminApproval = () => {
                       !declinedOfficers.has(officer._id) && (
                         <div style={{ marginTop: '8px' }}>
                           <button onClick={() => handleApprove(officer._id)} style={{ marginRight: '8px' }}>
-                            Approved
+                            Approve
                           </button>
-                          <button onClick={() => handleDecline(officer._id)}>Declined</button>
+                          <button onClick={() => handleDecline(officer._id)}>Decline</button>
                         </div>
                       )}
                     {approvedOfficers.has(officer._id) && (
