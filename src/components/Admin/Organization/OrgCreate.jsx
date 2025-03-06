@@ -7,27 +7,46 @@ const apiUrl = import.meta.env.VITE_API_URL;
 const getDepartment = (selectedOrganization) => {
   switch (selectedOrganization) {
     case "ACES":
+    case "Association of Civil Engineering Students of TUP Taguig Campus":
     case "GreeCS":
-      return "CAAD";
+    case "Green Chemistry Society TUP - Taguig":
+      return "Civil and Allied Department";
+  
     case "TEST":
-      return "BASD";
+    case "Technical Educators Society – TUP Taguig":
+      return "Basic Arts and Sciences Department";
+  
     case "BSEEG":
+    case "Bachelor of Science in Electrical Engineering Guild":
     case "IECEP":
+    case "Institute of Electronics Engineers of the Philippines – TUPT Student Chapter":
     case "ICS":
+    case "Instrumentation and Control Society – TUPT Student Chapter":
     case "MTICS":
+    case "Manila Technician Institute Computer Society":
     case "MRSP":
-      return "EAAD";
+    case "Mechatronics and Robotics Society of the Philippines Taguig Student Chapter":
+      return "Electrical and Allied Department";
+  
     case "ASE":
+    case "Automotive Society of Engineering":
     case "DMMS":
+    case "Die and Mould Maker Society – TUP Taguig":
     case "EleMechS":
+    case "Electromechanics Society":
     case "JPSME":
+    case "Junior Philippine Society of Mechanical Engineers":
     case "JSHRAE":
+    case "Junior Society of Heating, Refrigeration and Air Conditioning Engineers":
     case "METALS":
+    case "Mechanical Technologies and Leader’s Society":
     case "TSNT":
-      return "MAAD";
+    case "TUP Taguig Society of Nondestructive Testing":
+      return "Mechanical and Allied Department";
+  
     default:
       return "";
-  }
+  }  
 };
 
 function OrgCreate({ isOpen, onClose }) {
