@@ -1,31 +1,52 @@
 import React, { useState } from "react";
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const OrgUpdate = ({ isOpen, onClose, organization }) => {
   const [name, setName] = useState(organization.name);
   const [description, setDescription] = useState(organization.description);
-  const [image, setImage] = useState(organization.image);
+  const [image, setImage] = useState(null);
+  const [preview, setPreview] = useState(organization.image); // Fetch and display existing image
 
   const handleUpdate = async () => {
     const token = localStorage.getItem("authToken");
+    const formData = new FormData();
+  
+    if (name !== organization.name) {
+      formData.append("name", name);
+    }
+    if (description !== organization.description) {
+      formData.append("description", description);
+    }
+    if (image) {
+      formData.append("image", image);
+    }
+  
     try {
-      const response = await fetch(
-        `${apiUrl}organizations/${organization.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ name, description, image }),
-        }
-      );
+      const response = await fetch(`${apiUrl}organizations/${organization._id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+  
+      const result = await response.json();
+  
       if (!response.ok) {
-        throw new Error("Failed to update organization");
+        throw new Error(result.message || "Failed to update organization");
       }
+  
       onClose();
     } catch (error) {
       console.error("Error updating organization:", error);
     }
+  };
+  
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImage(file);
+    setPreview(URL.createObjectURL(file)); // Preview new image
   };
 
   return (
@@ -61,17 +82,16 @@ const OrgUpdate = ({ isOpen, onClose, organization }) => {
             </div>
 
             <div>
-              <label
-                htmlFor="image"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Add Image
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Upload Image
               </label>
+              {preview && (
+                <img src={preview} alt="Organization" className="mb-2 w-full h-40 object-cover rounded-lg" />
+              )}
               <input
-                id="image"
                 type="file"
                 accept="image/*"
-                onChange={(e) => setImage(e.target.files[0])}
+                onChange={handleImageChange}
                 className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
             </div>

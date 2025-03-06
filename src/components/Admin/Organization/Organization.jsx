@@ -4,6 +4,7 @@ import OrgCreate from "./OrgCreate";
 import OrgUpdate from "./OrgUpdate";
 import { IoMdSearch } from "react-icons/io";
 const apiUrl = import.meta.env.VITE_API_URL;
+
 function Organization() {
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +44,37 @@ function Organization() {
 
     return () => clearInterval(intervalId);
   }, []);
+
+  const handleDelete = async (id) => {
+    if (!id) {
+      console.error("Error: Organization ID is undefined");
+      return;
+    }
+    
+    const token = localStorage.getItem("authToken");
+    if (!window.confirm("Are you sure you want to delete this organization?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiUrl}organizations/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.message || "Failed to delete organization");
+      }
+
+      // Remove the deleted organization from the state
+      setOrganizations((prevOrgs) => prevOrgs.filter((org) => org.id !== id));
+    } catch (error) {
+      console.error("Error deleting organization:", error);
+    }
+  };
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -110,19 +142,19 @@ function Organization() {
                 </p>
               </div>
 
-              <div className="mt-4 flex justify-end">
+              <div className="mt-4 flex justify-end space-x-2">
                 <button
                   onClick={() => openUpdateModal(org)}
                   className="bg-indigo-600 text-white text-sm font-semibold uppercase px-6 py-2 rounded-full transition hover:bg-indigo-700"
                 >
                   Update
                 </button>
-                <a
-                  href="#"
-                  className="bg-red-600 text-white text-sm font-semibold uppercase px-6 py-2 rounded-full transition hover:bg-indigo-700"
+                <button
+                  onClick={() => handleDelete(org.id || org._id)}
+                  className="bg-red-600 text-white text-sm font-semibold uppercase px-6 py-2 rounded-full transition hover:bg-red-700"
                 >
                   Delete
-                </a>
+                </button>
               </div>
             </div>
           </div>
