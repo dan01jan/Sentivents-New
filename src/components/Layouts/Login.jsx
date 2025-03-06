@@ -36,7 +36,7 @@ const Login = () => {
       );
 
       if (data.user.isAdmin) {
-        navigate("/admin");
+        navigate("/admin/admindashboard");
       } else if (data.user.isOfficer) {
         navigate("/dashboard");
       } else {
