@@ -16,7 +16,8 @@ function Home() {
   const [userOrganizationName, setUserOrganizationName] = useState("");
   const [userName, setUserName] = useState("");
   const [eventCount, setEventCount] = useState(0);
-  const [userCount, setUserCount] = useState(0); // New state for user count
+  const [userCount, setUserCount] = useState(0);
+  const [officerCount, setOfficerCount] = useState(0); // New state for officer count
   const [userData, setUserData] = useState(null);
 
   useEffect(() => {
@@ -62,7 +63,7 @@ function Home() {
     if (userData && userData.organizationName && userData.name) {
       setUserOrganizationName(userData.organizationName);
       setUserName(userData.name);
-      setUserData(userData); // Ensure userData is set here
+      setUserData(userData);
     }
   }, []);
 
@@ -95,7 +96,35 @@ function Home() {
     fetchEventCount();
   }, []);
 
-  // New useEffect to fetch the user count for the organization
+  // New useEffect to fetch the officer count for the organization
+  useEffect(() => {
+    const fetchOfficerCount = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const userData = JSON.parse(localStorage.getItem("userData"));
+        if (!userData || !userData.organizationId) {
+          throw new Error("Organization ID not found in user data.");
+        }
+        const orgId = userData.organizationId;
+        const response = await fetch(
+          `${apiUrl}users/organization/${orgId}/officers/count`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch officer count");
+        }
+        const data = await response.json();
+        setOfficerCount(data.officerCount);
+      } catch (error) {
+        console.error("Error fetching officer count:", error);
+      }
+    };
+
+    fetchOfficerCount();
+  }, []);
+
   useEffect(() => {
     const fetchUserCount = async () => {
       try {
@@ -139,7 +168,6 @@ function Home() {
         selectedDate.setHours(0, 0, 0, 0)
       );
 
-      // Normalize event dates (set to midnight for comparison)
       const normalizedEventStart = new Date(eventStart.setHours(0, 0, 0, 0));
       const normalizedEventEnd = new Date(eventEnd.setHours(0, 0, 0, 0));
 
@@ -161,7 +189,7 @@ function Home() {
                   alt={event.name || "Event Image"}
                 />
               ) : (
-                <div className="w-full h-24 bg-gray-200"></div> // Placeholder if no image
+                <div className="w-full h-24 bg-gray-200"></div>
               )}
             </div>
             <h3 className="text-lg font-semibold mt-2">{event.name}</h3>
@@ -183,7 +211,6 @@ function Home() {
 
   const tileContent = ({ date, view }) => {
     if (view === "month") {
-      // Normalize the selected date to only have year, month, and date (no time)
       const normalizedDate = new Date(
         date.getFullYear(),
         date.getMonth(),
@@ -194,7 +221,6 @@ function Home() {
         const eventStart = new Date(event.dateStart);
         const eventEnd = new Date(event.dateEnd);
 
-        // Normalize the event dates to remove time part
         const normalizedEventStart = new Date(
           eventStart.getFullYear(),
           eventStart.getMonth(),
@@ -244,7 +270,6 @@ function Home() {
             ? `${userOrganizationName} `
             : "Organization Dashboard"}
         </p>
-
         <div className="flex items-center gap-4">
           <img
             src={logo}
@@ -280,7 +305,6 @@ function Home() {
               </div>
             </div>
           )}
-
           <div className="bg-[#f7f7f8] rounded-3xl shadow-lg p-6">
             <div className="grid grid-cols-[40%_2px_60%] gap-5 text-[#3a1078] text-[30px] font-bold tracking-wide uppercase mb-5">
               <h1 className="font-tungsten text-[6vh] col-span-1">
@@ -290,7 +314,6 @@ function Home() {
                 Events on {selectedDate.toDateString()}:
               </h2>
             </div>
-
             <div className="grid grid-cols-[40%_2px_60%] w-full gap-4 items-start">
               <div>
                 <Calendar
@@ -305,7 +328,6 @@ function Home() {
             </div>
           </div>
         </div>
-
         <div className="w-1/4 flex flex-col gap-5">
           <div className="w-full h-[20vh] bg-[#f7f7f8] rounded-3xl flex items-center justify-center shadow-md">
             <p className="text-[#3a1078] font-bold text-xl">Members: 1500</p>
@@ -315,10 +337,12 @@ function Home() {
               Events: {eventCount}
             </p>
           </div>
+          {/* Updated Box 3 to show officer count */}
           <div className="w-full h-[20vh] bg-[#f7f7f8] rounded-3xl flex items-center justify-center shadow-md">
-            <p className="text-[#3a1078] font-bold text-xl">Box 3</p>
+            <p className="text-[#3a1078] font-bold text-xl">
+              Officers: {officerCount}
+            </p>
           </div>
-          {/* Updated Box 4 to show total users */}
           <div className="w-full h-[20vh] bg-[#f7f7f8] rounded-3xl flex items-center justify-center shadow-md">
             <p className="text-[#3a1078] font-bold text-xl">
               Registered Users: {userCount}
