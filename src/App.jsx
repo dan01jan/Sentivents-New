@@ -52,6 +52,7 @@ import OrgCreate from "./components/Admin/Organization/OrgCreate";
 import AdminOrg from "./components/Admin/Organization/Organization";
 import AdminEventList from "./components/Admin/Events/AdminEventList";
 import OrgUpdate from "./components/Admin/Organization/OrgUpdate";
+import AdminApproval from "./components/Admin/Dashboard/AdminApproval";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -293,6 +294,14 @@ function AppContent({ loading, user }) {
                   element={
                     <ProtectedAdminRoute>
                       <OrgUpdate />
+                    </ProtectedAdminRoute>
+                  }
+                />
+                <Route
+                  path="approval"
+                  element={
+                    <ProtectedAdminRoute>
+                      <AdminApproval />
                     </ProtectedAdminRoute>
                   }
                 />
