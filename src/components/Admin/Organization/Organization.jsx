@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import OrgCreate from "./OrgCreate";
 import OrgUpdate from "./OrgUpdate";
+import OrgOfficerUpdate from "./OrgOfficerUpdate"; // Import the new modal
 import { IoMdSearch } from "react-icons/io";
+import { Link } from "react-router-dom";
+
 const apiUrl = import.meta.env.VITE_API_URL;
 
 function Organization() {
@@ -11,6 +14,7 @@ function Organization() {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isOfficerUpdateModalOpen, setIsOfficerUpdateModalOpen] = useState(false);
   const [selectedOrg, setSelectedOrg] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -94,6 +98,12 @@ function Organization() {
     setSelectedOrg(null);
   };
 
+  // New function to open the Officer Update modal
+  const openOfficerUpdateModal = (org) => {
+    setSelectedOrg(org);
+    setIsOfficerUpdateModalOpen(true);
+  };
+
   const filteredOrganizations = organizations.filter((org) =>
     org.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -121,7 +131,7 @@ function Organization() {
       ) : (
         filteredOrganizations.map((org) => (
           <div
-            key={org.id}
+            key={org.id || org._id}
             className="flex flex-col md:flex-row bg-white rounded-2xl shadow-lg overflow-hidden border-2 transition hover:shadow-2xl mb-6"
           >
             <div className="md:w-[30vh]">
@@ -143,6 +153,12 @@ function Organization() {
               </div>
 
               <div className="mt-4 flex justify-end space-x-2">
+                <button
+                  onClick={() => openOfficerUpdateModal(org)}
+                  className="bg-yellow-600 text-white text-sm font-semibold uppercase px-6 py-2 rounded-full transition hover:bg-yellow-700"
+                >
+                  Update Officer
+                </button>
                 <button
                   onClick={() => openUpdateModal(org)}
                   className="bg-indigo-600 text-white text-sm font-semibold uppercase px-6 py-2 rounded-full transition hover:bg-indigo-700"
@@ -168,11 +184,21 @@ function Organization() {
       </button>
       <OrgCreate isOpen={isModalOpen} onClose={closeModal} />
       {selectedOrg && (
-        <OrgUpdate
-          isOpen={isUpdateModalOpen}
-          onClose={closeUpdateModal}
-          organization={selectedOrg}
-        />
+        <>
+          <OrgUpdate
+            isOpen={isUpdateModalOpen}
+            onClose={closeUpdateModal}
+            organization={selectedOrg}
+          />
+          <OrgOfficerUpdate
+            isOpen={isOfficerUpdateModalOpen}
+            onClose={() => {
+              setIsOfficerUpdateModalOpen(false);
+              setSelectedOrg(null);
+            }}
+            organization={selectedOrg}
+          />
+        </>
       )}
     </div>
   );
