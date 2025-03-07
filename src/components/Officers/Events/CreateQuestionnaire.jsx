@@ -140,7 +140,7 @@ const CreateQuestionnaire = () => {
   return (
     <div className="container mx-auto px-4 py-6">
   <h1 className="text-3xl font-semibold mb-4">Create Event Questionnaire</h1>
-  {selectedEventId && <p className="text-lg mb-4">Selected Event ID: {selectedEventId}</p>}
+  <h3>Choose your questions wisely or Randomize it</h3>
 
   {loading ? (
     <p>Loading questions...</p>
@@ -174,6 +174,7 @@ const CreateQuestionnaire = () => {
                     }}
                   />
                   <p className="text-gray-700">{question.question}</p>
+                  <p className="text-gray-700 italic">({question.translated})</p>
                 </div>
                 <div className="flex space-x-2 mt-2">
                   {[1, 2, 3, 4, 5].map((value) => (

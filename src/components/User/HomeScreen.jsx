@@ -163,7 +163,7 @@ function HomeScreen() {
         {loading ? (
           <p className="text-center text-lg">Loading...</p>
         ) : error ? (
-          <p className="text-center text-red-500">{error}</p>
+          <p className="text-center text-red-500">NO EVENTS AVAILABLE</p>
         ) : (
           <Slider {...settings}>
             {events.map((event) => (

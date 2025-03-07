@@ -11,9 +11,11 @@ const ListQuestion = () => {
     const [selectedTrait, setSelectedTrait] = useState('');
     const [selectedType, setSelectedType] = useState('');
     const [question, setQuestion] = useState('');
+    const [translated, setTranslated] = useState('');
     const [tempQuestions, setTempQuestions] = useState([]);
     const [questions, setQuestions] = useState([]);
     const [error, setError] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -37,19 +39,21 @@ const ListQuestion = () => {
     }, []);
 
     const handleAddQuestion = () => {
-        if (!question || !selectedTrait || !selectedType) {
+        if (!question || !translated || !selectedTrait || !selectedType) {
             alert('Please enter a question, select a trait, and select a type.');
             return;
         }
 
         const newQuestion = {
             question,
+            translated,
             traitId: selectedTrait,
             typeId: selectedType,
         };
 
         setTempQuestions((prev) => [...prev, newQuestion]);
         setQuestion('');
+        setTranslated('');
         setSelectedTrait('');
         setSelectedType('');
     };
@@ -82,84 +86,128 @@ const ListQuestion = () => {
 
     return (
         <div style={styles.container}>
-            <h1 style={styles.heading}>Create Questions</h1>
+            <h1 style={styles.heading}>Questionnaire Dashboard</h1>
+            <button style={styles.button} onClick={() => setIsModalOpen(true)}>
+                Create Questionnaire
+            </button>
 
-            <form onSubmit={(e) => e.preventDefault()} style={styles.form}>
-                <div style={styles.formGroup}>
-                    <label htmlFor="question" style={styles.label}>Question:</label>
-                    <input
-                        id="question"
-                        type="text"
-                        value={question}
-                        onChange={(e) => setQuestion(e.target.value)}
-                        placeholder="Enter your question"
-                        style={styles.input}
-                    />
+            {isModalOpen && (
+                <div style={styles.modalOverlay}>
+                    <div style={styles.modalContent}>
+                        <button style={styles.closeButton} onClick={() => setIsModalOpen(false)}>
+                            X
+                        </button>
+                        <h2 style={styles.subHeading}>Create Questions</h2>
+
+                        <form onSubmit={(e) => e.preventDefault()} style={styles.form}>
+                            <div style={styles.formGroup}>
+                                <label htmlFor="question" style={styles.label}>
+                                    Question:
+                                </label>
+                                <input
+                                    id="question"
+                                    type="text"
+                                    value={question}
+                                    onChange={(e) => setQuestion(e.target.value)}
+                                    placeholder="Enter your question"
+                                    style={styles.input}
+                                />
+                            </div>
+
+                            <div style={styles.formGroup}>
+                                <label htmlFor="translated" style={styles.label}>
+                                    Translated:
+                                </label>
+                                <input
+                                    id="translated"
+                                    type="text"
+                                    value={translated}
+                                    onChange={(e) => setTranslated(e.target.value)}
+                                    placeholder="Enter your translated question"
+                                    style={styles.input}
+                                />
+                            </div>
+
+                            <div style={styles.formGroup}>
+                                <label htmlFor="trait" style={styles.label}>
+                                    Select Trait:
+                                </label>
+                                <select
+                                    id="trait"
+                                    value={selectedTrait}
+                                    onChange={(e) => setSelectedTrait(e.target.value)}
+                                    style={styles.select}
+                                >
+                                    <option value="">-- Select a Trait --</option>
+                                    {traits.map((trait) => (
+                                        <option key={trait._id} value={trait._id}>
+                                            {trait.trait || trait.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div style={styles.formGroup}>
+                                <label htmlFor="type" style={styles.label}>
+                                    Select Type:
+                                </label>
+                                <select
+                                    id="type"
+                                    value={selectedType}
+                                    onChange={(e) => setSelectedType(e.target.value)}
+                                    style={styles.select}
+                                >
+                                    <option value="">-- Select a Type --</option>
+                                    {types.map((type) => (
+                                        <option key={type._id} value={type._id}>
+                                            {type.eventType}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <button type="button" onClick={handleAddQuestion} style={styles.button}>
+                                Add Another Question
+                            </button>
+                        </form>
+
+                        {tempQuestions.length > 0 && (
+                            <>
+                                <h3 style={styles.subHeading}>Questions to be Created</h3>
+                                <ul style={styles.tempList}>
+                                    {tempQuestions.map((q, index) => (
+                                        <li key={index} style={styles.tempListItem}>
+                                            {q.question} - Trait:{' '}
+                                            {traits.find((t) => t._id === q.traitId)?.trait || 'N/A'}, Type:{' '}
+                                            {types.find((t) => t._id === q.typeId)?.eventType || 'N/A'}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <button onClick={handleCreateQuestions} style={styles.button}>
+                                    Create All Questions
+                                </button>
+                            </>
+                        )}
+                    </div>
                 </div>
-
-                <div style={styles.formGroup}>
-                    <label htmlFor="trait" style={styles.label}>Select Trait:</label>
-                    <select
-                        id="trait"
-                        value={selectedTrait}
-                        onChange={(e) => setSelectedTrait(e.target.value)}
-                        style={styles.select}
-                    >
-                        <option value="">-- Select a Trait --</option>
-                        {traits.map((trait) => (
-                            <option key={trait._id} value={trait._id}>
-                                {trait.trait || trait.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div style={styles.formGroup}>
-                    <label htmlFor="type" style={styles.label}>Select Type:</label>
-                    <select
-                        id="type"
-                        value={selectedType}
-                        onChange={(e) => setSelectedType(e.target.value)}
-                        style={styles.select}
-                    >
-                        <option value="">-- Select a Type --</option>
-                        {types.map((type) => (
-                            <option key={type._id} value={type._id}>
-                                {type.eventType}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <button type="button" onClick={handleAddQuestion} style={styles.button}>
-                    Add Another Question
-                </button>
-            </form>
-
-            {tempQuestions.length > 0 && (
-                <>
-                    <h2 style={styles.subHeading}>Questions to be Created</h2>
-                    <ul style={styles.tempList}>
-                        {tempQuestions.map((q, index) => (
-                            <li key={index} style={styles.tempListItem}>
-                                {q.question} - Trait: {traits.find((t) => t._id === q.traitId)?.trait || 'N/A'},
-                                Type: {types.find((t) => t._id === q.typeId)?.eventType || 'N/A'}
-                            </li>
-                        ))}
-                    </ul>
-                    <button onClick={handleCreateQuestions} style={styles.button}>
-                        Create All Questions
-                    </button>
-                </>
             )}
 
             <h2 style={styles.subHeading}>Created Questions</h2>
             <div style={styles.questionList}>
                 {questions.map((q) => (
                     <div key={q._id} style={styles.questionCard}>
-                        <p><strong>Question:</strong> {q.question}</p>
-                        <p><strong>Trait:</strong> {q.traitId?.trait || 'N/A'}</p>
-                        <p><strong>Type:</strong> {q.typeId?.eventType || 'N/A'}</p>
+                        <p>
+                            <strong>Question:</strong> {q.question}
+                        </p>
+                        <p>
+                            <strong>Translated:</strong> {q.translated}
+                        </p>
+                        <p>
+                            <strong>Trait:</strong> {q.traitId?.trait || 'N/A'}
+                        </p>
+                        <p>
+                            <strong>Type:</strong> {q.typeId?.eventType || 'N/A'}
+                        </p>
                     </div>
                 ))}
             </div>
@@ -171,7 +219,6 @@ const ListQuestion = () => {
         </div>
     );
 };
-
 
 // Styling with a sleek design and user-friendly interface
 const styles = {
@@ -241,9 +288,6 @@ const styles = {
         marginTop: '20px',
         transition: 'background-color 0.3s ease',
     },
-    buttonHover: {
-        backgroundColor: '#5a4cd8',
-    },
     tempList: {
         listStyle: 'none',
         padding: '0',
@@ -281,6 +325,36 @@ const styles = {
         color: '#ff4d4d',
         fontWeight: 'bold',
         fontSize: '1.1rem',
+    },
+    modalOverlay: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+    },
+    modalContent: {
+        backgroundColor: '#fff',
+        padding: '20px',
+        borderRadius: '12px',
+        boxShadow: '0 3px 10px rgba(0, 0, 0, 0.2)',
+        width: '90%',
+        maxWidth: '500px',
+        position: 'relative',
+    },
+    closeButton: {
+        position: 'absolute',
+        top: '10px',
+        right: '10px',
+        background: 'transparent',
+        border: 'none',
+        fontSize: '1.2rem',
+        cursor: 'pointer',
     },
 };
 
