@@ -264,8 +264,8 @@ function Home() {
 
   return (
     <>
-      <div className="h-[10vh] w-full bg-[#f7f7f9] rounded-full flex items-center justify-between shadow-lg px-10">
-        <p className="text-[#3a1078] text-[50px] font-bold tracking-[.15em] uppercase font-tungsten ">
+      <div className="h-[10vh] w-full bg-[#f7f7f9] rounded-full flex items-center justify-between shadow-md px-5 md:px-10">
+        <p className="text-[#3a1078] text-[5vh] md:text-[2.8vh] sm:text-[20px] font-bold tracking-[.15em] uppercase font-tungsten">
           {userOrganizationName
             ? `${userOrganizationName} `
             : "Organization Dashboard"}
@@ -274,47 +274,50 @@ function Home() {
           <img
             src={logo}
             alt="logo"
-            className="h-[5vh] w-auto object-contain rounded-full"
+            className="h-[4vh] md:h-[5vh] w-auto object-contain rounded-full"
           />
         </div>
       </div>
-      <h1 className="font-tungsten text-[8vh] text-[#3a1078] px-5 flex items-center gap-4">
+
+      <h1 className="font-tungsten text-[5vh] md:text-[6vh] sm:text-[5vh] text-[#3a1078] px-5 flex items-center gap-4">
         <span className="flex-1 h-1 bg-[#3a1078]"></span>
         Dashboard
         <span className="flex-1 h-1 bg-[#3a1078]"></span>
       </h1>
-      <div className="flex flex-row w-full h-full px-10 py-10 gap-10">
-        <div className="flex flex-col w-3/4 gap-10">
+
+      <div className="flex flex-col lg:flex-row w-full h-full px-5 md:px-10 py-5 md:py-10 gap-5 md:gap-10">
+        <div className="flex flex-col w-full lg:w-3/4 gap-5 md:gap-10">
           {userData && (
-            <div className="bg-[#f7f7f9] h-[30vh] p-6 rounded-3xl shadow-lg flex justify-between items-center hover:shadow-xl transition-shadow duration-300 fade-in-left">
-              <div className="mx-10">
-                <h1 className="text-[8vh] font-bold text-[#3a1078] font-tungsten">
+            <div className="bg-[#f7f7f9] h-[25vh] md:h-[30vh] p-4 md:p-6 rounded-3xl shadow-lg flex flex-col md:flex-row justify-between items-center hover:shadow-xl transition-shadow duration-300 fade-in-left">
+              <div className="mx-5 md:mx-10">
+                <h1 className="text-[6vh] md:text-[6vh] sm:text-[5vh] font-bold text-[#3a1078] font-tungsten">
                   Hi, {userData.name} {userData.surname}! 👋
                 </h1>
-                <p className="text-2xl font-bold text-[#3a1078]">
+                <p className="text-xl md:text-2xl font-bold text-[#3a1078]">
                   kunware wala kang nababasa ha? thank you so much
                 </p>
               </div>
-              <div className="w-1/3 h-full flex justify-center items-center">
+              <div className="w-full md:w-1/3 h-[15vh] md:h-full sm:h-0 flex justify-center items-center">
                 <DotLottieReact
                   src="https://lottie.host/e293ffde-604c-4608-8989-03852875a233/4qcsmg5xtt.lottie"
                   loop
                   autoplay
-                  style={{ width: "100%", height: "100%" }}
+                  style={{ width: "100%", height: "90%" }}
                 />
               </div>
             </div>
           )}
-          <div className="bg-[#f7f7f8] rounded-3xl shadow-lg p-6">
-            <div className="grid grid-cols-[40%_2px_60%] gap-5 text-[#3a1078] text-[30px] font-bold tracking-wide uppercase mb-5">
-              <h1 className="font-tungsten text-[6vh] col-span-1">
+
+          <div className="bg-[#f7f7f8] rounded-3xl shadow-lg p-4 md:p-6 fade-in-left hover:shadow-xl transition-shadow duration-300">
+            <div className="grid grid-cols-1 md:grid-cols-[40%_2px_60%] gap-3 md:gap-5 text-[#3a1078] text-[20px] md:text-[30px] font-bold tracking-wide uppercase mb-3 md:mb-5">
+              <h1 className="font-tungsten text-[4vh] md:text-[6vh] sm:text-[4vh] col-span-1">
                 Calendar of Events
               </h1>
-              <h2 className="font-tungsten text-[6vh] col-span-2">
+              <h2 className="font-tungsten text-[4vh] md:text-[6vh] sm:text-[4vh] col-span-2">
                 Events on {selectedDate.toDateString()}:
               </h2>
             </div>
-            <div className="grid grid-cols-[40%_2px_60%] w-full gap-4 items-start">
+            <div className="grid grid-cols-1 md:grid-cols-[40%_2px_60%] w-full gap-4 items-start">
               <div>
                 <Calendar
                   onChange={handleDateChange}
@@ -323,31 +326,28 @@ function Home() {
                   tileContent={tileContent}
                 />
               </div>
-              <div className="border-l-2 border-dashed border-[#3a1078] h-full"></div>
+              <div className="hidden md:block border-l-2 border-dashed border-[#3a1078] h-full"></div>
               <div>{renderEvents()}</div>
             </div>
           </div>
         </div>
-        <div className="w-1/4 flex flex-col gap-5">
-          <div className="w-full h-[20vh] bg-[#f7f7f8] rounded-3xl flex items-center justify-center shadow-md">
-            <p className="text-[#3a1078] font-bold text-xl">Members: 1500</p>
-          </div>
-          <div className="w-full h-[20vh] bg-[#f7f7f8] rounded-3xl flex items-center justify-center shadow-md">
-            <p className="text-[#3a1078] font-bold text-xl">
-              Events: {eventCount}
-            </p>
-          </div>
-          {/* Updated Box 3 to show officer count */}
-          <div className="w-full h-[20vh] bg-[#f7f7f8] rounded-3xl flex items-center justify-center shadow-md">
-            <p className="text-[#3a1078] font-bold text-xl">
-              Officers: {officerCount}
-            </p>
-          </div>
-          <div className="w-full h-[20vh] bg-[#f7f7f8] rounded-3xl flex items-center justify-center shadow-md">
-            <p className="text-[#3a1078] font-bold text-xl">
-              Registered Users: {userCount}
-            </p>
-          </div>
+
+        <div className="w-full lg:w-1/4 flex flex-col gap-3 md:gap-5 fade-in-up">
+          {[
+            { label: "Members", count: 1500 },
+            { label: "Events", count: eventCount },
+            { label: "Officers", count: officerCount },
+            { label: "Registered Users", count: userCount },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="w-full h-[15vh] md:h-[20vh] bg-[#f7f7f8] rounded-3xl flex items-center justify-center shadow-md hover:shadow-xl transition-shadow duration-300"
+            >
+              <p className="text-[#3a1078] font-bold text-lg md:text-xl">
+                {item.label}: {item.count}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </>
