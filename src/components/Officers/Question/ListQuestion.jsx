@@ -84,6 +84,17 @@ const ListQuestion = () => {
         }
     };
 
+    const handleDeleteQuestion = async (id) => {
+        try {
+            await axios.delete(`${apiUrl}questions/${id}`);
+            setQuestions((prev) => prev.filter((question) => question._id !== id));
+            toast.success('Question deleted successfully!');
+        } catch (error) {
+            console.error('Error deleting question:', error);
+            toast.error('Failed to delete question');
+        }
+    };
+
     return (
         <div style={styles.container}>
             <h1 style={styles.heading}>Questionnaire Dashboard</h1>
@@ -208,6 +219,9 @@ const ListQuestion = () => {
                         <p>
                             <strong>Type:</strong> {q.typeId?.eventType || 'N/A'}
                         </p>
+                        <button onClick={() => handleDeleteQuestion(q._id)} style={styles.deleteButton}>
+                            Delete
+                        </button>
                     </div>
                 ))}
             </div>
@@ -287,6 +301,16 @@ const styles = {
         fontSize: '1.2rem',
         marginTop: '20px',
         transition: 'background-color 0.3s ease',
+    },
+    deleteButton: {
+        padding: '8px 20px',
+        backgroundColor: '#ff4d4d',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        fontSize: '1rem',
+        marginTop: '10px',
     },
     tempList: {
         listStyle: 'none',
