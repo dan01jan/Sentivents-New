@@ -7,13 +7,11 @@ import TUPLogo from "../../assets/website/TUP logo.png";
 function About() {
   return (
     <>
-      {/* 🔹 Hero Section */}
       <div
-        className="w-full min-h-[70vh] md:min-h-[80vh] lg:min-h-[90vh] flex justify-center items-center bg-cover bg-center"
+        className="w-full min-h-[60vh] md:min-h-[70vh] lg:min-h-[70vh] flex justify-center items-center bg-cover bg-center"
         style={{ backgroundImage: `url(${eventBG})` }}
       >
         <div className="max-w-screen-xl w-full px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-          {/* Image Section */}
           <div className="flex justify-center">
             <img
               className="w-full max-w-[500px] md:max-w-[600px] lg:max-w-[700px] h-auto object-cover shadow-2xl"
@@ -21,8 +19,6 @@ function About() {
               alt="VOYS Event"
             />
           </div>
-
-          {/* Text Section */}
           <div className="w-full text-center md:text-left">
             <h5 className="text-[12vw] sm:text-[10vw] md:text-[8vw] lg:text-[100px] xl:text-[160px] font-tungsten text-[#3a1078] leading-tight uppercase">
               about voys

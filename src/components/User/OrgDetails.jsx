@@ -75,7 +75,7 @@ function OrgDetails() {
       >
         <div className="max-w-[150vh] w-full px-6 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div className="flex flex-col gap-4 text-center md:text-left">
-            <h2 className="text-[10vw] sm:text-[8vw] md:text-[6vw] lg:text-[8vw] font-tungsten text-[#3a1078] leading-none uppercase">
+            <h2 className="text-[10vh] sm:text-[8vh] md:text-[6vh] lg:text-[8vh] font-tungsten text-[#3a1078] leading-none uppercase">
               {orgDetails.name}
             </h2>
             <p className="text-black text-base md:text-lg">
@@ -84,7 +84,7 @@ function OrgDetails() {
           </div>
           <div className="flex justify-center md:justify-end">
             <img
-              className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg object-cover rounded-full"
+              className="w-full max-w-xs sm:max-w-[20vh] md:max-w-md lg:max-w-lg object-cover rounded-full"
               src={orgDetails.image || orgimg}
               alt="Organization Image"
             />

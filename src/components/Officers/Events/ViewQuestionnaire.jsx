@@ -61,78 +61,37 @@ const ViewQuestionnaire = () => {
   };
 
   return (
-    <div className="questionnaire-container" style={{ padding: '20px', fontFamily: 'Arial, sans-serif', width: '100%', maxWidth: '1200px', margin: 'auto' }}>
-      <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#4A90E2', marginBottom: '20px', textAlign: 'center' }}>View Event Questionnaire</h1>
-      <div style={{ marginTop: '20px', textAlign: 'center', marginBottom: '20px'}}>
-            <label style={{ fontSize: '1rem', color: '#333', marginRight: '10px' }}>Accepting Responses:</label>
-            <button
-              onClick={toggleAcceptingResponses}
-              style={{
-                backgroundColor: acceptingResponses ? '#4CAF50' : '#FF6347',
-                color: '#fff',
-                padding: '10px 20px',
-                borderRadius: '30px',
-                fontSize: '1rem',
-                cursor: 'pointer',
-                transition: 'background-color 0.3s ease',
-                border: 'none',
-              }}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#66BB6A'}
-              onMouseOut={(e) => e.target.style.backgroundColor = acceptingResponses ? '#4CAF50' : '#FF6347'}
-            >
-              {acceptingResponses ? 'Yes' : 'No'}
-            </button>
-          </div>
+    <div className="p-8 font-sans max-w-7xl mx-auto">
+      <h1 className="text-4xl font-bold text-blue-500 text-center mb-8">View Event Questionnaire</h1>
+      <div className="text-center mb-8">
+        <label className="text-lg text-gray-800 mr-4">Accepting Responses:</label>
+        <button
+          onClick={toggleAcceptingResponses}
+          className={`px-6 py-2 rounded-full text-white text-lg transition duration-300 ease-in-out ${acceptingResponses ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}
+        >
+          {acceptingResponses ? 'Yes' : 'No'}
+        </button>
+      </div>
       {questionnaire ? (
-        <div>
-          {/* <h2 style={{ fontSize: '1.5rem', color: '#333', marginBottom: '10px', textAlign: 'center' }}>Questionnaire for Event: {questionnaire.eventId}</h2> */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(5, 1fr)', // Ensure 5 columns per row
-            gap: '20px',
-            justifyContent: 'center',
-            width: '100%', // Make sure it spans the whole page
-          }}>
-            {questionnaire.questions.map((question, index) => (
-              <div key={index} style={{ 
-                backgroundColor: '#f9f9f9', 
-                padding: '20px', 
-                borderRadius: '8px', 
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', 
-                textAlign: 'center'
-              }}>
-                <p style={{ fontSize: '1rem', color: '#333', fontWeight: 'bold' }}>{question.question}</p>
-                <p style={{ fontSize: '1rem', color: '#555', fontStyle: 'italic' }}>{question.translated}</p>
-                <p style={{ fontSize: '0.9rem', color: '#777' }}>Trait: {question.traitId?.trait}</p>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '10px' }}>
-                  {[1, 2, 3, 4, 5].map((value) => (
-                    <label key={value} style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      width: '40px',
-                      height: '40px',
-                      backgroundColor: '#fff',
-                      borderRadius: '8px',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                      fontSize: '1rem',
-                      fontWeight: 'bold',
-                      color: '#333',
-                      cursor: 'pointer',
-                      textAlign: 'center',
-                    }}>
-                      <input type="radio" name={`question-${index}`} value={value} style={{ display: 'none' }} />
-                      {value}
-                    </label>
-                  ))}
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          {questionnaire.questions.map((question, index) => (
+            <div key={index} className="bg-gray-100 p-6 rounded-lg shadow-md text-center">
+              <p className="text-lg font-bold text-gray-800 mb-2">{question.question}</p>
+              <p className="text-sm italic text-gray-600 mb-2">{question.translated}</p>
+              <p className="text-sm text-gray-500">Trait: {question.traitId?.trait}</p>
+              <div className="flex justify-center gap-2 mt-4">
+                {[1, 2, 3, 4, 5].map((value) => (
+                  <label key={value} className="w-10 h-10 flex items-center justify-center bg-white rounded-md shadow text-lg font-bold text-gray-800 cursor-pointer hover:bg-gray-200">
+                    <input type="radio" name={`question-${index}`} value={value} className="hidden" />
+                    {value}
+                  </label>
+                ))}
               </div>
-            ))}
-          </div>
-          
+            </div>
+          ))}
         </div>
       ) : (
-        <p style={{ textAlign: 'center' }}>Loading questionnaire...</p>
+        <p className="text-center text-gray-600">Loading questionnaire...</p>
       )}
     </div>
   );

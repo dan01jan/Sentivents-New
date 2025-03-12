@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/website/V_LightLogo.png";
 import "./Header.css";
@@ -6,11 +6,16 @@ import "../../index.css";
 
 function Header({ isOfficer, user }) {
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userData");
     window.location.reload();
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
   return (
@@ -58,7 +63,7 @@ function Header({ isOfficer, user }) {
         </div>
 
         {/* User Section */}
-        <div className="hidden md:flex items-center space-x-4 ">
+        <div className="hidden md:flex items-center space-x-4">
           {user ? (
             <>
               <span className="text-lg font-semibold text-white">
@@ -83,7 +88,10 @@ function Header({ isOfficer, user }) {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden">
-          <button className="text-white focus:outline-none">
+          <button
+            className="text-white focus:outline-none"
+            onClick={toggleMobileMenu}
+          >
             <svg
               className="h-8 w-8"
               fill="none"
@@ -100,6 +108,74 @@ function Header({ isOfficer, user }) {
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-[#3a1078] p-4">
+          <div
+            onClick={() => {
+              navigate("/home");
+              toggleMobileMenu();
+            }}
+            className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer"
+          >
+            <span className="text-sm font-medium text-white">HOME</span>
+          </div>
+          <div
+            onClick={() => {
+              navigate("/events");
+              toggleMobileMenu();
+            }}
+            className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer"
+          >
+            <span className="text-sm font-medium text-white">EVENTS</span>
+          </div>
+          <div
+            onClick={() => {
+              navigate("/organization");
+              toggleMobileMenu();
+            }}
+            className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer"
+          >
+            <span className="text-sm font-medium text-white">ORGANIZATION</span>
+          </div>
+          <div
+            onClick={() => {
+              navigate("/about");
+              toggleMobileMenu();
+            }}
+            className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer"
+          >
+            <span className="text-sm font-medium text-white">ABOUT</span>
+          </div>
+          {user ? (
+            <>
+              <span className="text-lg font-semibold text-white block mt-4">
+                Welcome, {user.name}
+              </span>
+              <button
+                onClick={() => {
+                  handleLogout();
+                  toggleMobileMenu();
+                }}
+                className="mt-2 px-4 py-2 bg-red-600 text-white text-lg font-semibold rounded-lg hover:bg-red-700 transition w-full"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => {
+                navigate("/login");
+                toggleMobileMenu();
+              }}
+              className="mt-2 px-5 py-1 font-semibold bg-gradient-to-r from-[#FF0000] to-[#b60202] text-white text-lg rounded-lg hover:from-[#b60202] hover:to-[#FF0000] transition w-full"
+            >
+              SIGN IN
+            </button>
+          )}
+        </div>
+      )}
     </header>
   );
 }
