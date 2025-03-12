@@ -82,81 +82,165 @@ const AdminApproval = () => {
   };
 
   if (loading) {
-    return <div>Loading organizations and officers...</div>;
+    return <div style={{ textAlign: 'center', fontSize: '20px', color: '#9C4DFF' }}>Loading organizations and officers...</div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div style={{ textAlign: 'center', fontSize: '20px', color: '#F44336' }}>Error: {error}</div>;
   }
 
   return (
     <div
       style={{
-        backgroundColor: '#FFF0F5',
-        borderRadius: '8px',
-        padding: '20px',
-        maxWidth: '800px',
+        backgroundColor: '#F3E5F5', // Light violet background
+        borderRadius: '15px',
+        padding: '30px',
+        maxWidth: '90%',
         margin: '40px auto',
-        fontFamily: '"Comic Sans MS", cursive, sans-serif'
+        fontFamily: '"Poppins", sans-serif',
+        boxShadow: '0px 10px 30px rgba(0, 0, 0, 0.1)',
       }}
     >
-      <h1 style={{ textAlign: 'center', color: '#d81b60' }}>Organizations and Officers</h1>
+      <h1
+        style={{
+          textAlign: 'center',
+          color: '#9C4DFF',
+          fontSize: '2.5rem',
+          marginBottom: '30px',
+          letterSpacing: '1px',
+        }}
+      >
+        Officer Approval Dashboard
+      </h1>
       {orgData.length === 0 ? (
-        <p>No organizations found.</p>
+        <p style={{ textAlign: 'center', color: '#9C4DFF', fontSize: '1.2rem' }}>No organizations found.</p>
       ) : (
-        orgData.map((org) => (
-          <div
-            key={org._id || org.name}
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '8px',
-              padding: '15px',
-              boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-              marginBottom: '20px'
-            }}
-          >
-            <h2 style={{ color: '#ad1457' }}>{org.name}</h2>
-            {org.officers && org.officers.filter(officer => !officer.isAdmin).length > 0 ? (
-              <ul style={{ listStyleType: 'none', padding: 0 }}>
-                {org.officers.filter(officer => !officer.isAdmin).map((officer) => (
-                  <li key={officer._id} style={{ marginBottom: '10px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <input
-                        type="checkbox"
-                        id={`checkbox-${officer._id}`}
-                        checked={selectedOfficers.has(officer._id)}
-                        disabled={declinedOfficers.has(officer._id)}
-                        onChange={() => handleCheckboxChange(officer._id)}
-                      />
-                      <label htmlFor={`checkbox-${officer._id}`} style={{ marginLeft: '8px' }}>
-                        {officer.name} {officer.surname} ({officer.email})
-                      </label>
-                    </div>
-                    {/* Show buttons when the checkbox is checked and not already approved or declined */}
-                    {selectedOfficers.has(officer._id) &&
-                      !approvedOfficers.has(officer._id) &&
-                      !declinedOfficers.has(officer._id) && (
-                        <div style={{ marginTop: '8px' }}>
-                          <button onClick={() => handleApprove(officer._id)} style={{ marginRight: '8px' }}>
-                            Approve
-                          </button>
-                          <button onClick={() => handleDecline(officer._id)}>Decline</button>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', // Grid layout to display cards side by side
+            gap: '20px',
+          }}
+        >
+          {orgData.map((org) => (
+            <div
+              key={org._id || org.name}
+              style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: '12px',
+                padding: '20px',
+                boxShadow: '0px 6px 15px rgba(0, 0, 0, 0.1)',
+                transition: 'transform 0.3s ease-in-out',
+              }}
+            >
+              <h2
+                style={{
+                  color: '#9C4DFF',
+                  fontSize: '1.8rem',
+                  marginBottom: '20px',
+                  textAlign: 'center',
+                  fontWeight: '600',
+                }}
+              >
+                {org.name}
+              </h2>
+              {org.officers && org.officers.filter((officer) => !officer.isAdmin).length > 0 ? (
+                <ul style={{ listStyleType: 'none', padding: 0 }}>
+                  {org.officers
+                    .filter((officer) => !officer.isAdmin)
+                    .map((officer) => (
+                      <li
+                        key={officer._id}
+                        style={{
+                          marginBottom: '18px',
+                          padding: '12px',
+                          backgroundColor: '#f9f9f9',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
+                        }}
+                      >
+                        <div>
+                          <input
+                            type="checkbox"
+                            id={`checkbox-${officer._id}`}
+                            checked={selectedOfficers.has(officer._id)}
+                            disabled={declinedOfficers.has(officer._id)}
+                            onChange={() => handleCheckboxChange(officer._id)}
+                            style={{
+                              marginRight: '12px',
+                              cursor: declinedOfficers.has(officer._id) ? 'not-allowed' : 'pointer',
+                            }}
+                          />
+                          <label
+                            htmlFor={`checkbox-${officer._id}`}
+                            style={{
+                              color: '#333',
+                              fontSize: '1rem',
+                              fontWeight: '500',
+                              textTransform: 'capitalize',
+                            }}
+                          >
+                            {officer.name} {officer.surname} ({officer.email})
+                          </label>
                         </div>
-                      )}
-                    {approvedOfficers.has(officer._id) && (
-                      <p style={{ color: 'green', marginTop: '8px' }}>Officer approved.</p>
-                    )}
-                    {declinedOfficers.has(officer._id) && (
-                      <p style={{ color: 'red', marginTop: '8px' }}>Officer declined.</p>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No officers to approve.</p>
-            )}
-          </div>
-        ))
+                        {/* Show buttons when the checkbox is checked and not already approved or declined */}
+                        {selectedOfficers.has(officer._id) &&
+                          !approvedOfficers.has(officer._id) &&
+                          !declinedOfficers.has(officer._id) && (
+                            <div>
+                              <button
+                                onClick={() => handleApprove(officer._id)}
+                                style={{
+                                  backgroundColor: '#7C4DFF',
+                                  color: '#fff',
+                                  padding: '8px 16px',
+                                  borderRadius: '6px',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  marginRight: '12px',
+                                  transition: 'background-color 0.3s ease',
+                                }}
+                              >
+                                Approve
+                              </button>
+                              <button
+                                onClick={() => handleDecline(officer._id)}
+                                style={{
+                                  backgroundColor: '#FF4081',
+                                  color: '#fff',
+                                  padding: '8px 16px',
+                                  borderRadius: '6px',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  transition: 'background-color 0.3s ease',
+                                }}
+                              >
+                                Decline
+                              </button>
+                            </div>
+                          )}
+                        {approvedOfficers.has(officer._id) && (
+                          <p style={{ color: '#7C4DFF', marginTop: '8px', fontStyle: 'italic' }}>
+                            Officer approved.
+                          </p>
+                        )}
+                        {declinedOfficers.has(officer._id) && (
+                          <p style={{ color: '#FF4081', marginTop: '8px', fontStyle: 'italic' }}>
+                            Officer declined.
+                          </p>
+                        )}
+                      </li>
+                    ))}
+                </ul>
+              ) : (
+                <p style={{ textAlign: 'center', color: '#9C4DFF', fontSize: '1.2rem' }}>No officers to approve.</p>
+              )}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
