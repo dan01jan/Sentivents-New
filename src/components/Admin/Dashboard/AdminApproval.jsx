@@ -1,20 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const AdminApproval = () => {
   const [orgData, setOrgData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedOfficers, setSelectedOfficers] = useState(new Set());
-  const [approvedOfficers, setApprovedOfficers] = useState(new Set());
-  const [declinedOfficers, setDeclinedOfficers] = useState(new Set());
+  const [selectedOfficers, setSelectedOfficers] = useState([]);
 
   useEffect(() => {
     const fetchOrganizations = async () => {
       try {
         const response = await fetch(`${apiUrl}users/organizations/officers`);
         if (!response.ok) {
-          throw new Error('Failed to fetch organizations.');
+          throw new Error("Failed to fetch organizations.");
         }
         const data = await response.json();
         setOrgData(data);
@@ -28,218 +26,130 @@ const AdminApproval = () => {
     fetchOrganizations();
   }, []);
 
-  const handleCheckboxChange = (officerId) => {
-    // If the officer was already declined, do nothing.
-    if (declinedOfficers.has(officerId)) return;
-    setSelectedOfficers((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(officerId)) {
-        newSet.delete(officerId);
-      } else {
-        newSet.add(officerId);
-      }
-      return newSet;
-    });
-  };
-
   const handleApprove = async (officerId) => {
     try {
-      const token = localStorage.getItem('token'); // Adjust according to your auth strategy
+      const token = localStorage.getItem("token");
       const response = await fetch(
         `${apiUrl}users/organizations/officers/${officerId}/approve`,
         {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
-      if (!response.ok) {
-        throw new Error('Failed to approve officer.');
-      }
-      const data = await response.json();
-      console.log(data.message);
-      setApprovedOfficers((prev) => new Set(prev).add(officerId));
-      setSelectedOfficers((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(officerId);
-        return newSet;
-      });
+      if (!response.ok) throw new Error("Failed to approve officer.");
+      setOrgData((prevData) =>
+        prevData.map((org) => ({
+          ...org,
+          officers: org.officers.filter((officer) => officer._id !== officerId),
+        }))
+      );
+      setSelectedOfficers((prev) =>
+        prev.filter((officer) => officer._id !== officerId)
+      );
     } catch (error) {
       console.error(error);
     }
   };
 
   const handleDecline = (officerId) => {
-    setDeclinedOfficers((prev) => new Set(prev).add(officerId));
-    // Optionally remove from selected set if declined.
-    setSelectedOfficers((prev) => {
-      const newSet = new Set(prev);
-      newSet.delete(officerId);
-      return newSet;
-    });
+    setOrgData((prevData) =>
+      prevData.map((org) => ({
+        ...org,
+        officers: org.officers.filter((officer) => officer._id !== officerId),
+      }))
+    );
+    setSelectedOfficers((prev) =>
+      prev.filter((officer) => officer._id !== officerId)
+    );
   };
 
-  if (loading) {
-    return <div style={{ textAlign: 'center', fontSize: '20px', color: '#9C4DFF' }}>Loading organizations and officers...</div>;
-  }
+  const openModal = (officers) => {
+    setSelectedOfficers(officers);
+  };
 
-  if (error) {
-    return <div style={{ textAlign: 'center', fontSize: '20px', color: '#F44336' }}>Error: {error}</div>;
-  }
+  if (loading)
+    return (
+      <div className="text-center text-xl text-purple-500">
+        Loading organizations and officers...
+      </div>
+    );
+  if (error)
+    return (
+      <div className="text-center text-xl text-red-500">Error: {error}</div>
+    );
 
   return (
-    <div
-      style={{
-        backgroundColor: '#F3E5F5', // Light violet background
-        borderRadius: '15px',
-        padding: '30px',
-        maxWidth: '90%',
-        margin: '40px auto',
-        fontFamily: '"Poppins", sans-serif',
-        boxShadow: '0px 10px 30px rgba(0, 0, 0, 0.1)',
-      }}
-    >
-      <h1
-        style={{
-          textAlign: 'center',
-          color: '#9C4DFF',
-          fontSize: '2.5rem',
-          marginBottom: '30px',
-          letterSpacing: '1px',
-        }}
-      >
+    <div className="p-4 max-w-full mx-auto">
+      <h1 className="text-[8vh] font-bold mb-4 font-tungsten text-[#3a1078]">
         Officer Approval Dashboard
       </h1>
-      {orgData.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#9C4DFF', fontSize: '1.2rem' }}>No organizations found.</p>
-      ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', // Grid layout to display cards side by side
-            gap: '20px',
-          }}
-        >
-          {orgData.map((org) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        {orgData.map((org) => {
+          const pendingApprovals = org.officers.filter(
+            (officer) => !officer.isAdmin
+          );
+          return (
             <div
               key={org._id || org.name}
-              style={{
-                backgroundColor: '#FFFFFF',
-                borderRadius: '12px',
-                padding: '20px',
-                boxShadow: '0px 6px 15px rgba(0, 0, 0, 0.1)',
-                transition: 'transform 0.3s ease-in-out',
-              }}
+              className="relative bg-white rounded-lg p-6 shadow-md hover:shadow-xl transition w-full max-w-xs h-40 flex justify-center items-center cursor-pointer"
+              onClick={() => openModal(pendingApprovals)}
             >
-              <h2
-                style={{
-                  color: '#9C4DFF',
-                  fontSize: '1.8rem',
-                  marginBottom: '20px',
-                  textAlign: 'center',
-                  fontWeight: '600',
-                }}
-              >
+              <h2 className="text-center text-2xl text-[#3a1078] font-semibold">
                 {org.name}
               </h2>
-              {org.officers && org.officers.filter((officer) => !officer.isAdmin).length > 0 ? (
-                <ul style={{ listStyleType: 'none', padding: 0 }}>
-                  {org.officers
-                    .filter((officer) => !officer.isAdmin)
-                    .map((officer) => (
-                      <li
-                        key={officer._id}
-                        style={{
-                          marginBottom: '18px',
-                          padding: '12px',
-                          backgroundColor: '#f9f9f9',
-                          borderRadius: '8px',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
-                        }}
-                      >
-                        <div>
-                          <input
-                            type="checkbox"
-                            id={`checkbox-${officer._id}`}
-                            checked={selectedOfficers.has(officer._id)}
-                            disabled={declinedOfficers.has(officer._id)}
-                            onChange={() => handleCheckboxChange(officer._id)}
-                            style={{
-                              marginRight: '12px',
-                              cursor: declinedOfficers.has(officer._id) ? 'not-allowed' : 'pointer',
-                            }}
-                          />
-                          <label
-                            htmlFor={`checkbox-${officer._id}`}
-                            style={{
-                              color: '#333',
-                              fontSize: '1rem',
-                              fontWeight: '500',
-                              textTransform: 'capitalize',
-                            }}
-                          >
-                            {officer.name} {officer.surname} ({officer.email})
-                          </label>
-                        </div>
-                        {/* Show buttons when the checkbox is checked and not already approved or declined */}
-                        {selectedOfficers.has(officer._id) &&
-                          !approvedOfficers.has(officer._id) &&
-                          !declinedOfficers.has(officer._id) && (
-                            <div>
-                              <button
-                                onClick={() => handleApprove(officer._id)}
-                                style={{
-                                  backgroundColor: '#7C4DFF',
-                                  color: '#fff',
-                                  padding: '8px 16px',
-                                  borderRadius: '6px',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  marginRight: '12px',
-                                  transition: 'background-color 0.3s ease',
-                                }}
-                              >
-                                Approve
-                              </button>
-                              <button
-                                onClick={() => handleDecline(officer._id)}
-                                style={{
-                                  backgroundColor: '#FF4081',
-                                  color: '#fff',
-                                  padding: '8px 16px',
-                                  borderRadius: '6px',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  transition: 'background-color 0.3s ease',
-                                }}
-                              >
-                                Decline
-                              </button>
-                            </div>
-                          )}
-                        {approvedOfficers.has(officer._id) && (
-                          <p style={{ color: '#7C4DFF', marginTop: '8px', fontStyle: 'italic' }}>
-                            Officer approved.
-                          </p>
-                        )}
-                        {declinedOfficers.has(officer._id) && (
-                          <p style={{ color: '#FF4081', marginTop: '8px', fontStyle: 'italic' }}>
-                            Officer declined.
-                          </p>
-                        )}
-                      </li>
-                    ))}
-                </ul>
-              ) : (
-                <p style={{ textAlign: 'center', color: '#9C4DFF', fontSize: '1.2rem' }}>No officers to approve.</p>
+              {pendingApprovals.length > 0 && (
+                <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
+                  {pendingApprovals.length}
+                </div>
               )}
             </div>
-          ))}
+          );
+        })}
+      </div>
+      {selectedOfficers.length > 0 && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg w-96 relative">
+            <button
+              onClick={() => setSelectedOfficers([])}
+              className="absolute top-2 right-2 text-gray-600 hover:text-black"
+            >
+              &times;
+            </button>
+            <h2 className="text-[5vh] font-bold mb-4 font-tungsten text-[#3a1078]">Officer Approvals</h2>
+            {selectedOfficers.map((officer) => (
+              <div key={officer._id} className="mb-4 p-4 border rounded-lg">
+                <img
+                  src={
+                    officer.image ||
+                    "https://res.cloudinary.com/do2utxjmc/image/upload/v1741749795/3918329-200_bpfm11.png"
+                  }
+                  alt="Officer"
+                  className="w-24 h-24 rounded-full mb-2 items-center justify-center mx-auto"
+                />
+                <p className="text-2xl text-center text-[#3a1078] font-semibold">
+                  {officer.name} {officer.surname} 
+                </p>
+                <p className="text-center text-[#3a1078]">{officer.email}</p>
+                <div className="flex space-x-4 mt-2 items-center justify-center mx-auto">
+                  <button
+                    onClick={() => handleApprove(officer._id)}
+                    className="bg-[#3a1078] text-white px-4 py-2 rounded-lg hover:bg-[#3a1078c5]"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleDecline(officer._id)}
+                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-400"
+                  >
+                    Decline
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

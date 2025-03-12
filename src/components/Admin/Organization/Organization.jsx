@@ -20,7 +20,7 @@ function Organization() {
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-
+  
     const fetchOrganizations = async () => {
       if (!token) return;
       try {
@@ -45,7 +45,7 @@ function Organization() {
     };
     fetchOrganizations();
     const intervalId = setInterval(fetchOrganizations, 2000);
-
+  
     return () => clearInterval(intervalId);
   }, []);
 
