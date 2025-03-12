@@ -3,7 +3,7 @@ import TUPLogo from "../../assets/website/TUP logo.png";
 import logo from "../../assets/website/V_logo.png";
 import eventBG from "../../assets/website/eventBG.png";
 import "../../../src/index.css";
-import backgroundVideo from "../../assets/website/bg.mp4";
+import backgroundVideo from "../../assets/website/events.mp4";
 import { Link } from "react-router-dom";
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -53,97 +53,87 @@ function Events() {
 
   return (
     <>
-      <div
-        className="w-full h-[70vh] flex justify-center items-center bg-cover bg-center"
-        style={{ backgroundImage: `url(${eventBG})` }}
-      >
-        <div className="max-w-[150vh] w-full px-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center fade-in-left">
-          <div className="flex flex-col gap-4">
-            <h2 className="text-[10vw] md:text-[150px] lg:text-[200px] font-tungsten text-[#3a1078] leading-tight uppercase">
-              EVENTS
-            </h2>
-            <p className="text-black text-base md:text-lg">
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-              Provident, ullam nihil repudiandae consequuntur ducimus
-              necessitatibus eveniet velit eaque voluptatem pariatur aliquam,
-              praesentium nostrum magnam accusantium explicabo quae sint vero
-              sed.
-            </p>
-          </div>
-          <div className="relative w-full h-auto flex justify-center md:justify-end">
-            <video
-              className="w-auto h-auto object-cover"
-              src={backgroundVideo}
-              autoPlay
-              loop
-              muted
-            />
-          </div>
+    <div 
+      className="w-full h-auto flex justify-center items-center bg-cover bg-center py-16"
+      style={{ backgroundImage: `url(${eventBG})` }}
+    >
+      <div className="max-w-screen-xl w-full px-4 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        {/* Left: Title & Description */}
+        <div className="flex flex-col gap-4">
+          <h2 className="text-[12vw] sm:text-[40px] md:text-[100px] lg:text-[150px] font-tungsten text-[#3a1078] leading-tight uppercase">
+            EVENTS
+          </h2>
+          {/* <p className="text-black text-sm sm:text-base md:text-lg">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Provident, ullam nihil repudiandae...
+          </p> */}
+        </div>
+
+        {/* Right: Video */}
+        <div className="relative w-full flex justify-center md:justify-end">
+          <video
+            className="w-[300px] md:w-[450px] lg:w-[550px] h-auto object-cover rounded-lg shadow-lg"
+            src={backgroundVideo}
+            autoPlay
+            loop
+            muted
+          />
         </div>
       </div>
-      <section className="w-auto h-auto flex flex-col justify-center items-center bg-[#f7f7f8] py-16 fade-in-up">
-        {!isLoggedIn ? (
-          <Link to="/login">
-            <button className="px-6 py-2 bg-[#3a1078] text-white text-lg font-semibold rounded hover:bg-[#2a0858] transition">
-              Login to View Events
-            </button>
-          </Link>
-        ) : loading ? (
-          <p className="text-center text-lg">Loading...</p>
-        ) : error ? (
-          <p className="text-center text-red-500">{error}</p>
-        ) : (
-          <div className="max-w-[200vh] w-full px-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {events.slice(0, visibleEvents).map((event) => (
-                <div
-                  key={event.id}
-                  className="relative w-full h-[500px] flex flex-col overflow-hidden group fade-in-up"
-                >
-                  <div className="w-full h-[500px] bg-gray-200 flex items-center justify-center">
-                    {event.images && event.images.length > 0 ? (
-                      <img
-                        src={event.images[0]}
-                        alt={event.title || "Event Image"}
-                        className="w-full h-full object-cover transition-transform transform group-hover:scale-105"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span className="text-gray-500">No Image Available</span>
-                    )}
+    </div>
+      <section className="w-auto h-auto flex flex-col justify-center items-center bg-[#f7f7f8] py-16">
+          {!isLoggedIn ? (
+              <Link to="/login">
+                  <button className="px-6 py-2 bg-[#3a1078] text-white text-lg font-semibold rounded hover:bg-[#2a0858] transition">
+                      Login to View Events
+                  </button>
+              </Link>
+          ) : loading ? (
+              <p className="text-center text-lg">Loading...</p>
+          ) : error ? (
+              <p className="text-center text-red-500">{error}</p>
+          ) : (
+              <div className="max-w-screen-xl w-full px-4 md:px-10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {events.slice(0, visibleEvents).map((event) => (
+                          <div key={event.id} className="relative w-full h-auto flex flex-col overflow-hidden group">
+                              <div className="w-full bg-gray-200 flex items-center justify-center">
+                                  {event.images && event.images.length > 0 ? (
+                                      <img
+                                          src={event.images[0]}
+                                          alt={event.title || "Event Image"}
+                                          className="w-full h-full object-cover transition-transform transform group-hover:scale-105"
+                                          loading="lazy"
+                                      />
+                                  ) : (
+                                      <span className="text-gray-500">No Image Available</span>
+                                  )}
+                              </div>
+                              <div className="absolute bottom-0 left-0 w-full py-4 bg-[#f7f7f8]">
+                                  <strong className="uppercase text-red-400 text-sm">
+                                      {event.type?.eventType || "Unknown"}
+                                  </strong>
+                                  <span className="mx-2 opacity-50">|</span>
+                                  <span className="text-gray-500 text-sm">
+                                      {event.dateStart ? new Date(event.dateStart).toLocaleDateString() : "No Date"}
+                                  </span>
+                                  <h3 className="text-lg font-bold text-[#3a1078]">
+                                      {event.name || "Untitled Event"}
+                                  </h3>
+                              </div>
+                          </div>
+                      ))}
                   </div>
-                  <div className="absolute bottom-0 left-0 w-full py-4 bg-[#f7f7f8]">
-                    {event.type && event.type.eventType ? (
-                      <strong className="uppercase text-red-400 text-sm">
-                        {event.type.eventType}
-                      </strong>
-                    ) : (
-                      <strong className="uppercase text-red-600">Unknown</strong>
-                    )}
-                    <span className="mx-2 opacity-50">|</span>
-                    <span className="text-gray-500 text-sm">
-                      {event.dateStart
-                        ? new Date(event.dateStart).toLocaleDateString()
-                        : "No Date"}
-                    </span>
-                    <h3 className="text-lg font-bold text-[#3a1078]">
-                      {event.name || "Untitled Event"}
-                    </h3>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {visibleEvents < events.length && (
-              <button
-                onClick={handleShowMore}
-                className="mt-8 px-6 py-2 bg-[#3a1078] text-white text-lg font-semibold rounded hover:bg-[#2a0858] transition"
-              >
-                Show More
-              </button>
-            )}
-          </div>
-        )}
+                  {visibleEvents < events.length && (
+                      <button
+                          onClick={handleShowMore}
+                          className="mt-8 px-6 py-2 bg-[#3a1078] text-white text-lg font-semibold rounded hover:bg-[#2a0858] transition">
+                          Show More
+                      </button>
+                  )}
+              </div>
+          )}
       </section>
+
       <footer className="w-full bg-[#ffffff] py-10 px-10 text-center text-gray-800 flex flex-col items-center gap-4">
         <div className="flex justify-center items-center gap-4">
           <img src={logo} alt="VOYS Logo" className="h-12 w-auto" />
