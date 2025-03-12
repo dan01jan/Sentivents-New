@@ -96,7 +96,7 @@ const AdminSideBar = () => {
                 {isExpanded && <span>Officers Approval</span>}
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 to="/admin/"
                 className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
@@ -104,7 +104,7 @@ const AdminSideBar = () => {
                 <IoMdAnalytics size={40} />
                 {isExpanded && <span>Analysis</span>}
               </Link>
-            </li>
+            </li> */}
           </ul>
         </nav>
         <button
