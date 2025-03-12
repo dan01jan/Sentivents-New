@@ -115,6 +115,7 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const formDataToSend = new FormData();
     Object.keys(formData).forEach((key) => {
@@ -140,7 +141,7 @@ const Register = () => {
       console.log("Registration successful:", response.data);
       toast.success("Registration successful!", {
         position: "bottom-right",
-        autoClose: 3000,
+        autoClose: 1000,
       });
       setTimeout(() => {
         navigate("/login");
@@ -154,6 +155,8 @@ const Register = () => {
         position: "bottom-right",
         autoClose: 3000,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
