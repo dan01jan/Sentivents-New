@@ -23,8 +23,6 @@ const ListQuestion = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [visibleTypes, setVisibleTypes] = useState({});
   const [editingQuestion, setEditingQuestion] = useState(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [questionToDelete, setQuestionToDelete] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,6 +44,10 @@ const ListQuestion = () => {
     };
 
     fetchData();
+
+    const intervalId = setInterval(fetchData, 500);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleAddQuestion = () => {
@@ -94,18 +96,16 @@ const ListQuestion = () => {
     }
   };
 
-  const openDeleteModal = (question) => {
-    setQuestionToDelete(question);
-    setIsDeleteModalOpen(true);
-  };
+  const handleDeleteQuestion = async (id) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this question?"
+    );
+    if (!confirmed) return;
 
-  const handleDeleteQuestion = async () => {
     try {
-      await axios.delete(`${apiUrl}questions/${questionToDelete._id}`);
-      setQuestions((prev) => prev.filter((question) => question._id !== questionToDelete._id));
+      await axios.delete(`${apiUrl}questions/${id}`);
+      setQuestions((prev) => prev.filter((question) => question._id !== id));
       toast.success("Question deleted successfully!");
-      setIsDeleteModalOpen(false);
-      setQuestionToDelete(null);
     } catch (error) {
       console.error("Error deleting question:", error);
       toast.error("Failed to delete question");
@@ -151,7 +151,6 @@ const ListQuestion = () => {
       setSelectedTrait("");
       setSelectedType("");
       setIsModalOpen(false);
-
       toast.success("Question updated successfully!");
     } catch (error) {
       console.error("Error updating question:", error);
@@ -161,8 +160,14 @@ const ListQuestion = () => {
 
   const groupQuestionsByTypeAndTrait = () => {
     return questions.reduce((acc, question) => {
-      const typeName = question.typeId?.eventType || "Uncategorized";
-      const traitName = question.traitId?.trait || "Uncategorized";
+      const typeName =
+        question.typeId?.eventType ||
+        types.find((t) => t._id === question.typeId)?.eventType ||
+        "Uncategorized";
+      const traitName =
+        question.traitId?.trait ||
+        traits.find((tr) => tr._id === question.traitId)?.trait ||
+        "Uncategorized";
 
       if (!acc[typeName]) acc[typeName] = {};
       if (!acc[typeName][traitName]) acc[typeName][traitName] = [];
@@ -274,41 +279,14 @@ const ListQuestion = () => {
 
               <button
                 type="button"
-                onClick={editingQuestion ? handleUpdateQuestion : handleAddQuestion}
+                onClick={
+                  editingQuestion ? handleUpdateQuestion : handleAddQuestion
+                }
                 className="bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 w-full md:w-auto"
               >
                 {editingQuestion ? "Update Question" : "Add Another Question"}
               </button>
             </form>
-          </div>
-        </div>
-      )}
-
-      {isDeleteModalOpen && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center p-4">
-          <div className="bg-white p-6 md:p-8 rounded-lg shadow-md w-full max-w-lg relative">
-            <button
-              onClick={() => setIsDeleteModalOpen(false)}
-              className="absolute top-4 right-4 text-2xl"
-            >
-              ✕
-            </button>
-            <h2 className="text-2xl font-semibold mb-6">Confirm Delete</h2>
-            <p>Are you sure you want to delete this question?</p>
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={() => setIsDeleteModalOpen(false)}
-                className="bg-gray-300 text-black py-2 px-4 rounded-lg mr-4"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteQuestion}
-                className="bg-red-600 text-white py-2 px-4 rounded-lg"
-              >
-                Delete
-              </button>
-            </div>
           </div>
         </div>
       )}
@@ -381,7 +359,7 @@ const ListQuestion = () => {
                             </button>
                             <button
                               className="text-red-600 ml-4 hover:underline"
-                              onClick={() => openDeleteModal(q)}
+                              onClick={() => handleDeleteQuestion(q._id)}
                             >
                               Delete
                             </button>

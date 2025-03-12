@@ -5,6 +5,7 @@ import EventModal from "./EventModal";
 const apiUrl = import.meta.env.VITE_API_URL;
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FaArrowRight } from "react-icons/fa";
 
 Modal.setAppElement("#root");
 
@@ -100,7 +101,6 @@ const EventList = () => {
         const data = await response.json();
         setEvents(data);
         setFilteredEvents(data);
-
       } catch (error) {
         setError(error.message);
       } finally {
@@ -118,11 +118,14 @@ const EventList = () => {
         const userData = JSON.parse(localStorage.getItem("userData")); // Get user data
 
         // Fetch user data
-        const response = await fetch(`${apiUrl}users/officer/${userData.userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${apiUrl}users/officer/${userData.userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Failed to fetch user");
@@ -244,7 +247,7 @@ const EventList = () => {
 
   const handleModalOpen = (event) => {
     setSelectedEvent(event);
-    localStorage.setItem("selectedEventId", event._id); // Store the event ID in local storage
+    localStorage.setItem("selectedEventId", event._id);
     setModalIsOpen(true);
   };
 
@@ -268,21 +271,22 @@ const EventList = () => {
     : { "No Grouping": filteredEvents };
 
   return (
-    <div className="p-4 max-w-full mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 max-w-full mx-auto ">
+      <div className="flex flex-col md:flex-row justify-between items-center w-full gap-4 fade-in-left">
         <h2 className="text-[8vh] font-semibold text-[#3a1078] font-tungsten">
           EVENTS
         </h2>
         <button
           type="button"
           onClick={handleNavigate}
-          className="bg-gradient-to-r from-pink-400 to-teal-500 text-white px-4 py-2 rounded-full text-sm shadow-lg hover:from-pink-500 hover:to-teal-600 transition duration-300 ease-in-out"
+          className="bg-[#3a1078] text-white font-semibold py-3 px-4 md:py-4 md:px-6 rounded-3xl flex items-center gap-2 hover:bg-[#3a1078c5] transition"
         >
           Create Event
+          <FaArrowRight className="text-white text-lg" />
         </button>
       </div>
 
-      <div className="mb-4 flex justify-between">
+      <div className="mb-4 flex justify-between fade-in-left">
         <div>
           <label htmlFor="type" className="mr-2">
             Filter by Type:
@@ -326,9 +330,8 @@ const EventList = () => {
         </div>
       </div>
 
-      {/* Display events */}
       {Object.entries(groupedEvents).map(([type, events]) => (
-        <div key={type} className="mb-6">
+        <div key={type} className="mb-6 fade-in-up">
           <h3 className="text-2xl font-semibold text-teal-600">{type}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
             {events.map((event) => (
