@@ -46,7 +46,7 @@ const AdminSideBar = () => {
         } flex flex-col justify-between relative`}
       >
         <a
-          href="/admin"
+          href="/"
           className="flex items-center justify-center px-1 py-4 text-[#3a1078] rounded-lg logo-container"
         >
           <img

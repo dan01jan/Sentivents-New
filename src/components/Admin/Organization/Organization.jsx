@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import OrgCreate from "./OrgCreate";
 import OrgUpdate from "./OrgUpdate";
-import OrgOfficerUpdate from "./OrgOfficerUpdate"; // Import the new modal
+import OrgOfficerUpdate from "./OrgOfficerUpdate";
 import { IoMdSearch } from "react-icons/io";
 import { Link } from "react-router-dom";
 
@@ -15,12 +15,14 @@ function Organization() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isOfficerUpdateModalOpen, setIsOfficerUpdateModalOpen] = useState(false);
+  const [isOfficerModalOpen, setIsOfficerModalOpen] = useState(false);
   const [selectedOrg, setSelectedOrg] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [officers, setOfficers] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-  
+
     const fetchOrganizations = async () => {
       if (!token) return;
       try {
@@ -30,9 +32,7 @@ function Organization() {
           },
         });
         if (!response.ok) {
-          throw new Error(
-            "There are no organizations available at the moment."
-          );
+          throw new Error("There are no organizations available at the moment.");
         }
         const data = await response.json();
         console.log("Fetched organizations data:", data);
@@ -45,7 +45,29 @@ function Organization() {
     };
     fetchOrganizations();
     const intervalId = setInterval(fetchOrganizations, 2000);
-  
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    const fetchOfficers = async () => {
+      try {
+        const response = await fetch(`${apiUrl}users/organizations/officers`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch organizations.");
+        }
+        const data = await response.json();
+        setOfficers(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOfficers();
+    const intervalId = setInterval(fetchOfficers, 1000);
+
     return () => clearInterval(intervalId);
   }, []);
 
@@ -54,7 +76,7 @@ function Organization() {
       console.error("Error: Organization ID is undefined");
       return;
     }
-    
+
     const token = localStorage.getItem("authToken");
     if (!window.confirm("Are you sure you want to delete this organization?")) {
       return;
@@ -98,10 +120,19 @@ function Organization() {
     setSelectedOrg(null);
   };
 
-  // New function to open the Officer Update modal
   const openOfficerUpdateModal = (org) => {
     setSelectedOrg(org);
     setIsOfficerUpdateModalOpen(true);
+  };
+
+  const openOfficerModal = (org) => {
+    setSelectedOrg(org);
+    setIsOfficerModalOpen(true);
+  };
+
+  const closeOfficerModal = () => {
+    setIsOfficerModalOpen(false);
+    setSelectedOrg(null);
   };
 
   const filteredOrganizations = organizations.filter((org) =>
@@ -154,6 +185,12 @@ function Organization() {
 
               <div className="mt-4 flex justify-end space-x-2">
                 <button
+                  onClick={() => openOfficerModal(org)}
+                  className="bg-[#3795bd] text-white text-sm font-semibold uppercase px-6 py-2 rounded-full transition hover:bg-[#3a1078]"
+                >
+                  Show Officers
+                </button>
+                <button
                   onClick={() => openOfficerUpdateModal(org)}
                   className="bg-yellow-600 text-white text-sm font-semibold uppercase px-6 py-2 rounded-full transition hover:bg-yellow-700"
                 >
@@ -177,11 +214,12 @@ function Organization() {
         ))
       )}
       <button
-        className="fixed bottom-10 right-10 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition"
+        className="fixed bottom-10 right-10 bg-[#3a1078] text-white p-4 rounded-full shadow-lg hover:bg-[#3a1078c5] transition"
         onClick={openModal}
       >
         <FaPlus size={24} />
       </button>
+
       <OrgCreate isOpen={isModalOpen} onClose={closeModal} />
       {selectedOrg && (
         <>
@@ -198,6 +236,41 @@ function Organization() {
             }}
             organization={selectedOrg}
           />
+          {isOfficerModalOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white p-6 rounded-lg w-96 relative">
+                <button
+                  onClick={closeOfficerModal}
+                  className="absolute top-2 right-2 text-gray-600 hover:text-black"
+                >
+                  &times;
+                </button>
+                <h2 className="text-[5vh] font-bold mb-4 font-tungsten text-[#3a1078]">
+                  Officers
+                </h2>
+                {selectedOrg.officers.length > 0 ? (
+                  selectedOrg.officers.map((officer) => (
+                    <div key={officer._id} className="mb-4 p-4 border rounded-lg">
+                      <img
+                        src={
+                          officer.image ||
+                          "https://res.cloudinary.com/do2utxjmc/image/upload/v1741749795/3918329-200_bpfm11.png"
+                        }
+                        alt="Officer"
+                        className="w-24 h-24 rounded-full mb-2 items-center justify-center mx-auto"
+                      />
+                      <p className="text-2xl text-center text-[#3a1078] font-semibold">
+                        {officer.name} {officer.surname}
+                      </p>
+                      <p className="text-center text-[#3a1078]">{officer.email}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center text-[#3a1078]">No officers found.</p>
+                )}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
