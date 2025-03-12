@@ -265,7 +265,7 @@ function Home() {
   return (
     <>
       <div className="h-[10vh] w-full bg-[#f7f7f9] rounded-full flex items-center justify-between shadow-md px-5 md:px-10">
-        <p className="text-[#3a1078] text-[5vh] md:text-[2.8vh] sm:text-[20px] font-bold tracking-[.15em] uppercase font-tungsten">
+        <p className="text-[#3a1078] text-[5vh] md:text-[5vh] sm:text-[3vh] xs:text-[2vh] font-bold tracking-[.15em] uppercase font-tungsten">
           {userOrganizationName
             ? `${userOrganizationName} `
             : "Organization Dashboard"}
