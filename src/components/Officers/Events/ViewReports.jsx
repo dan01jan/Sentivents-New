@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { Bar } from 'react-chartjs-2'; // Only Bar chart is used now
+import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
 const apiUrl = import.meta.env.VITE_API_URL;
 
 // Register necessary chart components
@@ -18,7 +21,13 @@ const ViewReports = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [userInfo, setUserInfo] = useState(null); // Add state for storing user info
 
-  const selectedEvent = localStorage.getItem('selectedEventId'); // or use context for selected event
+  const selectedEvent = localStorage.getItem('selectedEventId');
+
+  // Refs for PDF generation:
+  const sentimentChartRef = useRef(null);
+  const sentimentTableRef = useRef(null);
+  const behavioralChartRef = useRef(null);
+  const aggregatedRatingsRef = useRef(null);
 
   useEffect(() => {
     if (selectedEvent) {
@@ -61,8 +70,8 @@ const ViewReports = () => {
       if (sentimentsResponse.data && sentimentsResponse.data.length > 0) {
         const sentimentsWithNames = sentimentsResponse.data.map(item => ({
           ...item,
-          userName: item.user ? item.user.name : 'Unknown',  // Ensure userName is set
-          userSentiment: item.sentiment || 'No Sentiment'     // Add the sentiment info
+          userName: item.user ? item.user.name : 'Unknown',
+          userSentiment: item.sentiment || 'No Sentiment'
         }));
         setEventSentiments(sentimentsWithNames);
       } else {
@@ -85,7 +94,7 @@ const ViewReports = () => {
           `${apiUrl}questionnaires/aggregated-ratings`,
           {
             headers: { Authorization: `Bearer ${token}` },
-            params: { eventId: selectedEvent }, // Only eventId for all users
+            params: { eventId: selectedEvent },
           }
         );
 
@@ -107,7 +116,6 @@ const ViewReports = () => {
             };
           });
 
-          // Wait for all user info to be fetched
           const usersWithNames = await Promise.all(userInfos);
           setUsers(usersWithNames);
           console.log("Users:", usersWithNames);
@@ -122,7 +130,6 @@ const ViewReports = () => {
     try {
       const token = localStorage.getItem("authToken");
       if (selectedEvent && token) {
-        // Only include userId in params if selectedUser is set
         const params = { eventId: selectedEvent };
         if (selectedUser) {
           params.userId = selectedUser;
@@ -151,14 +158,10 @@ const ViewReports = () => {
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
+  // Prepare data for the Behavioral Ratings Bar Chart
   const aggregatedRatingsLabels = aggregatedRatings.map(rating => rating.trait);
   const aggregatedRatingsData = aggregatedRatings.map(rating => rating.averageRating);
 
-  // Bar Chart Data for Behavioral Ratings (horizontal bars)
   const aggregatedRatingsChartData = {
     labels: aggregatedRatingsLabels,
     datasets: [
@@ -184,56 +187,139 @@ const ViewReports = () => {
     ],
   };
 
-  // Bar Chart Options for both charts
+  // Chart Options
   const sentimentChartOptions = {
     responsive: true,
     plugins: {
-      legend: {
-        position: 'top',
-      },
-      tooltip: {
-        enabled: true,
-      },
+      legend: { position: 'top' },
+      tooltip: { enabled: true },
     },
     scales: {
-      x: {
-        beginAtZero: true,
-      },
-      y: {
-        beginAtZero: true,
-      },
+      x: { beginAtZero: true },
+      y: { beginAtZero: true },
     },
   };
 
-  // Horizontal Bar Chart Options for Behavioral Ratings
   const behavioralChartOptions = {
     responsive: true,
-    indexAxis: 'y', // Makes the bars horizontal for Behavioral Ratings
+    indexAxis: 'y', // horizontal bars
     plugins: {
-      legend: {
-        position: 'top',
-      },
-      tooltip: {
-        enabled: true,
-      },
+      legend: { position: 'top' },
+      tooltip: { enabled: true },
     },
     scales: {
-      x: {
-        beginAtZero: true,
-      },
-      y: {
-        beginAtZero: true,
-      },
+      x: { beginAtZero: true },
+      y: { beginAtZero: true },
     },
   };
+
+  // Function to generate the PDF using html2canvas and jsPDF
+  const handleDownloadPDF = async () => {
+    try {
+      // Capture Sentiment Chart and Table
+      const sentimentChartCanvas = await html2canvas(sentimentChartRef.current);
+      const sentimentChartData = sentimentChartCanvas.toDataURL('image/png');
+
+      const sentimentTableCanvas = await html2canvas(sentimentTableRef.current);
+      const sentimentTableData = sentimentTableCanvas.toDataURL('image/png');
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      let yOffset = 10;
+
+      // Add Sentiment Analysis Title
+      pdf.setFontSize(16);
+      pdf.text("Sentiment Analysis", pageWidth / 2, yOffset, { align: "center" });
+      yOffset += 10;
+
+      // Add sentiment chart image
+      const chartImgProps = pdf.getImageProperties(sentimentChartData);
+      const chartWidth = pageWidth - 20;
+      const chartHeight = (chartImgProps.height * chartWidth) / chartImgProps.width;
+      pdf.addImage(sentimentChartData, 'PNG', 10, yOffset, chartWidth, chartHeight);
+      yOffset += chartHeight + 10;
+
+      // Add sentiment table image
+      const tableImgProps = pdf.getImageProperties(sentimentTableData);
+      const tableWidth = pageWidth - 20;
+      const tableHeight = (tableImgProps.height * tableWidth) / tableImgProps.width;
+      if (yOffset + tableHeight > pdf.internal.pageSize.getHeight()) {
+        pdf.addPage();
+        yOffset = 10;
+      }
+      pdf.addImage(sentimentTableData, 'PNG', 10, yOffset, tableWidth, tableHeight);
+
+      // Add Behavioral Analysis only if a specific user is selected
+      if (selectedUser && selectedUser !== "All Users") {
+        pdf.addPage();
+        yOffset = 10;
+        pdf.setFontSize(16);
+        pdf.text("Behavioral Analysis", pageWidth / 2, yOffset, { align: "center" });
+        yOffset += 10;
+
+        // Capture the Behavioral Chart and Aggregated Ratings sections
+        const behavioralChartCanvas = await html2canvas(behavioralChartRef.current);
+        const behavioralChartData = behavioralChartCanvas.toDataURL('image/png');
+
+        const aggregatedRatingsCanvas = await html2canvas(aggregatedRatingsRef.current);
+        const aggregatedRatingsData = aggregatedRatingsCanvas.toDataURL('image/png');
+
+        // Add Behavioral Chart image
+        const behChartImgProps = pdf.getImageProperties(behavioralChartData);
+        const behChartWidth = pageWidth - 20;
+        const behChartHeight = (behChartImgProps.height * behChartWidth) / behChartImgProps.width;
+        pdf.addImage(behavioralChartData, 'PNG', 10, yOffset, behChartWidth, behChartHeight);
+        yOffset += behChartHeight + 10;
+
+        // Add Aggregated Ratings / Interpretation image
+        const aggImgProps = pdf.getImageProperties(aggregatedRatingsData);
+        const aggWidth = pageWidth - 20;
+        const aggHeight = (aggImgProps.height * aggWidth) / aggImgProps.width;
+        if (yOffset + aggHeight > pdf.internal.pageSize.getHeight()) {
+          pdf.addPage();
+          yOffset = 10;
+        }
+        pdf.addImage(aggregatedRatingsData, 'PNG', 10, yOffset, aggWidth, aggHeight);
+      }
+
+      pdf.save('report.pdf');
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', color: '#333', padding: '10px' }}>
+      {/* Download PDF Button */}
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <button 
+          onClick={handleDownloadPDF} 
+          style={{
+            padding: '10px 20px',
+            fontSize: '1rem',
+            backgroundColor: '#3b5998',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer'
+          }}
+        >
+          Download PDF
+        </button>
+      </div>
+
       <h2 style={{ color: '#3b5998', fontSize: '1.5rem', textAlign: 'center' }}>Event Reports</h2>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', marginTop: '20px' }}>
         {/* Sentiment Chart (Vertical Bars) */}
-        <div style={{ flex: 1, padding: '10px', border: '1px solid #ddd', borderRadius: '8px' }}>
+        <div 
+          style={{ flex: 1, padding: '10px', border: '1px solid #ddd', borderRadius: '8px' }}
+          ref={sentimentChartRef}
+        >
           <h3 style={{ fontSize: '1.25rem', color: '#2c3e50' }}>Sentiment Distribution</h3>
           <Bar 
             data={{
@@ -268,14 +354,19 @@ const ViewReports = () => {
               ))}
             </select>
           </div>
-          <Bar data={aggregatedRatingsChartData} options={behavioralChartOptions} />
+          {/* Wrap only the chart (without the dropdown) for PDF capture */}
+          <div ref={behavioralChartRef}>
+            <Bar data={aggregatedRatingsChartData} options={behavioralChartOptions} />
+          </div>
         </div>
       </div>
 
-      {/* Lists Section */}
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', marginTop: '20px' }}>
         {/* Sentiment Data Table */}
-        <div style={{ flex: '1', padding: '10px', border: '1px solid #ddd', borderRadius: '8px' }}>
+        <div 
+          style={{ flex: '1', padding: '10px', border: '1px solid #ddd', borderRadius: '8px' }}
+          ref={sentimentTableRef}
+        >
           <h3 style={{ fontSize: '1.25rem', color: '#2c3e50' }}>User Sentiment Data</h3>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
@@ -308,7 +399,10 @@ const ViewReports = () => {
         </div>
 
         {/* Aggregated Ratings and Interpretations */}
-        <div style={{ flex: '1', padding: '10px', border: '1px solid #ddd', borderRadius: '8px' }}>
+        <div 
+          style={{ flex: '1', padding: '10px', border: '1px solid #ddd', borderRadius: '8px' }}
+          ref={aggregatedRatingsRef}
+        >
           <h3 style={{ fontSize: '1.25rem', color: '#2c3e50' }}>Aggregated Ratings</h3>
           <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
             {aggregatedRatings.map(rating => (
@@ -321,7 +415,6 @@ const ViewReports = () => {
             ))}
           </ul>
 
-          {/* Overall Interpretation */}
           {overallInterpretation && (
             <div style={{ marginTop: '20px', padding: '10px', background: '#f9f9f9', borderRadius: '8px' }}>
               <h3 style={{ fontSize: '1.25rem', color: '#2c3e50' }}>Overall Interpretation</h3>
