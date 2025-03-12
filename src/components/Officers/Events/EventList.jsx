@@ -271,7 +271,7 @@ const EventList = () => {
     : { "No Grouping": filteredEvents };
 
   return (
-    <div className="p-4 max-w-full mx-auto ">
+    <div className="p-4 max-w-full mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-center w-full gap-4 fade-in-left">
         <h2 className="text-[8vh] font-semibold text-[#3a1078] font-tungsten">
           EVENTS
