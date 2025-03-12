@@ -42,7 +42,7 @@ const AdminSideBar = () => {
     <div className="flex h-screen bg-white">
       <aside
         className={`bg-[#f7f7f8] rounded-tr-lg shadow-lg p-4 transition-all duration-300 ease-in-out ${
-          isExpanded ? "w-[25vh]" : "w-[10vh]"
+          isExpanded ? "w-[250px]" : "w-[80px]"
         } flex flex-col justify-between relative`}
       >
         <a
@@ -53,7 +53,7 @@ const AdminSideBar = () => {
             src={logo}
             alt="Logo"
             className={`transition-all duration-300 logo ease-in-out ${
-              isExpanded ? "w-24" : "w-20"
+              isExpanded ? "w-24" : "w-16"
             }`}
           />
         </a>
@@ -155,9 +155,7 @@ const AdminSideBar = () => {
         </header>
 
         <main className="flex-1 p-6 overflow-y-auto">
-        
-            <Outlet />
-          
+          <Outlet />
         </main>
       </div>
     </div>
