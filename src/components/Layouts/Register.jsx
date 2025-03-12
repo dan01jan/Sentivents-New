@@ -4,7 +4,7 @@ import { FaGoogle } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import logo from "../../assets/website/v_darkerlogo.png";
+import logo from "../../assets/website/aboutvoys.png";
 import Loader from "../Layouts/Loader.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -56,7 +56,7 @@ const Register = () => {
       )?.name;
       let department = "";
       let newIsDisabled = true;
-    
+
       switch (selectedOrganizationName) {
         case "ACES":
         case "Association of Civil Engineering Students of TUP Taguig Campus":
@@ -100,14 +100,13 @@ const Register = () => {
           department = "";
           newIsDisabled = false;
       }
-    
+
       setFormData((prevData) => ({
         ...prevData,
         department: department,
       }));
       setIsDisabled(newIsDisabled);
     }
-    
   };
 
   const handleImageChange = (e) => {
@@ -160,21 +159,22 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#3a1078] p-4">
-      <div className="bg-[#f7f7f8] flex flex-col md:flex-row rounded-3xl shadow-2xl overflow-hidden max-w-7xl w-full h-auto md:h-[80vh]">
-        <div className="hidden md:flex w-1/2 items-center justify-center bg-[#f7f7f8] p-8">
-          <img src={logo} alt="Logo" className="max-w-full max-h-full" />
+      <div className="bg-[#f7f7f8] h-64 md:h-[70vh] sm:h-[120vh] flex flex-col md:flex-row rounded-3xl shadow-2xl overflow-hidden w-full max-w-7xl">
+        <div className="w-full md:w-1/2 h-56 md:h-auto flex items-center justify-center bg-[#f7f7f8] p-4">
+          <img
+            src={logo}
+            alt="Logo"
+            className="max-w-[80%] max-h-[80%] object-contain"
+          />
         </div>
-
-        <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-between">
-          <div className="mb-4">
-            <h2 className="text-4xl font-bold text-[#3a1078] text-center md:text-left">
-              Register to VOYS!
-            </h2>
-            <p className="text-lg text-[#3a1078] font-medium text-center md:text-left">
-              Join us and keep your data safe
-            </p>
-          </div>
-          <div className="flex-1 overflow-y-auto max-h-[70vh] pr-2">
+        <div className="w-full md:w-1/2 p-6 md:p-12 flex flex-col justify-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#3a1078] text-center md:text-left">
+            Register to VOYS!
+          </h2>
+          <p className="text-base md:text-lg text-[#3a1078] font-medium mb-6 text-center md:text-left">
+            Access the latest updates and announcements from your organization.
+          </p>
+          <div className="flex overflow-y-auto max-h-[70vh] pr-4 pl-2">
             <form onSubmit={handleSubmit} className="space-y-4">
               {[
                 {
@@ -215,7 +215,10 @@ const Register = () => {
                 },
               ].map((field) => (
                 <div key={field.id} className="flex flex-col">
-                  <label htmlFor={field.id} className="text-xl text-[#3a1078]">
+                  <label
+                    htmlFor={field.id}
+                    className="text-lg text-[#3a1078] font-medium"
+                  >
                     {field.label}
                   </label>
                   <input
@@ -226,99 +229,80 @@ const Register = () => {
                     onChange={handleChange}
                     placeholder={`Enter your ${field.label.toLowerCase()}`}
                     required
-                    className="mt-2 px-4 py-3 text-m border-2 bg-[#d6e4f0] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    className="mt-2 px-4 py-2 text-base border-2 bg-[#d6e4f0] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                   />
                 </div>
               ))}
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex flex-col">
-                  <label htmlFor="role" className="text-xl text-[#3a1078]">
-                    Role
-                  </label>
-                  <select
-                    id="role"
-                    name="role"
-                    value={formData.role}
-                    onChange={handleChange}
-                    required
-                    className="mt-2 px-4 py-3 text-m bg-[#d6e4f0] border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                  >
-                    <option value="" selected disabled>
-                      Select a role
-                    </option>
-                    <option value="user">User</option>
-                    <option value="officer">Officer</option>
-                  </select>
-                </div>
-
-                <div className="flex flex-col">
-                  <label
-                    htmlFor="organization"
-                    className="text-xl text-[#3a1078]"
-                  >
-                    Organization
-                  </label>
-                  <select
-                    id="organization"
-                    name="organization"
-                    value={formData.organization}
-                    onChange={handleChange}
-                    required
-                    className="mt-2 px-4 py-3 text-m bg-[#d6e4f0] border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                  >
-                    <option value="" selected disabled>
-                      Select an organization
-                    </option>
-                    {organizations.map((org) => (
-                      <option key={org._id} value={org._id}>
-                        {org.name}
+                {[
+                  { id: "role", label: "Role", options: ["User", "Officer"] },
+                  {
+                    id: "organization",
+                    label: "Organization",
+                    options: organizations.map((org) => ({
+                      value: org._id,
+                      label: org.name,
+                    })),
+                  },
+                  {
+                    id: "department",
+                    label: "Department",
+                    options: [
+                      "Electrical and Allied Department",
+                      "Mechanical and Allied Department",
+                      "Civil and Allied Department",
+                      "Basic Arts and Sciences Department",
+                    ],
+                  },
+                ].map(({ id, label, options }) => (
+                  <div key={id} className="flex flex-col">
+                    <label
+                      htmlFor={id}
+                      className="text-lg text-[#3a1078] font-medium"
+                    >
+                      {label}
+                    </label>
+                    <select
+                      id={id}
+                      name={id}
+                      value={formData[id]}
+                      onChange={handleChange}
+                      required
+                      className="mt-2 px-4 py-2 text-base bg-[#d6e4f0] border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    >
+                      <option value="" disabled>
+                        Select {label.toLowerCase()}
                       </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex flex-col">
-                  <label
-                    htmlFor="department"
-                    className="text-xl text-[#3a1078]"
-                  >
-                    Department
-                  </label>
-                  <select
-                    id="department"
-                    name="department"
-                    value={formData.department}
-                    onChange={handleChange}
-                    className="mt-2 px-4 py-3 text-m bg-[#d6e4f0] border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                  >
-                    <option value="" selected disabled>
-                      Select department
-                    </option>
-                    <option value="Electrical and Allied Department">Electrical and Allied Department</option>
-                    <option value="Mechanical and Allied Department">Mechanical and Allied Department</option>
-                    <option value="Civil and Allied Department">Civil and Allied Department</option>
-                    <option value="Basic Arts and Sciences Department">Basic Arts and Sciences Department</option>
-                  </select>
-                </div>
+                      {options.map((opt) => (
+                        <option key={opt.value || opt} value={opt.value || opt}>
+                          {opt.label || opt}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
               </div>
 
               <div className="flex flex-col">
-                <label htmlFor="image" className="text-xl text-[#3a1078]">
-                  Image
+                <label
+                  htmlFor="image"
+                  className="text-lg text-[#3a1078] font-medium"
+                >
+                  Upload Image
                 </label>
                 <input
                   type="file"
                   name="image"
                   onChange={handleImageChange}
                   accept="image/*"
-                  className="mt-2 px-4 py-3 text-m bg-[#d6e4f0] border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  className="mt-2 px-4 py-2 text-base bg-[#d6e4f0] border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                 />
               </div>
 
               <button
                 type="submit"
-                onSubmit={handleSubmit}
-                className="w-full py-4 mt-4 font-bold bg-[#3a1078] text-white rounded-lg hover:bg-[#4e31aa] transition duration-300 text-m uppercase"
+                className="w-full py-3 font-bold bg-[#3a1078] text-white rounded-lg hover:bg-[#4e31aa] transition duration-300 text-base uppercase"
               >
                 Register
               </button>
@@ -326,15 +310,13 @@ const Register = () => {
               <button
                 type="button"
                 onClick={() => alert("Google login not implemented yet")}
-                className="w-full py-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 text-m font-bold flex items-center justify-center"
+                className="w-full py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 text-base font-bold flex items-center justify-center"
               >
-                <FaGoogle className="w-6 h-6 mr-3" />
+                <FaGoogle className="w-5 h-5 mr-2" />
                 Register with Google
               </button>
             </form>
           </div>
-
-          {/* Fixed footer */}
           <Link
             to="/login"
             className="mt-4 text-center text-[#3a1078] hover:underline"
@@ -343,6 +325,7 @@ const Register = () => {
           </Link>
         </div>
       </div>
+
       <ToastContainer />
       {loading && <Loader />}
     </div>

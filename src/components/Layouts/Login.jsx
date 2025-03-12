@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import logo from "../../assets/website/v_darkerlogo.png";
+import logo from "../../assets/website/aboutvoys.png";
 import { FaGoogle } from "react-icons/fa";
 import Loader from "../Layouts/Loader.jsx";
 
@@ -57,8 +57,8 @@ const Login = () => {
   return (
     <div className="min-h-screen h-screen flex items-center justify-center bg-[#3a1078] p-4">
       <div className="bg-[#f7f7f8] flex flex-col md:flex-row rounded-3xl shadow-2xl overflow-hidden max-w-7xl w-full h-auto md:h-[80vh]">
-        <div className="w-full md:w-1/2 h-64 md:h-auto flex items-center justify-center bg-[#f7f7f8]">
-          <img src={logo} alt="Logo" className="max-w-full max-h-full" />
+        <div className="w-full md:w-1/2 h-[70vh] md:h-auto flex items-center justify-center bg-[#f7f7f8]">
+          <img src={logo} alt="Logo" className="max-w-[80%] max-h-[80%] object-contain" />
         </div>
         <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center h-full">
           <h2 className="text-4xl font-bold text-[#3a1078] mb-4">
