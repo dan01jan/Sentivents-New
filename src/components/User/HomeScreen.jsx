@@ -34,7 +34,7 @@ function HomeScreen() {
         }
         const data = await response.json();
         const sortedEvents = data
-          .filter(event => new Date(event.dateStart) > new Date()) // Only future events
+          .filter((event) => new Date(event.dateStart) > new Date()) // Only future events
           .sort((a, b) => new Date(a.dateStart) - new Date(b.dateStart)); // Sort ascending
 
         setEvents(sortedEvents.slice(0, 3));
@@ -164,61 +164,65 @@ function HomeScreen() {
         </div>
 
         {loading ? (
-        <p className="text-center text-lg">Loading...</p>
-      ) : error ? (
-        <p className="text-center text-red-500">NO EVENTS AVAILABLE</p>
-      ) : events.length === 0 ? (
-        <h2 className="text-center text-xl text-gray-500">No Upcoming Events</h2>
-      ) : (
-        <Slider {...settings}>
-          {events.map((event) => (
-            <div
-              key={event.id}
-              className="overflow-hidden transition-transform transform hover:scale-105 flex flex-col px-10"
-            >
-              <div className="w-full h-[300px] flex items-center justify-center overflow-hidden">
-                {event.images && event.images.length > 0 ? (
-                  <img
-                    src={event.images[0]}
-                    alt={event.title || "Event Image"}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-500">No Image Available</span>
-                  </div>
-                )}
-              </div>
-              <div className="flex-grow">
-                <h3 className="text-2xl font-bold mb-4">{event.title}</h3>
-                <div className="flex items-center">
-                  {event.type && event.type.eventType ? (
-                    <strong className="uppercase text-red-400 text-sm">
-                      {event.type.eventType}
-                    </strong>
+          <p className="text-center text-lg">Loading...</p>
+        ) : error ? (
+          <p className="text-center text-red-500">NO EVENTS AVAILABLE</p>
+        ) : events.length === 0 ? (
+          <h2 className="text-center text-xl text-gray-500">
+            No Upcoming Events
+          </h2>
+        ) : (
+          <Slider {...settings}>
+            {events.map((event) => (
+              <div
+                key={event.id}
+                className="overflow-hidden transition-transform transform hover:scale-105 flex flex-col px-10"
+              >
+                <div className="w-full h-[300px] flex items-center justify-center overflow-hidden">
+                  {event.images && event.images.length > 0 ? (
+                    <img
+                      src={event.images[0]}
+                      alt={event.title || "Event Image"}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
-                    <strong className="uppercase text-red-600">Unknown</strong>
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-gray-500">No Image Available</span>
+                    </div>
                   )}
-                  <span className="mx-2 opacity-50">|</span>
-                  <span className="text-gray-500 text-sm">
-                    {event.dateStart
-                      ? new Date(event.dateStart).toLocaleDateString()
-                      : "No Date"}
-                  </span>
                 </div>
-                <p className="text-gray-700 text-xl leading-relaxed py-2">
-                  <strong>{event.name || "No Name"}</strong>{" "}
-                </p>
-                <p className="text-gray-700 text-sm leading-relaxed ">
-                  {event.description.length > 100
-                    ? `${event.description.substring(0, 100)}...`
-                    : event.description}
-                </p>
+                <div className="flex-grow">
+                  <h3 className="text-2xl font-bold mb-4">{event.title}</h3>
+                  <div className="flex items-center">
+                    {event.type && event.type.eventType ? (
+                      <strong className="uppercase text-red-400 text-sm">
+                        {event.type.eventType}
+                      </strong>
+                    ) : (
+                      <strong className="uppercase text-red-600">
+                        Unknown
+                      </strong>
+                    )}
+                    <span className="mx-2 opacity-50">|</span>
+                    <span className="text-gray-500 text-sm">
+                      {event.dateStart
+                        ? new Date(event.dateStart).toLocaleDateString()
+                        : "No Date"}
+                    </span>
+                  </div>
+                  <p className="text-gray-700 text-xl leading-relaxed py-2">
+                    <strong>{event.name || "No Name"}</strong>{" "}
+                  </p>
+                  <p className="text-gray-700 text-sm leading-relaxed ">
+                    {event.description.length > 100
+                      ? `${event.description.substring(0, 100)}...`
+                      : event.description}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </Slider>
-      )}
+            ))}
+          </Slider>
+        )}
       </section>
       <section className="w-full min-h-[80vh] bg-[#ffffff] py-16 px-10 grid grid-cols-1 md:grid-cols-2 items-center">
         <div className="flex justify-center items-center">
@@ -241,10 +245,9 @@ function HomeScreen() {
             </Link>
           </div>
           <p className="text-black text-lg mt-2">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Provident,
-            ullam nihil repudiandae consequuntur ducimus necessitatibus eveniet
-            velit eaque voluptatem pariatur aliquam, praesentium nostrum magnam
-            accusantium explicabo quae sint vero sed.
+            To be the leading platform that amplifies voices, fosters meaningful
+            conversations, and drives positive change through innovative and
+            inclusive event management.
           </p>
           <h3 className="text-[6vh] font-tungsten text-[#3a1078] leading-tight uppercase mt-8">
             Our Team

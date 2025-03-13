@@ -84,7 +84,7 @@ function OrgDetails() {
           </div>
           <div className="flex justify-center md:justify-end">
             <img
-              className="w-full max-w-xs sm:max-w-[20vh] md:max-w-md lg:max-w-lg object-cover rounded-full"
+              className="w-full max-w-xs sm:max-w-[30vh] md:max-w-[20vh] lg:max-w-[40vh] object-cover rounded-full"
               src={orgDetails.image || orgimg}
               alt="Organization Image"
             />
@@ -119,7 +119,7 @@ function OrgDetails() {
               orgDetails.officers.map((officer, index) => (
                 <img
                   key={index}
-                  className="w-full h-auto object-cover rounded-lg"
+                  className="w-[30vh] h-auto object-cover rounded-lg"
                   src={officer.image || orgimg}
                   alt="Officer Image"
                 />
