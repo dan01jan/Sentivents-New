@@ -125,10 +125,22 @@ function Organization() {
     setIsOfficerUpdateModalOpen(true);
   };
 
-  const openOfficerModal = (org) => {
-    setSelectedOrg(org);
-    setIsOfficerModalOpen(true);
-  };
+  const openOfficerModal = async (org) => {
+    const token = localStorage.getItem("authToken");
+    try {
+      const response = await fetch(`${apiUrl}organizations/${org._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch organization");
+      }
+      const data = await response.json();
+      setSelectedOrg(data);
+      setIsOfficerModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching organization officers:", error);
+    }
+  };  
 
   const closeOfficerModal = () => {
     setIsOfficerModalOpen(false);
