@@ -7,6 +7,9 @@ import { useNavigate } from "react-router-dom";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const Attendance = () => {
+  // State for fetched user details
+  const [user, setUser] = useState(null);
+  
   const [eventId, setEventId] = useState("");
   const [eventName, setEventName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,19 +22,55 @@ const Attendance = () => {
   
   const navigate = useNavigate();
 
+  // Fetch events related to the user’s organization
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${apiUrl}events`);
+        const token = localStorage.getItem("authToken");
+        const userData = JSON.parse(localStorage.getItem("userData"));
+
+        if (!userData || !userData.organizationName) {
+          throw new Error("Organization name not found in user data.");
+        }
+
+        const organizationName = userData.organizationName;
+        // Fetch events specific to the organization
+        const response = await axios.get(
+          `${apiUrl}events/adminevents?organization=${organizationName}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         setEvents(response.data || []);
       } catch (err) {
-        setError("Error fetching events");
+        setError(err.message || "Error fetching events");
       } finally {
         setLoading(false);
       }
     };
     fetchEvents();
+  }, []);
+
+  // Fetch logged-in user’s detailed information
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const userData = JSON.parse(localStorage.getItem("userData"));
+
+        if (!userData || !userData.userId) {
+          throw new Error("User data not found");
+        }
+
+        const response = await axios.get(
+          `${apiUrl}users/officer/${userData.userId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setUser(response.data);
+      } catch (err) {
+        setError(err.message || "Error fetching user details");
+      }
+    };
+    fetchUser();
   }, []);
 
   const fetchAttendees = async () => {
@@ -73,24 +112,23 @@ const Attendance = () => {
     try {
       const attendeesToUpdate = attendees
         .filter((att) => selectedAttendees.includes(att.userId))
-        .map((att) => ({ userId: att.userId, hasAttended: true }));
-      
+        .map((att) => ({ userId: att.userId, hasRegistered: true })); // Updated property
+
       await axios.put(`${apiUrl}attendance/updateUsersAttendance/${eventId}`, {
         attendees: attendeesToUpdate,
       });
 
-      // Show toast only once, with close button
-      toast.success("Approved User Attendance", {
+      toast.success("Approved User Registration", {
         autoClose: 3000,
         closeOnClick: true,
         pauseOnHover: true,
-        draggable: true
+        draggable: true,
       });
 
-      // Update attendees list locally to reflect approval
+      // Update attendees list locally to reflect approval using hasRegistered
       setAttendees((prev) =>
         prev.map((att) =>
-          selectedAttendees.includes(att.userId) ? { ...att, hasAttended: true } : att
+          selectedAttendees.includes(att.userId) ? { ...att, hasRegistered: true } : att
         )
       );
 
@@ -109,7 +147,7 @@ const Attendance = () => {
   return (
     <div className="p-4 max-w-full mx-auto">
       <h1 className="text-[8vh] font-bold mb-4 font-tungsten text-[#3a1078]">
-        Attendance Approval
+        Registration Approval
       </h1>
       <div className="flex w-full max-w-5xl gap-6">
         <div className="bg-white shadow-lg rounded-2xl p-8 w-1/2">
@@ -160,14 +198,14 @@ const Attendance = () => {
                 {attendees.map((attendee) => (
                   <li key={attendee.userId} className="flex items-center space-x-3 text-lg">
                     <div
-                      onClick={() => handleCircleChange(attendee.userId)}
-                      className={`w-6 h-6 rounded-full border-2 cursor-pointer ${
-                        selectedAttendees.includes(attendee.userId) ? "bg-blue-500" : "border-gray-300"
-                      }`}
+                      onClick={() => !attendee.hasRegistered && handleCircleChange(attendee.userId)}
+                      className={`w-6 h-6 rounded-full border-2 ${
+                        attendee.hasRegistered ? "cursor-not-allowed" : "cursor-pointer"
+                      } ${selectedAttendees.includes(attendee.userId) ? "bg-blue-500" : "border-gray-300"}`}
                     />
                     <span>
                       {attendee.firstName} {attendee.lastName}{" "}
-                      {attendee.hasAttended && <span className="text-green-600 font-bold">✔ Approved</span>}
+                      {attendee.hasRegistered && <span className="text-green-600 font-bold">✔ Approved</span>}
                     </span>
                   </li>
                 ))}
@@ -178,7 +216,7 @@ const Attendance = () => {
                 onClick={approveAttendance}
                 className="w-full mt-4 py-2 bg-green-500 text-white rounded-lg"
               >
-                Approve Attendance
+                Approve Register
               </button>
             )}
           </div>
