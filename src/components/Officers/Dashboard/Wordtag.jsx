@@ -1,22 +1,63 @@
 import React, { useState, useEffect } from "react";
 import WordCloud from "react-wordcloud";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import axios from "axios";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const Wordtag = () => {
+  const [user, setUser] = useState(null);
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState("");
   const [comments, setComments] = useState([]);
   const [sentimentData, setSentimentData] = useState([]);
   const [eventType, setEventType] = useState("");
 
+  // Fetch logged-in user's detailed information
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const userData = JSON.parse(localStorage.getItem("userData"));
+        if (!userData || !userData.userId) {
+          throw new Error("User data not found");
+        }
+        const response = await axios.get(
+          `${apiUrl}users/officer/${userData.userId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setUser(response.data);
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  // Fetch events related to the user's organization (and optionally filtered by eventType)
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch(`${apiUrl}events${eventType ? `?type=${eventType}` : ""}`);
-        const data = await response.json();
-        setEvents(Array.isArray(data) ? data : []);
+        const token = localStorage.getItem("authToken");
+        const userData = JSON.parse(localStorage.getItem("userData"));
+        if (!userData || !userData.organizationName) {
+          throw new Error("Organization name not found in user data.");
+        }
+        const organizationName = userData.organizationName;
+        // Append eventType as query param if provided
+        const typeQuery = eventType ? `&type=${eventType}` : "";
+        const response = await axios.get(
+          `${apiUrl}events/adminevents?organization=${organizationName}${typeQuery}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setEvents(response.data || []);
       } catch (error) {
         console.error("Error fetching events:", error);
         setEvents([]);
@@ -25,25 +66,33 @@ const Wordtag = () => {
     fetchEvents();
   }, [eventType]);
 
+  // Fetch comments for a specific event
   const fetchComments = async (eventId) => {
     try {
-      const response = await fetch(`${apiUrl}events/${eventId}/comments`);
-      const data = await response.json();
-      setComments(data);
+      const token = localStorage.getItem("authToken");
+      const response = await axios.get(
+        `${apiUrl}events/${eventId}/comments`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setComments(response.data);
     } catch (error) {
       console.error("Error fetching comments:", error);
     }
   };
 
+  // Fetch sentiment data for a specific event
   const fetchSentimentData = async (eventId) => {
     try {
-      const response = await fetch(`${apiUrl}events/${eventId}/sentiment`);
-      const data = await response.json();
+      const token = localStorage.getItem("authToken");
+      const response = await axios.get(
+        `${apiUrl}events/${eventId}/sentiment`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const data = response.data;
       if (data.sentimentCounts) {
-        const chartData = Object.entries(data.sentimentCounts).map(([sentiment, count]) => ({
-          sentiment,
-          count,
-        }));
+        const chartData = Object.entries(data.sentimentCounts).map(
+          ([sentiment, count]) => ({ sentiment, count })
+        );
         setSentimentData(chartData);
       }
     } catch (error) {
@@ -73,7 +122,9 @@ const Wordtag = () => {
 
   return (
     <div className="text-center my-6">
-      <h1 className="text-red-500 font-bold text-2xl mb-4">Comment Cloud & Sentiment Analysis</h1>
+      <h1 className="text-red-500 font-bold text-2xl mb-4">
+        Comment Cloud & Sentiment Analysis
+      </h1>
       <div className="mb-4 flex justify-center gap-4">
         <select
           value={selectedEvent}
@@ -110,14 +161,16 @@ const Wordtag = () => {
 
         {/* Sentiment Bar Graph */}
         <div className="w-1/2 min-w-[300px] h-[300px]">
-          <h2 className="text-xl font-bold text-gray-700 mb-2">Sentiment Analysis</h2>
+          <h2 className="text-xl font-bold text-gray-700 mb-2">
+            Sentiment Analysis
+          </h2>
           {sentimentData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={sentimentData}>
                 <XAxis dataKey="sentiment" />
                 <YAxis allowDecimals={false} />
                 <Tooltip />
-                <Bar dataKey="count" fill="#ff6b6b" barSize={50} />
+                <Bar dataKey="count" barSize={50} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
