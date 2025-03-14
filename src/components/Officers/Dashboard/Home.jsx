@@ -293,9 +293,9 @@ function Home() {
                 <h1 className="text-[6vh] md:text-[6vh] sm:text-[5vh] font-bold text-[#3a1078] font-tungsten">
                   Hi, {userData.name} {userData.surname}! 👋
                 </h1>
-                <p className="text-xl md:text-2xl font-bold text-[#3a1078]">
+                {/* <p className="text-xl md:text-2xl font-bold text-[#3a1078]">
                   kunware wala kang nababasa ha? thank you so much
-                </p>
+                </p> */}
               </div>
               <div className="w-full md:w-1/3 h-[15vh] md:h-full sm:h-0 flex justify-center items-center">
                 <DotLottieReact

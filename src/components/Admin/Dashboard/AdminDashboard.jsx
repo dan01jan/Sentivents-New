@@ -106,9 +106,9 @@ function AdminDashboard() {
               <h1 className="text-[8vh] font-bold text-[#3a1078] font-tungsten">
                 Hi, {userData.name} {userData.surname}! 👋
               </h1>
-              <p className="text-2xl font-bold text-[#3a1078] ">
+              {/* <p className="text-2xl font-bold text-[#3a1078] ">
                 kunware wala kang nababasa ha? thank you so much
-              </p>
+              </p> */}
             </div>
             <div className="w-1/3 h-full flex justify-center items-center">
               <DotLottieReact
