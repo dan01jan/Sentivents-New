@@ -24,6 +24,7 @@ const Register = () => {
     isAdmin: false,
     isOfficer: false,
     isHead: false,
+    declined: false,
     warningCount: 0,
     commentCooldown: null,
   });
