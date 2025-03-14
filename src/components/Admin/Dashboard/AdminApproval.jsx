@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL; // e.g., "http://localhost:4000/api/v1/"
 
 const AdminApproval = () => {
   const [orgData, setOrgData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedOfficers, setSelectedOfficers] = useState([]);
+  const [selectedOrgId, setSelectedOrgId] = useState(null);
 
   useEffect(() => {
     const fetchOrganizations = async () => {
@@ -40,11 +41,19 @@ const AdminApproval = () => {
         }
       );
       if (!response.ok) throw new Error("Failed to approve officer.");
+      // Remove approved officer from the state
       setOrgData((prevData) =>
-        prevData.map((org) => ({
-          ...org,
-          officers: org.officers.filter((officer) => officer._id !== officerId),
-        }))
+        prevData.map((org) => {
+          if (org._id === selectedOrgId) {
+            return {
+              ...org,
+              officers: org.officers.filter(
+                (officer) => officer._id !== officerId
+              ),
+            };
+          }
+          return org;
+        })
       );
       setSelectedOfficers((prev) =>
         prev.filter((officer) => officer._id !== officerId)
@@ -54,19 +63,50 @@ const AdminApproval = () => {
     }
   };
 
-  const handleDecline = (officerId) => {
-    setOrgData((prevData) =>
-      prevData.map((org) => ({
-        ...org,
-        officers: org.officers.filter((officer) => officer._id !== officerId),
-      }))
-    );
-    setSelectedOfficers((prev) =>
-      prev.filter((officer) => officer._id !== officerId)
-    );
+  const handleDecline = async (officerId) => {
+    try {
+      const token = localStorage.getItem("token");
+      // Use the decline endpoint for the officer.
+      const response = await fetch(
+        `${apiUrl}users/organizations/officers/${officerId}/decline`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) throw new Error("Failed to decline officer.");
+      const data = await response.json();
+      // Optionally show a message.
+      alert(data.message);
+      // Remove the declined officer from the state so that the name no longer shows.
+      setOrgData((prevData) =>
+        prevData.map((org) => {
+          if (org._id === selectedOrgId) {
+            return {
+              ...org,
+              officers: org.officers.filter(
+                (officer) => officer._id !== officerId
+              ),
+            };
+          }
+          return org;
+        })
+      );
+      setSelectedOfficers((prev) =>
+        prev.filter((officer) => officer._id !== officerId)
+      );
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const openModal = (officers) => {
+  // When opening the modal, store the organization's id and its pending officers.
+  // (The aggregate query already returns only pending officers.)
+  const openModal = (orgId, officers) => {
+    setSelectedOrgId(orgId);
     setSelectedOfficers(officers);
   };
 
@@ -88,14 +128,13 @@ const AdminApproval = () => {
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {orgData.map((org) => {
-          const pendingApprovals = org.officers.filter(
-            (officer) => !officer.isAdmin
-          );
+          // The "officers" array here contains pending officers (isOfficer false and declined false).
+          const pendingApprovals = org.officers;
           return (
             <div
               key={org._id || org.name}
               className="relative bg-white rounded-lg p-6 shadow-md hover:shadow-xl transition w-full max-w-xs h-40 flex justify-center items-center cursor-pointer"
-              onClick={() => openModal(pendingApprovals)}
+              onClick={() => openModal(org._id, pendingApprovals)}
             >
               <h2 className="text-center text-2xl text-[#3a1078] font-semibold">
                 {org.name}
@@ -118,7 +157,9 @@ const AdminApproval = () => {
             >
               &times;
             </button>
-            <h2 className="text-[5vh] font-bold mb-4 font-tungsten text-[#3a1078]">Officer Approvals</h2>
+            <h2 className="text-[5vh] font-bold mb-4 font-tungsten text-[#3a1078]">
+              Officer Approvals
+            </h2>
             {selectedOfficers.map((officer) => (
               <div key={officer._id} className="mb-4 p-4 border rounded-lg">
                 <img
@@ -127,13 +168,13 @@ const AdminApproval = () => {
                     "https://res.cloudinary.com/do2utxjmc/image/upload/v1741749795/3918329-200_bpfm11.png"
                   }
                   alt="Officer"
-                  className="w-24 h-24 rounded-full mb-2 items-center justify-center mx-auto"
+                  className="w-24 h-24 rounded-full mb-2 mx-auto"
                 />
                 <p className="text-2xl text-center text-[#3a1078] font-semibold">
-                  {officer.name} {officer.surname} 
+                  {officer.name} {officer.surname}
                 </p>
                 <p className="text-center text-[#3a1078]">{officer.email}</p>
-                <div className="flex space-x-4 mt-2 items-center justify-center mx-auto">
+                <div className="flex space-x-4 mt-2 justify-center">
                   <button
                     onClick={() => handleApprove(officer._id)}
                     className="bg-[#3a1078] text-white px-4 py-2 rounded-lg hover:bg-[#3a1078c5]"
