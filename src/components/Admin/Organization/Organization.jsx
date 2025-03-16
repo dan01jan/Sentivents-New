@@ -49,28 +49,6 @@ function Organization() {
     return () => clearInterval(intervalId);
   }, []);
 
-  useEffect(() => {
-    const fetchOfficers = async () => {
-      try {
-        const response = await fetch(`${apiUrl}users/organizations/officers`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch organizations.");
-        }
-        const data = await response.json();
-        setOfficers(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOfficers();
-    const intervalId = setInterval(fetchOfficers, 1000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
   const handleDelete = async (id) => {
     if (!id) {
       console.error("Error: Organization ID is undefined");
@@ -128,23 +106,26 @@ function Organization() {
   const openOfficerModal = async (org) => {
     const token = localStorage.getItem("authToken");
     try {
-      const response = await fetch(`${apiUrl}organizations/${org._id}`, {
+      // Call the eligible officers route using the organization ID
+      const response = await fetch(`${apiUrl}organizations/eligible-officers/${org._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) {
-        throw new Error("Failed to fetch organization");
+        throw new Error("Failed to fetch officers for this organization.");
       }
       const data = await response.json();
-      setSelectedOrg(data);
+      setOfficers(data);
+      setSelectedOrg(org);
       setIsOfficerModalOpen(true);
     } catch (error) {
       console.error("Error fetching organization officers:", error);
     }
-  };  
+  };
 
   const closeOfficerModal = () => {
     setIsOfficerModalOpen(false);
     setSelectedOrg(null);
+    setOfficers([]);
   };
 
   const filteredOrganizations = organizations.filter((org) =>
@@ -184,7 +165,6 @@ function Organization() {
                 className="w-full h-56 md:h-full object-cover"
               />
             </div>
-
             <div className="flex-1 p-6 flex flex-col justify-between">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-3">
@@ -194,7 +174,6 @@ function Organization() {
                   {org.description}
                 </p>
               </div>
-
               <div className="mt-4 flex justify-end space-x-2">
                 <button
                   onClick={() => openOfficerModal(org)}
@@ -231,7 +210,6 @@ function Organization() {
       >
         <FaPlus size={24} />
       </button>
-
       <OrgCreate isOpen={isModalOpen} onClose={closeModal} />
       {selectedOrg && (
         <>
@@ -260,8 +238,8 @@ function Organization() {
                 <h2 className="text-[5vh] font-bold mb-4 font-tungsten text-[#3a1078]">
                   Officers
                 </h2>
-                {selectedOrg.officers.length > 0 ? (
-                  selectedOrg.officers.map((officer) => (
+                {officers.length > 0 ? (
+                  officers.map((officer) => (
                     <div key={officer._id} className="mb-4 p-4 border rounded-lg">
                       <img
                         src={
@@ -269,7 +247,7 @@ function Organization() {
                           "https://res.cloudinary.com/do2utxjmc/image/upload/v1741749795/3918329-200_bpfm11.png"
                         }
                         alt="Officer"
-                        className="w-24 h-24 rounded-full mb-2 items-center justify-center mx-auto"
+                        className="w-24 h-24 rounded-full mb-2 mx-auto"
                       />
                       <p className="text-2xl text-center text-[#3a1078] font-semibold">
                         {officer.name} {officer.surname}

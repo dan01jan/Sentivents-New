@@ -6,22 +6,24 @@ const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
   const [officers, setOfficers] = useState([]);
 
   // When the modal opens or the organization prop changes,
-  // fetch the latest organization details including officers.
+  // fetch the latest eligible officers for the organization.
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     if (organization && organization._id) {
-      fetch(`${apiUrl}organizations/${organization._id}`, {
+      fetch(`${apiUrl}organizations/eligible-officers/${organization._id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
         .then((response) => response.json())
         .then((data) => {
-          if (data.officers) {
-            setOfficers(data.officers);
+          if (data) {
+            setOfficers(data);
           }
         })
-        .catch((error) => console.error('Error fetching organization details:', error));
+        .catch((error) =>
+          console.error('Error fetching eligible officers:', error)
+        );
     }
   }, [organization]);
 
@@ -117,7 +119,9 @@ const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
       <div className="bg-white p-6 rounded-md w-11/12 md:w-1/2 max-h-screen overflow-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Update Officers</h2>
-          <button onClick={onClose} className="text-gray-600 hover:text-gray-800 text-2xl">&times;</button>
+          <button onClick={onClose} className="text-gray-600 hover:text-gray-800 text-2xl">
+            &times;
+          </button>
         </div>
         <form onSubmit={handleSubmit}>
           {officers.map((officer, index) => (
