@@ -76,7 +76,7 @@ const Sidebar = () => {
                 className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
               >
                 <FaUserCheck size={40} />
-                {isExpanded && <span>Attendance</span>}
+                {isExpanded && <span>Registration</span>}
               </Link>
             </li>
             <li>

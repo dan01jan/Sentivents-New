@@ -35,7 +35,9 @@ const OTP = () => {
         otp: finalOtp 
       });
       toast.success("Email is Verified", { autoClose: 3000 });
-      setTimeout(() => navigate("/login"), 3000);
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
     } catch (error) {
       console.error("OTP verification failed:", error.response?.data || error.message);
       toast.error(error.response?.data || "OTP verification failed.", { autoClose: 3000 });
@@ -45,7 +47,7 @@ const OTP = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-green-100 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white-100 p-4">
       <div className="bg-white p-6 rounded-lg shadow-md text-center">
         <h2 className="text-2xl font-bold mb-4">Verification Code</h2>
         <p className="text-gray-600 mb-4">Enter the code sent to your email.</p>
