@@ -2,11 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {
-  FaArrowDown,
-  FaArrowRight,
-  FaArrowAltCircleDown,
-} from "react-icons/fa";
+import { FaArrowDown, FaArrowRight, FaArrowAltCircleDown } from "react-icons/fa";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -27,12 +23,11 @@ const ListQuestion = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [traitsResponse, typesResponse, questionsResponse] =
-          await Promise.all([
-            axios.get(`${apiUrl}traits/`),
-            axios.get(`${apiUrl}types/`),
-            axios.get(`${apiUrl}questions/`),
-          ]);
+        const [traitsResponse, typesResponse, questionsResponse] = await Promise.all([
+          axios.get(`${apiUrl}traits/`),
+          axios.get(`${apiUrl}types/`),
+          axios.get(`${apiUrl}questions/`),
+        ]);
 
         setTraits(traitsResponse.data);
         setTypes(typesResponse.data);
@@ -44,15 +39,11 @@ const ListQuestion = () => {
     };
 
     fetchData();
-
-    const intervalId = setInterval(fetchData, 500);
-
-    return () => clearInterval(intervalId);
   }, []);
 
   const handleAddQuestion = () => {
     if (!question || !translated || !selectedTrait || !selectedType) {
-      alert("Please enter a question, select a trait, and select a type.");
+      alert("Please enter a question, translated text, select a trait, and select a type.");
       return;
     }
 
@@ -77,31 +68,25 @@ const ListQuestion = () => {
     }
 
     try {
-      const response = await axios.post(
-        `${apiUrl}questions/bulk-create-questions`,
-        {
-          questions: tempQuestions,
-        }
-      );
+      const response = await axios.post(`${apiUrl}questions/bulk-create-questions`, {
+        questions: tempQuestions,
+      });
 
       setQuestions((prev) => [...prev, ...response.data]);
       setTempQuestions([]);
-
       toast.success("Questions created successfully!");
       setTimeout(() => {
         window.location.href = "/dashboard/questions";
       }, 3000);
     } catch (error) {
       console.error("Error creating questions:", error.message);
+      toast.error("Error creating questions");
     }
   };
 
   const handleDeleteQuestion = async (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this question?"
-    );
+    const confirmed = window.confirm("Are you sure you want to delete this question?");
     if (!confirmed) return;
-
     try {
       await axios.delete(`${apiUrl}questions/${id}`);
       setQuestions((prev) => prev.filter((question) => question._id !== id));
@@ -112,21 +97,20 @@ const ListQuestion = () => {
     }
   };
 
-  const handleEditQuestion = (question) => {
-    setEditingQuestion(question);
-    setQuestion(question.question);
-    setTranslated(question.translated);
-    setSelectedTrait(question.traitId);
-    setSelectedType(question.typeId);
+  const handleEditQuestion = (questionObj) => {
+    setEditingQuestion(questionObj);
+    setQuestion(questionObj.question);
+    setTranslated(questionObj.translated);
+    setSelectedTrait(questionObj.traitId);
+    setSelectedType(questionObj.typeId);
     setIsModalOpen(true);
   };
 
   const handleUpdateQuestion = async () => {
     if (!question || !translated || !selectedTrait || !selectedType) {
-      alert("Please enter a question, select a trait, and select a type.");
+      alert("Please enter a question, translated text, select a trait, and select a type.");
       return;
     }
-
     try {
       const updatedQuestion = {
         ...editingQuestion,
@@ -189,11 +173,14 @@ const ListQuestion = () => {
   return (
     <div className="p-4 max-w-full mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-center w-full gap-4">
-        <h1 className="text-[5vh] md:text-[8vh]  sm:text-[10vh] font-semibold text-[#3a1078] font-tungsten text-center md:text-left">
+        <h1 className="text-[5vh] md:text-[8vh] sm:text-[10vh] font-semibold text-[#3a1078] font-tungsten text-center md:text-left">
           Questionnaire Dashboard
         </h1>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setIsModalOpen(true);
+            setEditingQuestion(null);
+          }}
           className="bg-[#3a1078] text-white font-semibold py-3 px-4 md:py-4 md:px-6 rounded-3xl flex items-center gap-2 hover:bg-[#3a1078c5] transition"
         >
           Create Questionnaire
@@ -205,7 +192,11 @@ const ListQuestion = () => {
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center p-4">
           <div className="bg-white p-6 md:p-8 rounded-lg shadow-md w-full max-w-lg relative">
             <button
-              onClick={() => setIsModalOpen(false)}
+              onClick={() => {
+                setIsModalOpen(false);
+                setEditingQuestion(null);
+                setTempQuestions([]);
+              }}
               className="absolute top-4 right-4 text-2xl"
             >
               ✕
@@ -213,12 +204,9 @@ const ListQuestion = () => {
             <h2 className="text-2xl font-semibold mb-6">
               {editingQuestion ? "Edit Question" : "Create Questions"}
             </h2>
-
             <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
               <div>
-                <label className="block text-lg font-medium mb-2">
-                  Question:
-                </label>
+                <label className="block text-lg font-medium mb-2">Question:</label>
                 <input
                   type="text"
                   value={question}
@@ -227,11 +215,8 @@ const ListQuestion = () => {
                   placeholder="Enter your question"
                 />
               </div>
-
               <div>
-                <label className="block text-lg font-medium mb-2">
-                  Translated:
-                </label>
+                <label className="block text-lg font-medium mb-2">Translated:</label>
                 <input
                   type="text"
                   value={translated}
@@ -240,11 +225,8 @@ const ListQuestion = () => {
                   placeholder="Enter translated question"
                 />
               </div>
-
               <div>
-                <label className="block text-lg font-medium mb-2">
-                  Select Trait:
-                </label>
+                <label className="block text-lg font-medium mb-2">Select Trait:</label>
                 <select
                   value={selectedTrait}
                   onChange={(e) => setSelectedTrait(e.target.value)}
@@ -258,11 +240,8 @@ const ListQuestion = () => {
                   ))}
                 </select>
               </div>
-
               <div>
-                <label className="block text-lg font-medium mb-2">
-                  Select Type:
-                </label>
+                <label className="block text-lg font-medium mb-2">Select Type:</label>
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
@@ -276,16 +255,24 @@ const ListQuestion = () => {
                   ))}
                 </select>
               </div>
-
-              <button
-                type="button"
-                onClick={
-                  editingQuestion ? handleUpdateQuestion : handleAddQuestion
-                }
-                className="bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 w-full md:w-auto"
-              >
-                {editingQuestion ? "Update Question" : "Add Another Question"}
-              </button>
+              <div className="flex flex-col md:flex-row gap-4">
+                <button
+                  type="button"
+                  onClick={editingQuestion ? handleUpdateQuestion : handleAddQuestion}
+                  className="bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 flex-1"
+                >
+                  {editingQuestion ? "Update Question" : "Add Another Question"}
+                </button>
+                {!editingQuestion && (
+                  <button
+                    type="button"
+                    onClick={handleCreateQuestions}
+                    className="bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 flex-1"
+                  >
+                    Submit Questionnaire
+                  </button>
+                )}
+              </div>
             </form>
           </div>
         </div>
@@ -316,10 +303,7 @@ const ListQuestion = () => {
             Object.entries(traits)
               .slice(0, 5)
               .map(([trait, questions]) => (
-                <div
-                  key={trait}
-                  className="border border-gray-300 p-4 rounded-lg mb-4"
-                >
+                <div key={trait} className="border border-gray-300 p-4 rounded-lg mb-4">
                   <h3 className="text-[3vh] md:text-[4vh] font-semibold font-tungsten text-[#3a1078] mb-3">
                     {trait}
                   </h3>
@@ -328,9 +312,7 @@ const ListQuestion = () => {
                       <tr className="bg-gray-100">
                         <th className="border border-gray-300 p-2">#</th>
                         <th className="border border-gray-300 p-2">Question</th>
-                        <th className="border border-gray-300 p-2">
-                          Translated
-                        </th>
+                        <th className="border border-gray-300 p-2">Translated</th>
                         <th className="border border-gray-300 p-2">Type</th>
                         <th className="border border-gray-300 p-2">Actions</th>
                       </tr>
@@ -338,18 +320,10 @@ const ListQuestion = () => {
                     <tbody>
                       {questions.slice(0, 5).map((q, index) => (
                         <tr key={q._id} className="hover:bg-gray-50">
-                          <td className="border border-gray-300 p-2 text-center">
-                            {index + 1}
-                          </td>
-                          <td className="border border-gray-300 p-2">
-                            {q.question}
-                          </td>
-                          <td className="border border-gray-300 p-2">
-                            {q.translated}
-                          </td>
-                          <td className="border border-gray-300 p-2">
-                            {q.typeId?.eventType || "N/A"}
-                          </td>
+                          <td className="border border-gray-300 p-2 text-center">{index + 1}</td>
+                          <td className="border border-gray-300 p-2">{q.question}</td>
+                          <td className="border border-gray-300 p-2">{q.translated}</td>
+                          <td className="border border-gray-300 p-2">{q.typeId?.eventType || "N/A"}</td>
                           <td className="border border-gray-300 p-2 text-center">
                             <button
                               className="text-blue-600 hover:underline"
