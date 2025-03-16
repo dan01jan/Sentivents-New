@@ -115,13 +115,13 @@ const Login = () => {
             >
               Login
             </button>
-            <button
+            {/* <button
               onClick={handleGoogleLogin}
               className="w-full py-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 text-m font-bold flex items-center justify-center"
             >
               <FaGoogle className="w-6 h-6 mr-3" />
               Login with Google
-            </button>
+            </button> */}
           </form>
 
           <Link

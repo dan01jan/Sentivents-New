@@ -315,14 +315,14 @@ const Register = () => {
                 Register
               </button>
 
-              <button
+              {/* <button
                 type="button"
                 onClick={() => alert("Google login not implemented yet")}
                 className="w-full py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 text-base font-bold flex items-center justify-center"
               >
                 <FaGoogle className="w-5 h-5 mr-2" />
                 Register with Google
-              </button>
+              </button> */}
             </form>
           </div>
           <Link
