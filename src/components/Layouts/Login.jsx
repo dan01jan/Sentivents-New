@@ -25,6 +25,15 @@ const Login = () => {
       if (!response.ok) throw new Error("Invalid credentials");
 
       const data = await response.json();
+
+      // // Check if the user's email is verified
+      // if (!data.user.isVerified) {
+      //   alert("Your account is not verified. Please verify your email before logging in.");
+      //   setLoading(false);
+      //   return;
+      // }
+
+      // If verified, proceed with login
       localStorage.setItem("authToken", data.token);
       localStorage.setItem(
         "userData",
@@ -124,7 +133,6 @@ const Login = () => {
           <Link
             to="/register"
             className="mt-4 text-center text-[#3a1078] hover:underline"
-            onClick={() => setLoading(true)} // Set loading to true when "Register" is clicked
           >
             Not yet Registered? Create an Account
           </Link>
