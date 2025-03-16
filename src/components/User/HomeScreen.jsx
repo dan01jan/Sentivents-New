@@ -37,8 +37,7 @@ function HomeScreen() {
           .filter((event) => new Date(event.dateStart) > new Date()) // Only future events
           .sort((a, b) => new Date(a.dateStart) - new Date(b.dateStart)); // Sort ascending
 
-        setEvents(sortedEvents.slice(0, 3));
-
+        // Update state only once
         setEvents(sortedEvents.slice(0, 3));
       } catch (error) {
         setError(error.message);
@@ -48,14 +47,14 @@ function HomeScreen() {
     };
 
     fetchEvents();
-    const intervalId = setInterval(fetchEvents, 500);
-
-    return () => clearInterval(intervalId);
+    // Remove or adjust the interval if real-time updates are not needed
+    // const intervalId = setInterval(fetchEvents, 5000); // example: every 5 seconds
+    // return () => clearInterval(intervalId);
   }, []);
 
   const settings = {
     dots: false,
-    infinite: true,
+    infinite: false, // Disable infinite mode to prevent slide cloning
     speed: 500,
     slidesToShow: 3,
     slidesToScroll: 1,
@@ -80,7 +79,7 @@ function HomeScreen() {
   };
 
   const CustomArrow = ({ className, style, onClick, direction }) => (
-    <div onClick={onClick}>{direction === "prev" ? "" : ""}</div>
+    <div onClick={onClick}>{/* You can customize your arrow here */}</div>
   );
 
   const footerSliderSettings = {
@@ -127,6 +126,7 @@ function HomeScreen() {
           autoPlay
           loop
           muted
+          alt="Background"
         />
         <div className="absolute inset-0 sm:bg-gradient-to-r sm:from-black/95 sm:to-black/25"></div>
         <div className="absolute inset-0 flex flex-col items-start justify-center h-full z-10 text-left pl-10">
@@ -211,7 +211,7 @@ function HomeScreen() {
                     </span>
                   </div>
                   <p className="text-gray-700 text-xl leading-relaxed py-2">
-                    <strong>{event.name || "No Name"}</strong>{" "}
+                    <strong>{event.name || "No Name"}</strong>
                   </p>
                   <p className="text-gray-700 text-sm leading-relaxed ">
                     {event.description.length > 100

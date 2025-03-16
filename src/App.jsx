@@ -44,6 +44,8 @@ import About from "./components/User/About";
 import Organization from "./components/User/Organization";
 import OrgDetails from "./components/User/OrgDetails";
 import Home from "./components/Officers/Dashboard/Home";
+import OTP from "./components/User/OTP";
+
 
 // Admin
 import AdminDashboard from "./components/Admin/Dashboard/AdminDashboard";
@@ -118,6 +120,7 @@ function AppContent({ loading, user }) {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/events" element={<Events />} />
+              <Route path="/otp" element={<OTP />} />
               <Route path="/about" element={<About />} />
               <Route path="/organization" element={<Organization />} />
               <Route path="/organization/:id" element={<OrgDetails />} />

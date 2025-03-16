@@ -140,13 +140,17 @@ const Register = () => {
       );
 
       console.log("Registration successful:", response.data);
-      toast.success("Registration successful!", {
-        position: "bottom-right",
-        autoClose: 1000,
-      });
+      toast.success(
+        "Registration successful! Please verify your email using the OTP sent.",
+        {
+          position: "bottom-right",
+          autoClose: 2000,
+        }
+      );
+      // Navigate to the OTP page, passing the registered email in state
       setTimeout(() => {
-        navigate("/login");
-      }, 3000);
+        navigate("/otp", { state: { email: formData.email } });
+      }, 2500);
     } catch (error) {
       console.error(
         "Error registering the user:",
