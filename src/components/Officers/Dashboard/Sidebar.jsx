@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   FaHome,
   FaCalendarAlt,
@@ -16,6 +16,7 @@ import "../../Layouts/Header.css";
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // Get the current route
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleLogout = () => {
@@ -23,6 +24,8 @@ const Sidebar = () => {
     navigate("/login");
     window.location.reload();
   };
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <div className="flex h-screen bg-white">
@@ -40,49 +43,72 @@ const Sidebar = () => {
             }`}
           />
         </a>
-
-        <nav className="px-2 py-4 mt-6 space-y-4 flex-grow">
+        <nav className="py-4 mt-6 space-y-4 flex-grow">
           <ul>
             <li>
               <Link
                 to="/dashboard/"
-                className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out"
+                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out px-4 py-2 rounded-lg ${
+                  isActive("/dashboard/")
+                    ? "bg-gray-200 text-[#4e31aa]"
+                    : "text-[#3a1078] hover:bg-gray-100"
+                }`}
               >
                 <FaHome size={40} />
                 {isExpanded && <span>Dashboard</span>}
               </Link>
             </li>
+
             <li>
               <Link
                 to="/dashboard/wordtag"
-                className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
+                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out mt-2 px-4 py-2 rounded-lg ${
+                  isActive("/dashboard/wordtag")
+                    ? "bg-gray-200 text-[#4e31aa]"
+                    : "text-[#3a1078] hover:bg-gray-100"
+                }`}
               >
                 <FaCommentAlt size={40} />
                 {isExpanded && <span>Word Tag</span>}
               </Link>
             </li>
+
             <li>
               <Link
                 to="/dashboard/events"
-                className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
+                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out mt-2 px-4 py-2 rounded-lg ${
+                  isActive("/dashboard/events")
+                    ? "bg-gray-200 text-[#4e31aa]"
+                    : "text-[#3a1078] hover:bg-gray-100"
+                }`}
               >
                 <FaCalendarAlt size={40} />
                 {isExpanded && <span>Events</span>}
               </Link>
             </li>
+
             <li>
               <Link
                 to="/dashboard/attendance"
-                className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
+                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out mt-2 px-4 py-2 rounded-lg ${
+                  isActive("/dashboard/attendance")
+                    ? "bg-gray-200 text-[#4e31aa]"
+                    : "text-[#3a1078] hover:bg-gray-100"
+                }`}
               >
                 <FaUserCheck size={40} />
                 {isExpanded && <span>Registration</span>}
               </Link>
             </li>
+
             <li>
               <Link
                 to="/dashboard/questions"
-                className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
+                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out mt-2 px-4 py-2 rounded-lg ${
+                  isActive("/dashboard/questions")
+                    ? "bg-gray-200 text-[#4e31aa]"
+                    : "text-[#3a1078] hover:bg-gray-100"
+                }`}
               >
                 <FaQuestionCircle size={40} />
                 {isExpanded && <span>Questions</span>}
@@ -90,6 +116,7 @@ const Sidebar = () => {
             </li>
           </ul>
         </nav>
+        F
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className="absolute top-1/2 -translate-y-1/2 right-0 transform translate-x-1/2 bg-white p-2 rounded-full shadow-md border border-gray-300 transition-all duration-300 ease-in-out"
