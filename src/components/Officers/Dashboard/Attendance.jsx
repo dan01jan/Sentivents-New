@@ -7,9 +7,7 @@ import { useNavigate } from "react-router-dom";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const Attendance = () => {
-  // State for fetched user details
   const [user, setUser] = useState(null);
-  
   const [eventId, setEventId] = useState("");
   const [eventName, setEventName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,12 +15,10 @@ const Attendance = () => {
   const [events, setEvents] = useState([]);
   const [attendees, setAttendees] = useState([]);
   const [selectedAttendees, setSelectedAttendees] = useState([]);
-  const [eventStatus, setEventStatus] = useState("");
   const [fetchClicked, setFetchClicked] = useState(false);
-  
+
   const navigate = useNavigate();
 
-  // Fetch events related to the user’s organization
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true);
@@ -35,7 +31,6 @@ const Attendance = () => {
         }
 
         const organizationName = userData.organizationName;
-        // Fetch events specific to the organization
         const response = await axios.get(
           `${apiUrl}events/adminevents?organization=${organizationName}`,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -50,53 +45,30 @@ const Attendance = () => {
     fetchEvents();
   }, []);
 
-  // Fetch logged-in user’s detailed information
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        const userData = JSON.parse(localStorage.getItem("userData"));
-
-        if (!userData || !userData.userId) {
-          throw new Error("User data not found");
-        }
-
-        const response = await axios.get(
-          `${apiUrl}users/officer/${userData.userId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setUser(response.data);
-      } catch (err) {
-        setError(err.message || "Error fetching user details");
-      }
-    };
-    fetchUser();
-  }, []);
-
   const fetchAttendees = async () => {
     if (!eventId) {
-      setError("Event ID is required");
+      setError("Please select an event");
       return;
     }
     setError("");
     setLoading(true);
-    setFetchClicked(false); // Prevent early "No attendees found" message
+    setFetchClicked(false);
+
     try {
       const response = await axios.get(`${apiUrl}attendance/getUsersByEvent/${eventId}`);
       const eventResponse = await axios.get(`${apiUrl}events/${eventId}`);
 
       setAttendees(response.data || []);
       setEventName(eventResponse.data.name);
-      setEventStatus(new Date() > new Date(eventResponse.data.dateEnd) ? "done" : "ongoing");
     } catch (err) {
       setError("Error fetching attendees");
     } finally {
       setLoading(false);
-      setFetchClicked(true); // Only show "No attendees found" after fetch completes
+      setFetchClicked(true);
     }
   };
 
-  const handleCircleChange = (userId) => {
+  const handleCheckboxChange = (userId) => {
     setSelectedAttendees((prev) =>
       prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
     );
@@ -112,7 +84,7 @@ const Attendance = () => {
     try {
       const attendeesToUpdate = attendees
         .filter((att) => selectedAttendees.includes(att.userId))
-        .map((att) => ({ userId: att.userId, hasRegistered: true })); // Updated property
+        .map((att) => ({ userId: att.userId, hasRegistered: true }));
 
       await axios.put(`${apiUrl}attendance/updateUsersAttendance/${eventId}`, {
         attendees: attendeesToUpdate,
@@ -125,17 +97,13 @@ const Attendance = () => {
         draggable: true,
       });
 
-      // Update attendees list locally to reflect approval using hasRegistered
       setAttendees((prev) =>
         prev.map((att) =>
           selectedAttendees.includes(att.userId) ? { ...att, hasRegistered: true } : att
         )
       );
 
-      // Reset selected attendees
       setSelectedAttendees([]);
-
-      // Navigate after a delay
       setTimeout(() => navigate("/dashboard/attendance"), 3000);
     } catch (err) {
       setError("Error approving attendance");
@@ -149,39 +117,29 @@ const Attendance = () => {
       <h1 className="text-[8vh] font-bold mb-4 font-tungsten text-[#3a1078]">
         Registration Approval
       </h1>
-      <div className="flex w-full max-w-5xl gap-6">
-        <div className="bg-white shadow-lg rounded-2xl p-8 w-1/2">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Select Event</h2>
-          <div className="space-y-2">
-            {events.length > 0 ? (
-              events.map((event) => (
-                <div key={event._id} className="flex items-center space-x-3">
-                  <input
-                    type="radio"
-                    id={`event-${event._id}`}
-                    name="selectedEvent"
-                    value={event._id}
-                    checked={eventId === event._id}
-                    onChange={(e) => {
-                      setEventId(e.target.value);
-                      setAttendees([]);
-                      setFetchClicked(false);
-                    }}
-                    className="h-4 w-4 text-blue-600"
-                  />
-                  <label htmlFor={`event-${event._id}`} className="text-lg font-medium text-gray-700">
-                    {event.name}
-                  </label>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-500">No events available</p>
-            )}
-          </div>
+      <div className="flex gap-6">
+        <div className="bg-white shadow-lg rounded-2xl p-6 w-1/3">
+          <h2 className="font-tungsten text-[4vh] text-[#3a1078] md:text-[6vh] sm:text-[4vh]">Select Event</h2>
+          <select
+            className="w-full p-2 border border-gray-300 rounded-lg"
+            value={eventId}
+            onChange={(e) => {
+              setEventId(e.target.value);
+              setAttendees([]);
+              setFetchClicked(false);
+            }}
+          >
+            <option value="">Select an Event</option>
+            {events.map((event) => (
+              <option key={event._id} value={event._id}>
+                {event.name}
+              </option>
+            ))}
+          </select>
           <button
             onClick={fetchAttendees}
             disabled={loading || !eventId}
-            className="w-full py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50 mt-5"
+            className="w-full py-2 bg-[#3a1078] text-white rounded-lg disabled:opacity-50 mt-5"
           >
             {loading ? "Loading..." : "Fetch Attendees"}
           </button>
@@ -190,37 +148,59 @@ const Attendance = () => {
           )}
         </div>
 
-        {attendees.length > 0 && (
-          <div className="bg-white shadow-lg rounded-2xl p-8 w-1/2 flex flex-col justify-between h-full">
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">Event Attendees</h2>
-              <ul>
-                {attendees.map((attendee) => (
-                  <li key={attendee.userId} className="flex items-center space-x-3 text-lg">
-                    <div
-                      onClick={() => !attendee.hasRegistered && handleCircleChange(attendee.userId)}
-                      className={`w-6 h-6 rounded-full border-2 ${
-                        attendee.hasRegistered ? "cursor-not-allowed" : "cursor-pointer"
-                      } ${selectedAttendees.includes(attendee.userId) ? "bg-blue-500" : "border-gray-300"}`}
-                    />
-                    <span>
-                      {attendee.firstName} {attendee.lastName}{" "}
-                      {attendee.hasRegistered && <span className="text-green-600 font-bold">✔ Approved</span>}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+        <div className="bg-white shadow-lg rounded-2xl p-6 w-2/3">
+          <h2 className="font-tungsten text-[4vh] text-[#3a1078] md:text-[6vh] sm:text-[4vh]">
+            {eventName ? `${eventName} - Attendees` : "Event Attendees"}
+          </h2>
+          {attendees.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr className="bg-gray-200">
+                    <th className="p-2 border border-gray-300">Select</th>
+                    <th className="p-2 border border-gray-300">Name</th>
+                    <th className="p-2 border border-gray-300">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {attendees.map((attendee) => (
+                    <tr key={attendee.userId} className="text-center">
+                      <td className="p-2 border border-gray-300">
+                        <input
+                          type="checkbox"
+                          disabled={attendee.hasRegistered}
+                          checked={selectedAttendees.includes(attendee.userId)}
+                          onChange={() => handleCheckboxChange(attendee.userId)}
+                        />
+                      </td>
+                      <td className="p-2 border border-gray-300">
+                        {attendee.firstName} {attendee.lastName}
+                      </td>
+                      <td className="p-2 border border-gray-300">
+                        {attendee.hasRegistered ? (
+                          <span className="text-green-600 font-bold">✔ Approved</span>
+                        ) : (
+                          "Pending"
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            {selectedAttendees.length > 0 && (
-              <button
-                onClick={approveAttendance}
-                className="w-full mt-4 py-2 bg-green-500 text-white rounded-lg"
-              >
-                Approve Register
-              </button>
-            )}
-          </div>
-        )}
+          ) : (
+            <p className="text-gray-500">No attendees to display</p>
+          )}
+
+          {selectedAttendees.length > 0 && (
+            <button
+              onClick={approveAttendance}
+              className="w-full mt-4 py-2 bg-green-500 text-white rounded-lg"
+            >
+              Approve Register
+            </button>
+          )}
+        </div>
       </div>
       <ToastContainer />
     </div>
