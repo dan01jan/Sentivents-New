@@ -359,9 +359,7 @@ const EventList = () => {
                     {event.name || "No Name"}
                   </div>
                   <div className="font-bold text-lg mb-2 truncate">
-                    {user && user.organization
-                      ? user.organization.name
-                      : "No Organization"}
+                    {event.organization || "No Organization"}
                   </div>
                   <p className="text-gray-700 text-sm mb-2 line-clamp-3">
                     {event.description || "No Description"}
