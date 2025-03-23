@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
 import logo from "../../assets/website/V_LightLogo.png";
 import "./Header.css";
 import "../../index.css";
 
 function Header({ isOfficer, user }) {
   const navigate = useNavigate();
+  const location = useLocation(); // Get the current route
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -17,6 +18,8 @@ function Header({ isOfficer, user }) {
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
+  const isActive = (path) => location.pathname === path; // Check if the route matches
 
   return (
     <header className="bg-[#3a1078] fixed top-0 left-0 w-full z-50">
@@ -30,34 +33,92 @@ function Header({ isOfficer, user }) {
           <div className="hidden md:flex space-x-8 items-center mb-2">
             <div
               onClick={() => navigate("/home")}
-              className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer relative group"
+              className={`p-2 rounded-lg cursor-pointer relative group ${
+                isActive("/home") ? "bg-[#3a1078]" : "hover:bg-[#4e31aa]"
+              }`}
             >
-              <span className="text-sm font-medium text-white">HOME</span>
-              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <span
+                className={`text-sm font-medium ${
+                  isActive("/home") ? "text-white" : "text-white"
+                }`}
+              >
+                HOME
+              </span>
+              <div
+                className={`absolute left-0 bottom-0 w-full h-1 top-11 ${
+                  isActive("/home")
+                    ? "bg-[#3795bd]"
+                    : "opacity-0 group-hover:opacity-100"
+                } transition-opacity`}
+              ></div>
             </div>
 
             <div
               onClick={() => navigate("/events")}
-              className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer relative group"
+              className={`p-2 rounded-lg cursor-pointer relative group ${
+                isActive("/events") ? "bg-[#3a1078]" : "hover:bg-[#4e31aa]"
+              }`}
             >
-              <span className="text-sm font-medium text-white">EVENTS</span>
-              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <span
+                className={`text-sm font-medium ${
+                  isActive("/events") ? "text-white" : "text-white"
+                }`}
+              >
+                EVENTS
+              </span>
+              <div
+                className={`absolute left-0 bottom-0 w-full h-1 top-11 ${
+                  isActive("/events")
+                    ? "bg-[#3795bd]"
+                    : "opacity-0 group-hover:opacity-100"
+                } transition-opacity`}
+              ></div>
             </div>
+
             <div
               onClick={() => navigate("/organization")}
-              className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer relative group"
+              className={`p-2 rounded-lg cursor-pointer relative group ${
+                isActive("/organization")
+                  ? "bg-[#3a1078]"
+                  : "hover:bg-[#4e31aa]"
+              }`}
             >
-              <span className="text-sm font-medium text-white">
+              <span
+                className={`text-sm font-medium ${
+                  isActive("/organization") ? "text-white" : "text-white"
+                }`}
+              >
                 ORGANIZATION
               </span>
-              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div
+                className={`absolute left-0 bottom-0 w-full h-1 top-11 ${
+                  isActive("/organization")
+                    ? "bg-[#3795bd]"
+                    : "opacity-0 group-hover:opacity-100"
+                } transition-opacity`}
+              ></div>
             </div>
+
             <div
               onClick={() => navigate("/about")}
-              className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer relative group"
+              className={`p-2 rounded-lg cursor-pointer relative group ${
+                isActive("/about") ? "bg-[#3a1078]" : "hover:bg-[#4e31aa]"
+              }`}
             >
-              <span className="text-sm font-medium text-white">ABOUT</span>
-              <div className="absolute left-0 bottom-0 w-full h-1 top-11 bg-[#3795bd] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <span
+                className={`text-sm font-medium ${
+                  isActive("/about") ? "text-white" : "text-white"
+                }`}
+              >
+                ABOUT
+              </span>
+              <div
+                className={`absolute left-0 bottom-0 w-full h-1 top-11 ${
+                  isActive("/about")
+                    ? "bg-[#3795bd]"
+                    : "opacity-0 group-hover:opacity-100"
+                } transition-opacity`}
+              ></div>
             </div>
           </div>
         </div>
@@ -117,36 +178,68 @@ function Header({ isOfficer, user }) {
               navigate("/home");
               toggleMobileMenu();
             }}
-            className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer"
+            className={`p-2 rounded-lg cursor-pointer ${
+              isActive("/home") ? "bg-[#4e31aa]" : "hover:bg-[#4e31aa]"
+            }`}
           >
-            <span className="text-sm font-medium text-white">HOME</span>
+            <span
+              className={`text-sm font-medium ${
+                isActive("/home") ? "text-[#3795bd]" : "text-white"
+              }`}
+            >
+              HOME
+            </span>
           </div>
           <div
             onClick={() => {
               navigate("/events");
               toggleMobileMenu();
             }}
-            className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer"
+            className={`p-2 rounded-lg cursor-pointer ${
+              isActive("/events") ? "bg-[#4e31aa]" : "hover:bg-[#4e31aa]"
+            }`}
           >
-            <span className="text-sm font-medium text-white">EVENTS</span>
+            <span
+              className={`text-sm font-medium ${
+                isActive("/events") ? "text-[#3795bd]" : "text-white"
+              }`}
+            >
+              EVENTS
+            </span>
           </div>
           <div
             onClick={() => {
               navigate("/organization");
               toggleMobileMenu();
             }}
-            className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer"
+            className={`p-2 rounded-lg cursor-pointer ${
+              isActive("/organization") ? "bg-[#4e31aa]" : "hover:bg-[#4e31aa]"
+            }`}
           >
-            <span className="text-sm font-medium text-white">ORGANIZATION</span>
+            <span
+              className={`text-sm font-medium ${
+                isActive("/organization") ? "text-[#3795bd]" : "text-white"
+              }`}
+            >
+              ORGANIZATION
+            </span>
           </div>
           <div
             onClick={() => {
               navigate("/about");
               toggleMobileMenu();
             }}
-            className="p-2 rounded-lg hover:bg-[#4e31aa] cursor-pointer"
+            className={`p-2 rounded-lg cursor-pointer ${
+              isActive("/about") ? "bg-[#4e31aa]" : "hover:bg-[#4e31aa]"
+            }`}
           >
-            <span className="text-sm font-medium text-white">ABOUT</span>
+            <span
+              className={`text-sm font-medium ${
+                isActive("/about") ? "text-[#3795bd]" : "text-white"
+              }`}
+            >
+              ABOUT
+            </span>
           </div>
           {user ? (
             <>

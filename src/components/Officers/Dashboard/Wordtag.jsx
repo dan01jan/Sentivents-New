@@ -121,15 +121,15 @@ const Wordtag = () => {
   const words = processComments(comments);
 
   return (
-    <div className="text-center my-6">
-      <h1 className="text-red-500 font-bold text-2xl mb-4">
+    <div className="p-4 max-w-full mx-auto">
+      <h1 className="text-[8vh] font-semibold text-[#3a1078] font-tungsten">
         Comment Cloud & Sentiment Analysis
       </h1>
-      <div className="mb-4 flex justify-center gap-4">
+      <div className="mb-4 flex gap-4">
         <select
           value={selectedEvent}
           onChange={handleEventChange}
-          className="px-4 py-2 rounded-full border-2 border-red-500 text-sm"
+          className="w-[50vh] p-2 border border-gray-300 rounded-lg"
         >
           <option value="">Select an Event</option>
           {events.map((event) => (
@@ -141,7 +141,6 @@ const Wordtag = () => {
       </div>
 
       <div className="flex flex-wrap justify-between items-center w-4/5 mx-auto">
-        {/* Word Cloud */}
         <div className="w-1/2 min-w-[300px] h-[300px]">
           {comments.length > 0 ? (
             <WordCloud
