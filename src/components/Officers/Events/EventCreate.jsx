@@ -44,13 +44,22 @@ const EventCreate = () => {
 
     fetchEventTypes();
 
-    // Pre-fill organization and department based on user data from localStorage
+    // Pre-fill organization, department, and userId based on user data from localStorage
     const userData = JSON.parse(localStorage.getItem("userData"));
+    const officerOrgName = localStorage.getItem("officerOrgName");
+    const organizationName =
+      officerOrgName ||
+      (userData && userData.organizationName ? userData.organizationName : "");
+    const officerDepartment = localStorage.getItem("officerDepartment");
+    const department =
+      officerDepartment ||
+      (userData && userData.department ? userData.department : "");
+
     if (userData) {
       setFormData((prevData) => ({
         ...prevData,
-        organization: userData.organizationName || "",
-        department: userData.department || "",
+        organization: organizationName,
+        department: department,
         userId: userData.userId || "",
       }));
     }

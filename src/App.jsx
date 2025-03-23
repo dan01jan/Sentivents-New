@@ -36,6 +36,7 @@ import Login from "./components/Layouts/Login";
 import Loader from "./components/Layouts/Loader";
 import Header from "./components/Layouts/Header";
 import Register from "./components/Layouts/Register";
+import OrgLoginModal from "./components/Layouts/OrgLoginModal";
 
 // User
 import HomeScreen from "./components/User/HomeScreen";
@@ -119,6 +120,7 @@ function AppContent({ loading, user }) {
                 }
               />
               <Route path="/login" element={<Login />} />
+              <Route path="/org-login" element={<OrgLoginModal />} />
               <Route path="/register" element={<Register />} />
               <Route path="/events" element={<Events />} />
               <Route path="/otp" element={<OTP />} />

@@ -93,14 +93,13 @@ const EventUpdate = () => {
 
     const formDataToSend = new FormData();
 
-    const dateStart = new Date(
-      `${formData.dateStart}T${formData.timeStart}:00`
-    );
+    const dateStart = new Date(`${formData.dateStart}T${formData.timeStart}:00`);
     const dateEnd = new Date(`${formData.dateEnd}T${formData.timeEnd}:00`);
 
     formDataToSend.append("dateStart", dateStart);
     formDataToSend.append("dateEnd", dateEnd);
 
+    // Append all other form fields except images and date/time parts
     Object.entries(formData).forEach(([key, value]) => {
       if (
         key !== "images" &&
@@ -113,6 +112,7 @@ const EventUpdate = () => {
       }
     });
 
+    // Append existing images if any
     if (Array.isArray(formData.images)) {
       formData.images.forEach((imageUrl) => {
         formDataToSend.append("existingImages", imageUrl);
@@ -121,11 +121,27 @@ const EventUpdate = () => {
       formDataToSend.append("existingImages", formData.images);
     }
 
+    // Append new images
     imagesToUpload.forEach((file) => {
       formDataToSend.append("images", file);
     });
 
+    // Append userId from userData
     formDataToSend.append("userId", userId);
+
+    // Append organization and department using values from localStorage if available,
+    // otherwise fall back to values from userData.
+    const officerOrgName = localStorage.getItem("officerOrgName");
+    const organizationName =
+      officerOrgName ||
+      (userData && userData.organizationName ? userData.organizationName : "");
+    formDataToSend.append("organization", organizationName);
+
+    const officerDepartment = localStorage.getItem("officerDepartment");
+    const department =
+      officerDepartment ||
+      (userData && userData.department ? userData.department : "");
+    formDataToSend.append("department", department);
 
     try {
       const response = await fetch(`${apiUrl}events/${eventId}`, {
@@ -195,10 +211,7 @@ const EventUpdate = () => {
         </div>
 
         <div className="form-group mb-4">
-          <label
-            htmlFor="description"
-            className="block text-lg font-medium mb-2"
-          >
+          <label htmlFor="description" className="block text-lg font-medium mb-2">
             Event Description
           </label>
           <textarea
@@ -214,10 +227,7 @@ const EventUpdate = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4">
           <div className="form-group">
-            <label
-              htmlFor="dateStart"
-              className="block text-lg font-medium mb-2"
-            >
+            <label htmlFor="dateStart" className="block text-lg font-medium mb-2">
               Start Date
             </label>
             <input
@@ -232,10 +242,7 @@ const EventUpdate = () => {
           </div>
 
           <div className="form-group">
-            <label
-              htmlFor="timeStart"
-              className="block text-lg font-medium mb-2"
-            >
+            <label htmlFor="timeStart" className="block text-lg font-medium mb-2">
               Start Time
             </label>
             <input

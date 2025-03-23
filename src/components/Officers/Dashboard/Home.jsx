@@ -20,17 +20,23 @@ function Home() {
   const [officerCount, setOfficerCount] = useState(0); // New state for officer count
   const [userData, setUserData] = useState(null);
 
+  // Helper: Get the organization name (prefer officerOrgName if exists)
+  const getOrganizationName = () => {
+    const officerOrgName = localStorage.getItem("officerOrgName");
+    const storedUserData = JSON.parse(localStorage.getItem("userData"));
+    return officerOrgName || (storedUserData ? storedUserData.organizationName : null);
+  };
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const userData = JSON.parse(localStorage.getItem("userData"));
+        const storedUserData = JSON.parse(localStorage.getItem("userData"));
+        const organizationName = getOrganizationName();
 
-        if (!userData || !userData.organizationName) {
+        if (!organizationName) {
           throw new Error("Organization name not found in user data.");
         }
-
-        const organizationName = userData.organizationName;
         setUserOrganizationName(organizationName);
 
         const response = await fetch(
@@ -59,11 +65,12 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    if (userData && userData.organizationName && userData.name) {
-      setUserOrganizationName(userData.organizationName);
-      setUserName(userData.name);
-      setUserData(userData);
+    const storedUserData = JSON.parse(localStorage.getItem("userData"));
+    const organizationName = getOrganizationName();
+    if (storedUserData && storedUserData.name) {
+      setUserOrganizationName(organizationName);
+      setUserName(storedUserData.name);
+      setUserData(storedUserData);
     }
   }, []);
 
@@ -71,12 +78,13 @@ function Home() {
     const fetchEventCount = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const userData = JSON.parse(localStorage.getItem("userData"));
-        if (!userData || !userData.organizationName) {
+        const storedUserData = JSON.parse(localStorage.getItem("userData"));
+        const organizationName = getOrganizationName();
+
+        if (!organizationName) {
           throw new Error("Organization name not found in user data.");
         }
 
-        const organizationName = userData.organizationName;
         const response = await fetch(`${apiUrl}events/event-count`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -96,16 +104,16 @@ function Home() {
     fetchEventCount();
   }, []);
 
-  // New useEffect to fetch the officer count for the organization
+  // Fetch the officer count for the organization
   useEffect(() => {
     const fetchOfficerCount = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const userData = JSON.parse(localStorage.getItem("userData"));
-        if (!userData || !userData.organizationId) {
+        const storedUserData = JSON.parse(localStorage.getItem("userData"));
+        if (!storedUserData || !storedUserData.organizationId) {
           throw new Error("Organization ID not found in user data.");
         }
-        const orgId = userData.organizationId;
+        const orgId = storedUserData.organizationId;
         const response = await fetch(
           `${apiUrl}users/organization/${orgId}/officers/count`,
           {
@@ -129,12 +137,12 @@ function Home() {
     const fetchUserCount = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const userData = JSON.parse(localStorage.getItem("userData"));
-        if (!userData || !userData.organizationId) {
+        const storedUserData = JSON.parse(localStorage.getItem("userData"));
+        if (!storedUserData || !storedUserData.organizationId) {
           throw new Error("Organization ID not found in user data.");
         }
 
-        const orgId = userData.organizationId;
+        const orgId = storedUserData.organizationId;
         const response = await fetch(
           `${apiUrl}users/organization/${orgId}/count`,
           {
@@ -164,9 +172,7 @@ function Home() {
     const filteredEvents = events.filter((event) => {
       const eventStart = new Date(event.dateStart);
       const eventEnd = new Date(event.dateEnd);
-      const normalizedSelectedDate = new Date(
-        selectedDate.setHours(0, 0, 0, 0)
-      );
+      const normalizedSelectedDate = new Date(selectedDate.setHours(0, 0, 0, 0));
 
       const normalizedEventStart = new Date(eventStart.setHours(0, 0, 0, 0));
       const normalizedEventEnd = new Date(eventEnd.setHours(0, 0, 0, 0));
@@ -293,9 +299,6 @@ function Home() {
                 <h1 className="text-[6vh] md:text-[6vh] sm:text-[5vh] font-bold text-[#3a1078] font-tungsten">
                   Hi, {userData.name} {userData.surname}! 👋
                 </h1>
-                {/* <p className="text-xl md:text-2xl font-bold text-[#3a1078]">
-                  kunware wala kang nababasa ha? thank you so much
-                </p> */}
               </div>
               <div className="w-full md:w-1/3 h-[15vh] md:h-full sm:h-0 flex justify-center items-center">
                 <DotLottieReact

@@ -72,17 +72,24 @@ const EventList = () => {
   const [eventToDelete, setEventToDelete] = useState(null);
   const [groupByType, setGroupByType] = useState(true); // State to toggle grouping by type
 
+  // Helper function: Get organization name (prefer officerOrgName if exists)
+  const getOrganizationName = () => {
+    const officerOrgName = localStorage.getItem("officerOrgName");
+    const storedUserData = JSON.parse(localStorage.getItem("userData"));
+    return officerOrgName || (storedUserData ? storedUserData.organizationName : null);
+  };
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const userData = JSON.parse(localStorage.getItem("userData"));
+        const storedUserData = JSON.parse(localStorage.getItem("userData"));
+        const organizationName = getOrganizationName();
 
-        if (!userData || !userData.organizationName) {
+        if (!organizationName) {
           throw new Error("Organization name not found in user data.");
         }
 
-        const organizationName = userData.organizationName;
         setUserOrganizationName(organizationName);
 
         const response = await fetch(
@@ -228,10 +235,7 @@ const EventList = () => {
 
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-  const currentEvents = filteredEvents.slice(
-    indexOfFirstEvent,
-    indexOfLastEvent
-  );
+  const currentEvents = filteredEvents.slice(indexOfFirstEvent, indexOfLastEvent);
   const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -347,7 +351,7 @@ const EventList = () => {
                     alt={event.name || "Event Image"}
                   />
                 ) : (
-                  <div className="w-full h-48 bg-gray-200"></div> // Placeholder if no image
+                  <div className="w-full h-48 bg-gray-200"></div>
                 )}
 
                 <div className="px-4 py-4">
@@ -381,8 +385,7 @@ const EventList = () => {
                 </div>
 
                 <div className="px-4 py-2 flex justify-center items-center border-t border-gray-200">
-                  {/* Action Buttons */}
-                  <div className="flex space-x-3 ">
+                  <div className="flex space-x-3">
                     <button
                       onClick={() => handleUpdate(event)}
                       className="bg-yellow-200 text-yellow-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-yellow-300"
