@@ -16,16 +16,28 @@ import "../../Layouts/Header.css";
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // Get the current route
+  const location = useLocation();
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // A single size for all main icons so they look consistent
+  const mainIconSize = 28;
+
+  // Determines if the current path is active.
+  const isActive = (path) => location.pathname === path;
+
+  // A helper function to generate classes for each link, including an active state style.
+  const getLinkClasses = (path) =>
+    `flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out mt-2 px-4 py-2 rounded-lg ${
+      isActive(path)
+        ? "bg-gray-200 text-[#4e31aa] border-b-2 border-[#4e31aa]"
+        : "text-[#3a1078] hover:bg-gray-100"
+    }`;
 
   const handleLogout = () => {
     localStorage.clear();
     navigate("/login");
     window.location.reload();
   };
-
-  const isActive = (path) => location.pathname === path;
 
   return (
     <div className="flex h-screen bg-white">
@@ -34,27 +46,23 @@ const Sidebar = () => {
           isExpanded ? "w-[25vh]" : "w-[10vh]"
         } flex flex-col justify-between relative`}
       >
-        <a className="flex items-center justify-center px-1 py-4 text-[#3a1078] rounded-lg logo-container">
+        {/* Logo */}
+        <div className="flex items-center justify-center px-1 py-4 text-[#3a1078] rounded-lg logo-container">
           <img
             src={logo}
             alt="Logo"
-            className={`transition-all duration-300 logo ease-in-out ${
+            className={`transition-all duration-300 ease-in-out ${
               isExpanded ? "w-24" : "w-20"
             }`}
           />
-        </a>
+        </div>
+
+        {/* Navigation */}
         <nav className="py-4 mt-6 space-y-4 flex-grow">
           <ul>
             <li>
-              <Link
-                to="/dashboard/"
-                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out px-4 py-2 rounded-lg ${
-                  isActive("/dashboard/")
-                    ? "bg-gray-200 text-[#4e31aa]"
-                    : "text-[#3a1078] hover:bg-gray-100"
-                }`}
-              >
-                <FaHome size={40} />
+              <Link to="/dashboard/" className={getLinkClasses("/dashboard/")}>
+                <FaHome size={mainIconSize} />
                 {isExpanded && <span>Dashboard</span>}
               </Link>
             </li>
@@ -62,13 +70,9 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/dashboard/wordtag"
-                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out mt-2 px-4 py-2 rounded-lg ${
-                  isActive("/dashboard/wordtag")
-                    ? "bg-gray-200 text-[#4e31aa]"
-                    : "text-[#3a1078] hover:bg-gray-100"
-                }`}
+                className={getLinkClasses("/dashboard/wordtag")}
               >
-                <FaCommentAlt size={40} />
+                <FaCommentAlt size={mainIconSize} />
                 {isExpanded && <span>Word Tag</span>}
               </Link>
             </li>
@@ -76,13 +80,9 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/dashboard/events"
-                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out mt-2 px-4 py-2 rounded-lg ${
-                  isActive("/dashboard/events")
-                    ? "bg-gray-200 text-[#4e31aa]"
-                    : "text-[#3a1078] hover:bg-gray-100"
-                }`}
+                className={getLinkClasses("/dashboard/events")}
               >
-                <FaCalendarAlt size={40} />
+                <FaCalendarAlt size={mainIconSize} />
                 {isExpanded && <span>Events</span>}
               </Link>
             </li>
@@ -90,13 +90,9 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/dashboard/attendance"
-                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out mt-2 px-4 py-2 rounded-lg ${
-                  isActive("/dashboard/attendance")
-                    ? "bg-gray-200 text-[#4e31aa]"
-                    : "text-[#3a1078] hover:bg-gray-100"
-                }`}
+                className={getLinkClasses("/dashboard/attendance")}
               >
-                <FaUserCheck size={40} />
+                <FaUserCheck size={mainIconSize} />
                 {isExpanded && <span>Registration</span>}
               </Link>
             </li>
@@ -104,25 +100,24 @@ const Sidebar = () => {
             <li>
               <Link
                 to="/dashboard/questions"
-                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out mt-2 px-4 py-2 rounded-lg ${
-                  isActive("/dashboard/questions")
-                    ? "bg-gray-200 text-[#4e31aa]"
-                    : "text-[#3a1078] hover:bg-gray-100"
-                }`}
+                className={getLinkClasses("/dashboard/questions")}
               >
-                <FaQuestionCircle size={40} />
+                <FaQuestionCircle size={mainIconSize} />
                 {isExpanded && <span>Questions</span>}
               </Link>
             </li>
           </ul>
         </nav>
-        F
+
+        {/* Toggle Sidebar Button */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className="absolute top-1/2 -translate-y-1/2 right-0 transform translate-x-1/2 bg-white p-2 rounded-full shadow-md border border-gray-300 transition-all duration-300 ease-in-out"
         >
           {isExpanded ? <FaArrowLeft size={24} /> : <FaArrowRight size={24} />}
         </button>
+
+        {/* Logout Button */}
         <button
           onClick={handleLogout}
           className="w-full flex items-center justify-center py-2 mb-4 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 ease-in-out"
@@ -131,6 +126,8 @@ const Sidebar = () => {
           {isExpanded && <span className="ml-3">Logout</span>}
         </button>
       </aside>
+
+      {/* Main Content */}
       <main className="flex-1 p-6 overflow-y-auto">
         <Outlet />
       </main>

@@ -16,6 +16,7 @@ const AdminApproval = () => {
           throw new Error("Failed to fetch organizations.");
         }
         const data = await response.json();
+        // Directly set the data returned from the aggregation.
         setOrgData(data);
       } catch (err) {
         setError(err.message);
@@ -23,9 +24,11 @@ const AdminApproval = () => {
         setLoading(false);
       }
     };
-
+  
     fetchOrganizations();
   }, []);
+  
+  
 
   const handleApprove = async (officerId) => {
     try {

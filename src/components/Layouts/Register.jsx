@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaGoogle } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -15,25 +14,24 @@ const Register = () => {
     surname: "",
     email: "",
     password: "",
-    role: "",
-    organization: "",
-    department: "",
     course: "",
     section: "",
     image: null,
     isAdmin: false,
-    isOfficer: false,
-    isHead: false,
-    declined: false,
-    warningCount: 0,
-    commentCooldown: null,
+    // Other fields as needed…
   });
 
+  // New state for organization selections
+  const [orgSelections, setOrgSelections] = useState([
+    { organization: "", role: "", department: "" }
+  ]);
+
+  // State to hold the full list of organizations
   const [organizations, setOrganizations] = useState([]);
-  const [isDisabled, setIsDisabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Fetch organizations from the API
   useEffect(() => {
     const fetchOrganizations = async () => {
       try {
@@ -47,67 +45,93 @@ const Register = () => {
     fetchOrganizations();
   }, []);
 
+  // Handle changes for simple form fields
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
+  // Handle changes for each dynamic organization selection
+  const handleOrgChange = (index, e) => {
+    const { name, value } = e.target;
+    const updatedSelections = [...orgSelections];
+    updatedSelections[index][name] = value;
+
+    // Auto-set department based on selected organization
     if (name === "organization") {
-      const selectedOrganizationName = organizations.find(
-        (org) => org._id === value
-      )?.name;
-      let department = "";
-      let newIsDisabled = true;
-
-      switch (selectedOrganizationName) {
-        case "ACES":
-        case "Association of Civil Engineering Students of TUP Taguig Campus":
-        case "GreeCS":
-        case "Green Chemistry Society TUP - Taguig":
-          department = "Civil and Allied Department";
-          break;
-        case "TEST":
-        case "Technical Educators Society – TUP Taguig":
-          department = "Basic Arts and Sciences Department";
-          break;
-        case "BSEEG":
-        case "Bachelor of Science in Electrical Engineering Guild":
-        case "IECEP":
-        case "Institute of Electronics Engineers of the Philippines – TUPT Student Chapter":
-        case "ICS":
-        case "Instrumentation and Control Society – TUPT Student Chapter":
-        case "MTICS":
-        case "Manila Technician Institute Computer Society":
-        case "MRSP":
-        case "Mechatronics and Robotics Society of the Philippines Taguig Student Chapter":
-          department = "Electrical and Allied Department";
-          break;
-        case "ASE":
-        case "Automotive Society of Engineering":
-        case "DMMS":
-        case "Die and Mould Maker Society – TUP Taguig":
-        case "EleMechS":
-        case "Electromechanics Society":
-        case "JPSME":
-        case "Junior Philippine Society of Mechanical Engineers":
-        case "JSHRAE":
-        case "Junior Society of Heating, Refrigeration and Air Conditioning Engineers":
-        case "METALS":
-        case "Mechanical Technologies and Leader’s Society":
-        case "TSNT":
-        case "TUP Taguig Society of Nondestructive Testing":
-          department = "Mechanical and Allied Department";
-          break;
-        default:
-          department = "";
-          newIsDisabled = false;
+      const selectedOrg = organizations.find((org) => org._id === value);
+      let department = "None";
+      if (selectedOrg) {
+        // Switch/case logic for department based on organization name
+        switch (selectedOrg.name) {
+          case "ACES":
+          case "Association of Civil Engineering Students of TUP Taguig Campus":
+          case "GreeCS":
+          case "Green Chemistry Society TUP - Taguig":
+            department = "Civil and Allied Department";
+            break;
+          case "TEST":
+          case "Technical Educators Society – TUP Taguig":
+            department = "Basic Arts and Sciences Department";
+            break;
+          case "BSEEG":
+          case "Bachelor of Science in Electrical Engineering Guild":
+          case "IECEP":
+          case "Institute of Electronics Engineers of the Philippines – TUPT Student Chapter":
+          case "ICS":
+          case "Instrumentation and Control Society – TUPT Student Chapter":
+          case "MTICS":
+          case "Manila Technician Institute Computer Society":
+          case "MRSP":
+          case "Mechatronics and Robotics Society of the Philippines Taguig Student Chapter":
+            department = "Electrical and Allied Department";
+            break;
+          case "ASE":
+          case "Automotive Society of Engineering":
+          case "DMMS":
+          case "Die and Mould Maker Society – TUP Taguig":
+          case "EleMechS":
+          case "Electromechanics Society":
+          case "JPSME":
+          case "Junior Philippine Society of Mechanical Engineers":
+          case "JSHRAE":
+          case "Junior Society of Heating, Refrigeration and Air Conditioning Engineers":
+          case "METALS":
+          case "Mechanical Technologies and Leader’s Society":
+          case "TSNT":
+          case "TUP Taguig Society of Nondestructive Testing":
+            department = "Mechanical and Allied Department";
+            break;
+          default:
+            department = "None";
+        }
       }
-
-      setFormData((prevData) => ({
-        ...prevData,
-        department: department,
-      }));
-      setIsDisabled(newIsDisabled);
+      updatedSelections[index].department = department;
     }
+
+    // If an entry is set to 'Officer', remove any other 'Officer' selections from other entries
+    if (name === "role" && value === "Officer") {
+      updatedSelections.forEach((entry, idx) => {
+        if (idx !== index && entry.role === "Officer") {
+          updatedSelections[idx].role = "";
+        }
+      });
+    }
+    setOrgSelections(updatedSelections);
+  };
+
+  // Add another organization selection
+  const addOrganization = () => {
+    setOrgSelections([...orgSelections, { organization: "", role: "", department: "" }]);
+  };
+
+  // Remove an organization selection
+  const removeOrganization = (index) => {
+    const updatedSelections = orgSelections.filter((_, idx) => idx !== index);
+    setOrgSelections(updatedSelections);
   };
 
   const handleImageChange = (e) => {
@@ -116,9 +140,20 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
+    // Check that at most one organization is selected as Officer
+    const officerCount = orgSelections.filter((sel) => sel.role === "Officer").length;
+    if (officerCount > 1) {
+      toast.error("You can only be an officer for one organization.", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    setLoading(true);
     const formDataToSend = new FormData();
+    // Append simple form fields
     Object.keys(formData).forEach((key) => {
       if (key !== "image") {
         formDataToSend.append(key, formData[key]);
@@ -127,6 +162,8 @@ const Register = () => {
     if (formData.image) {
       formDataToSend.append("image", formData.image);
     }
+    // Append organization selections as JSON string
+    formDataToSend.append("orgSelections", JSON.stringify(orgSelections));
 
     try {
       const response = await axios.post(
@@ -140,16 +177,12 @@ const Register = () => {
       );
 
       console.log("Registration successful:", response.data);
-      toast.success(
-        "Registration successful! Please verify your email using the OTP sent.",
-        {
-          position: "bottom-right",
-          autoClose: 2000,
-        }
-      );
-      // Navigate to the OTP page, passing the registered email in state
+      toast.success("Registration successful!", {
+        position: "bottom-right",
+        autoClose: 2000,
+      });
       setTimeout(() => {
-        navigate("/otp", { state: { email: formData.email } });
+        navigate("/login");
       }, 2500);
     } catch (error) {
       console.error(
@@ -164,6 +197,12 @@ const Register = () => {
       setLoading(false);
     }
   };
+
+  // Compute filtered organizations for additional selections (Non Academic or Multifaith)
+  const filteredOrganizations = organizations.filter(
+    (org) =>
+      org.category === "Non Academic" || org.category === "Multi-Faith"
+  );
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#3a1078] p-4">
@@ -185,48 +224,15 @@ const Register = () => {
           <div className="flex overflow-y-auto max-h-[70vh] pr-4 pl-2">
             <form onSubmit={handleSubmit} className="space-y-4">
               {[
-                {
-                  id: "name",
-                  label: "Name",
-                  type: "text",
-                  value: formData.name,
-                },
-                {
-                  id: "surname",
-                  label: "Surname",
-                  type: "text",
-                  value: formData.surname,
-                },
-                {
-                  id: "email",
-                  label: "Email",
-                  type: "email",
-                  value: formData.email,
-                },
-                {
-                  id: "password",
-                  label: "Password",
-                  type: "password",
-                  value: formData.password,
-                },
-                {
-                  id: "course",
-                  label: "Course",
-                  type: "text",
-                  value: formData.course,
-                },
-                {
-                  id: "section",
-                  label: "Section",
-                  type: "text",
-                  value: formData.section,
-                },
+                { id: "name", label: "Name", type: "text", value: formData.name },
+                { id: "surname", label: "Surname", type: "text", value: formData.surname },
+                { id: "email", label: "Email", type: "email", value: formData.email },
+                { id: "password", label: "Password", type: "password", value: formData.password },
+                { id: "course", label: "Course", type: "text", value: formData.course },
+                { id: "section", label: "Section", type: "text", value: formData.section },
               ].map((field) => (
                 <div key={field.id} className="flex flex-col">
-                  <label
-                    htmlFor={field.id}
-                    className="text-lg text-[#3a1078] font-medium"
-                  >
+                  <label htmlFor={field.id} className="text-lg text-[#3a1078] font-medium">
                     {field.label}
                   </label>
                   <input
@@ -242,61 +248,90 @@ const Register = () => {
                 </div>
               ))}
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[
-                  { id: "role", label: "Role", options: ["User", "Officer"] },
-                  {
-                    id: "organization",
-                    label: "Organization",
-                    options: organizations.map((org) => ({
-                      value: org._id,
-                      label: org.name,
-                    })),
-                  },
-                  {
-                    id: "department",
-                    label: "Department",
-                    options: [
-                      "Electrical and Allied Department",
-                      "Mechanical and Allied Department",
-                      "Civil and Allied Department",
-                      "Basic Arts and Sciences Department",
-                    ],
-                  },
-                ].map(({ id, label, options }) => (
-                  <div key={id} className="flex flex-col">
-                    <label
-                      htmlFor={id}
-                      className="text-lg text-[#3a1078] font-medium"
-                    >
-                      {label}
-                    </label>
-                    <select
-                      id={id}
-                      name={id}
-                      value={formData[id]}
-                      onChange={handleChange}
-                      required
-                      className="mt-2 px-4 py-2 text-base bg-[#d6e4f0] border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                    >
-                      <option value="" disabled>
-                        Select {label.toLowerCase()}
-                      </option>
-                      {options.map((opt) => (
-                        <option key={opt.value || opt} value={opt.value || opt}>
-                          {opt.label || opt}
-                        </option>
-                      ))}
-                    </select>
+              {/* Dynamic Organization Selections */}
+              <div>
+                <h3 className="text-xl font-semibold text-[#3a1078] mb-2">
+                  Organization Memberships
+                </h3>
+                {orgSelections.map((entry, index) => (
+                  <div key={index} className="border p-4 mb-4 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="flex flex-col">
+                        <label className="text-lg text-[#3a1078] font-medium">
+                          Organization
+                        </label>
+                        <select
+                          name="organization"
+                          value={entry.organization}
+                          onChange={(e) => handleOrgChange(index, e)}
+                          required
+                          className="mt-2 px-4 py-2 bg-[#d6e4f0] border-2 border-gray-300 rounded-lg"
+                        >
+                          <option value="" disabled>
+                            Select organization
+                          </option>
+                          {(index === 0 ? organizations : filteredOrganizations).map((org) => (
+                            <option key={org._id} value={org._id}>
+                              {org.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-lg text-[#3a1078] font-medium">
+                          Role
+                        </label>
+                        <select
+                          name="role"
+                          value={entry.role}
+                          onChange={(e) => handleOrgChange(index, e)}
+                          required
+                          className="mt-2 px-4 py-2 bg-[#d6e4f0] border-2 border-gray-300 rounded-lg"
+                        >
+                          <option value="" disabled>
+                            Select role
+                          </option>
+                          <option value="User">Member</option>
+                          <option value="Officer">Officer</option>
+                        </select>
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="text-lg text-[#3a1078] font-medium">
+                          Department
+                        </label>
+                        <input
+                          name="department"
+                          type="text"
+                          value={entry.department}
+                          onChange={(e) => handleOrgChange(index, e)}
+                          placeholder="Department"
+                          required
+                          className="mt-2 px-4 py-2 bg-[#d6e4f0] border-2 border-gray-300 rounded-lg"
+                        />
+                      </div>
+                    </div>
+                    {orgSelections.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeOrganization(index)}
+                        className="mt-2 text-red-600 underline"
+                      >
+                        Remove
+                      </button>
+                    )}
                   </div>
                 ))}
+                <button
+                  type="button"
+                  onClick={addOrganization}
+                  className="py-2 px-4 bg-[#3a1078] text-white rounded-lg"
+                >
+                  Add another Organization
+                </button>
               </div>
 
               <div className="flex flex-col">
-                <label
-                  htmlFor="image"
-                  className="text-lg text-[#3a1078] font-medium"
-                >
+                <label className="text-lg text-[#3a1078] font-medium">
                   Upload Image
                 </label>
                 <input
@@ -304,31 +339,19 @@ const Register = () => {
                   name="image"
                   onChange={handleImageChange}
                   accept="image/*"
-                  className="mt-2 px-4 py-2 text-base bg-[#d6e4f0] border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  className="mt-2 px-4 py-2 bg-[#d6e4f0] border-2 border-gray-300 rounded-lg"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 font-bold bg-[#3a1078] text-white rounded-lg hover:bg-[#4e31aa] transition duration-300 text-base uppercase"
+                className="w-full py-3 font-bold bg-[#3a1078] text-white rounded-lg hover:bg-[#4e31aa] transition duration-300 uppercase"
               >
                 Register
               </button>
-
-              {/* <button
-                type="button"
-                onClick={() => alert("Google login not implemented yet")}
-                className="w-full py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300 text-base font-bold flex items-center justify-center"
-              >
-                <FaGoogle className="w-5 h-5 mr-2" />
-                Register with Google
-              </button> */}
             </form>
           </div>
-          <Link
-            to="/login"
-            className="mt-4 text-center text-[#3a1078] hover:underline"
-          >
+          <Link to="/login" className="mt-4 text-center text-[#3a1078] hover:underline">
             Already have an account? Login
           </Link>
         </div>

@@ -11,11 +11,11 @@ const getDepartment = (selectedOrganization) => {
     case "GreeCS":
     case "Green Chemistry Society TUP - Taguig":
       return "Civil and Allied Department";
-  
+
     case "TEST":
     case "Technical Educators Society – TUP Taguig":
       return "Basic Arts and Sciences Department";
-  
+
     case "BSEEG":
     case "Bachelor of Science in Electrical Engineering Guild":
     case "IECEP":
@@ -27,7 +27,7 @@ const getDepartment = (selectedOrganization) => {
     case "MRSP":
     case "Mechatronics and Robotics Society of the Philippines Taguig Student Chapter":
       return "Electrical and Allied Department";
-  
+
     case "ASE":
     case "Automotive Society of Engineering":
     case "DMMS":
@@ -43,56 +43,82 @@ const getDepartment = (selectedOrganization) => {
     case "TSNT":
     case "TUP Taguig Society of Nondestructive Testing":
       return "Mechanical and Allied Department";
-  
+
     default:
-      return "";
-  }  
+      return "Multiple";
+  }
 };
 
 function OrgCreate({ isOpen, onClose }) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [department, setDepartment] = useState("");
-  const [image, setImage] = useState(null);
-  const [loading, setLoading] = useState(false); // Update loading state
+  const [organizations, setOrganizations] = useState([
+    { name: "", description: "", department: "", image: null }
+  ]);
+  const [loading, setLoading] = useState(false);
 
-  // Update department when name is entered
-  const handleNameChange = (e) => {
-    const orgName = e.target.value;
-    setName(orgName);
-    setDepartment(getDepartment(orgName)); // Auto-update department
+  // Update a specific organization's field by index
+  const handleOrgChange = (index, field, value) => {
+    const newOrganizations = [...organizations];
+    newOrganizations[index][field] = value;
+    // Auto-update department if the name changes
+    if (field === "name") {
+      newOrganizations[index]["department"] = getDepartment(value);
+    }
+    setOrganizations(newOrganizations);
   };
 
-  // Function to handle form submission
+  // Add a new blank organization form
+  const addOrganization = () => {
+    setOrganizations([
+      ...organizations,
+      { name: "", description: "", department: "", image: null }
+    ]);
+  };
+
+  // Remove an organization form by index
+  const removeOrganization = (index) => {
+    const newOrganizations = organizations.filter((_, i) => i !== index);
+    setOrganizations(newOrganizations);
+  };
+
+  // Handle submission by building a FormData object
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setLoading(true); // Set loading to true
-
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("description", description);
-    if (image) {
-      formData.append("image", image);
-    }
+    setLoading(true);
 
     try {
-      const response = await fetch(`${apiUrl}organizations/`, {
+      const formData = new FormData();
+
+      // Create an array of organization objects (excluding image files)
+      const orgDataArray = organizations.map((org) => ({
+        name: org.name,
+        description: org.description
+      }));
+      formData.append("organizations", JSON.stringify(orgDataArray));
+
+      // Append each image file if provided, using keys like "image_0", "image_1", etc.
+      organizations.forEach((org, index) => {
+        if (org.image) {
+          formData.append(`image_${index}`, org.image);
+        }
+      });
+
+      const response = await fetch(`${apiUrl}organizations/bulk`, {
         method: "POST",
         body: formData,
       });
 
       const data = await response.json();
       if (response.ok) {
-        alert("Organization created successfully!");
+        alert("Organizations created successfully!");
         onClose();
       } else {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error creating organization:", error);
-      alert("Failed to create organization");
+      console.error("Error creating organizations:", error);
+      alert("Failed to create organizations");
     } finally {
-      setLoading(false); // Set loading to false
+      setLoading(false);
     }
   };
 
@@ -105,90 +131,123 @@ function OrgCreate({ isOpen, onClose }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -50 }}
             transition={{ duration: 0.3 }}
-            className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-lg"
+            className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto"
           >
             <h2 className="text-3xl font-bold text-gray-800 mb-6">
-              Create Organization
+              Create Organizations
             </h2>
             <form className="space-y-5" onSubmit={handleSubmit}>
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Organization Name
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  placeholder="Enter name"
-                  value={name}
-                  onChange={handleNameChange} // Auto-update department
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="description"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  rows="4"
-                  placeholder="Enter description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                  required
-                ></textarea>
-              </div>
-              <div>
-                <label
-                  htmlFor="department"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Department (Auto-filled)
-                </label>
-                <input
-                  id="department"
-                  type="text"
-                  value={department}
-                  readOnly
-                  className="w-full p-3 border rounded-lg bg-gray-100 cursor-not-allowed"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="image"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Add Image
-                </label>
-                <input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setImage(e.target.files[0])}
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                />
-              </div>
-              <div className="flex justify-end space-x-3">
+              {organizations.map((org, index) => (
+                <div key={index} className="border p-4 rounded-lg">
+                  <h3 className="text-xl font-semibold mb-4">
+                    Organization {index + 1}
+                  </h3>
+                  <div className="mb-3">
+                    <label
+                      htmlFor={`name_${index}`}
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Organization Name
+                    </label>
+                    <input
+                      id={`name_${index}`}
+                      type="text"
+                      placeholder="Enter name"
+                      value={org.name}
+                      onChange={(e) =>
+                        handleOrgChange(index, "name", e.target.value)
+                      }
+                      required
+                      className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label
+                      htmlFor={`description_${index}`}
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Description
+                    </label>
+                    <textarea
+                      id={`description_${index}`}
+                      rows="4"
+                      placeholder="Enter description"
+                      value={org.description}
+                      onChange={(e) =>
+                        handleOrgChange(index, "description", e.target.value)
+                      }
+                      required
+                      className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    ></textarea>
+                  </div>
+                  <div className="mb-3">
+                    <label
+                      htmlFor={`department_${index}`}
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Department (Auto-filled)
+                    </label>
+                    <input
+                      id={`department_${index}`}
+                      type="text"
+                      value={org.department}
+                      readOnly
+                      className="w-full p-3 border rounded-lg bg-gray-100 cursor-not-allowed"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label
+                      htmlFor={`image_${index}`}
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Add Image
+                    </label>
+                    <input
+                      id={`image_${index}`}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) =>
+                        handleOrgChange(index, "image", e.target.files[0])
+                      }
+                      className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    />
+                  </div>
+                  {organizations.length > 1 && (
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => removeOrganization(index)}
+                        className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-lg"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+              <div className="flex justify-between">
                 <button
                   type="button"
-                  className="px-5 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg"
-                  onClick={onClose}
+                  onClick={addOrganization}
+                  className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg"
                 >
-                  Cancel
+                  Add Another Organization
                 </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg"
-                >
-                  Create
-                </button>
+                <div className="flex space-x-3">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-5 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg"
+                  >
+                    Create
+                  </button>
+                </div>
               </div>
             </form>
             {loading && (

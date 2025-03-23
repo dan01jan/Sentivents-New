@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { FaPlus } from "react-icons/fa";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -10,6 +12,8 @@ const AdminEventList = () => {
   const [selectedOrganization, setSelectedOrganization] = useState("");
   const [types, setTypes] = useState([]);
   const [selectedType, setSelectedType] = useState("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -41,9 +45,15 @@ const AdminEventList = () => {
     setFilteredEvents(filtered);
   }, [selectedOrganization, selectedType, events]);
 
+  const handleCreateEvent = () => {
+    navigate("/admin/eventcreate");
+  };
+
   return (
     <div className="p-4 max-w-full mx-auto">
-      <h1 className="text-[8vh] font-bold mb-4 font-tungsten text-[#3a1078]">Admin Event List</h1>
+      <h1 className="text-[8vh] font-bold mb-4 font-tungsten text-[#3a1078]">
+        Admin Event List
+      </h1>
 
       <div className="flex gap-4 mb-6 justify-center">
         <select
@@ -75,7 +85,6 @@ const AdminEventList = () => {
         {filteredEvents.map((event) => (
           <motion.div key={event._id} whileHover={{ scale: 1.05 }}>
             <div
-              key={event._id}
               className="rounded-lg overflow-hidden shadow-lg bg-white max-w-full hover:shadow-2xl transition duration-300 ease-in-out mt-5"
             >
               {/* Event Image */}
@@ -86,7 +95,7 @@ const AdminEventList = () => {
                   alt={event.name || "Event Image"}
                 />
               ) : (
-                <div className="w-full h-48 bg-gray-200"></div> // Placeholder if no image
+                <div className="w-full h-48 bg-gray-200"></div>
               )}
 
               <div className="px-4 py-4">
@@ -118,6 +127,13 @@ const AdminEventList = () => {
           </motion.div>
         ))}
       </div>
+
+      <button
+        className="fixed bottom-10 right-10 bg-[#3a1078] text-white p-4 rounded-full shadow-lg hover:bg-[#3a1078c5] transition"
+        onClick={handleCreateEvent}
+      >
+        <FaPlus size={24} />
+      </button>
     </div>
   );
 };
