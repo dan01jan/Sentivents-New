@@ -252,6 +252,9 @@ function Organization() {
                       <p className="text-2xl text-center text-[#3a1078] font-semibold">
                         {officer.name} {officer.surname}
                       </p>
+                      <p className="text-center text-[#3a1078]">
+                        {officer.position}
+                      </p>
                       <p className="text-center text-[#3a1078]">{officer.email}</p>
                     </div>
                   ))
