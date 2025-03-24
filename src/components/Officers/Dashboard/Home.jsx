@@ -17,8 +17,9 @@ function Home() {
   const [userName, setUserName] = useState("");
   const [eventCount, setEventCount] = useState(0);
   const [userCount, setUserCount] = useState(0);
-  const [officerCount, setOfficerCount] = useState(0); // New state for officer count
+  const [officerCount, setOfficerCount] = useState(0);
   const [userData, setUserData] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Helper: Get the organization name (prefer officerOrgName if exists)
   const getOrganizationName = () => {
@@ -27,11 +28,11 @@ function Home() {
     return officerOrgName || (storedUserData ? storedUserData.organizationName : null);
   };
 
+  // 1. Fetch events for the organization
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const storedUserData = JSON.parse(localStorage.getItem("userData"));
         const organizationName = getOrganizationName();
 
         if (!organizationName) {
@@ -64,6 +65,7 @@ function Home() {
     fetchEvents();
   }, []);
 
+  // 2. Load userData for greeting (not used for counts)
   useEffect(() => {
     const storedUserData = JSON.parse(localStorage.getItem("userData"));
     const organizationName = getOrganizationName();
@@ -74,11 +76,11 @@ function Home() {
     }
   }, []);
 
+  // 3. Fetch total event count for the organization
   useEffect(() => {
     const fetchEventCount = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const storedUserData = JSON.parse(localStorage.getItem("userData"));
         const organizationName = getOrganizationName();
 
         if (!organizationName) {
@@ -104,25 +106,28 @@ function Home() {
     fetchEventCount();
   }, []);
 
-  // Fetch the officer count for the organization
+  // 4. Fetch officer count using officerOrgId from localStorage
   useEffect(() => {
     const fetchOfficerCount = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const storedUserData = JSON.parse(localStorage.getItem("userData"));
-        if (!storedUserData || !storedUserData.organizationId) {
-          throw new Error("Organization ID not found in user data.");
+        const officerOrgId = localStorage.getItem("officerOrgId");
+        if (!officerOrgId) {
+          console.error("No officerOrgId found in localStorage.");
+          return;
         }
-        const orgId = storedUserData.organizationId;
+
         const response = await fetch(
-          `${apiUrl}users/organization/${orgId}/officers/count`,
+          `${apiUrl}users/organization/${officerOrgId}/officers/count`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+
         if (!response.ok) {
           throw new Error("Failed to fetch officer count");
         }
+
         const data = await response.json();
         setOfficerCount(data.officerCount);
       } catch (error) {
@@ -133,18 +138,20 @@ function Home() {
     fetchOfficerCount();
   }, []);
 
+  // 5. Fetch user count (only role "User") using officerOrgId from localStorage
   useEffect(() => {
     const fetchUserCount = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const storedUserData = JSON.parse(localStorage.getItem("userData"));
-        if (!storedUserData || !storedUserData.organizationId) {
-          throw new Error("Organization ID not found in user data.");
+        const officerOrgId = localStorage.getItem("officerOrgId");
+        if (!officerOrgId) {
+          console.error("No officerOrgId found in localStorage.");
+          return;
         }
 
-        const orgId = storedUserData.organizationId;
+        // This route now only counts users with role "User"
         const response = await fetch(
-          `${apiUrl}users/organization/${orgId}/count`,
+          `${apiUrl}users/organization/${officerOrgId}/count`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -164,10 +171,12 @@ function Home() {
     fetchUserCount();
   }, []);
 
+  // Handle calendar date change
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
 
+  // Filter and render events for selected day
   const renderEvents = () => {
     const filteredEvents = events.filter((event) => {
       const eventStart = new Date(event.dateStart);
@@ -215,6 +224,7 @@ function Home() {
     );
   };
 
+  // Display small event indicators on the calendar
   const tileContent = ({ date, view }) => {
     if (view === "month") {
       const normalizedDate = new Date(
@@ -270,6 +280,7 @@ function Home() {
 
   return (
     <>
+      {/* Header / Title Bar */}
       <div className="h-[10vh] w-full bg-[#f7f7f9] rounded-full flex items-center justify-between shadow-md px-5 md:px-10">
         <p className="text-[#3a1078] text-[5vh] md:text-[5vh] sm:text-[3vh] xs:text-[2vh] font-bold tracking-[.15em] uppercase font-tungsten">
           {userOrganizationName
@@ -278,13 +289,16 @@ function Home() {
         </p>
         <div className="flex items-center gap-4">
           <img
-            src={logo}
-            alt="logo"
-            className="h-[4vh] md:h-[5vh] w-auto object-contain rounded-full"
+            src={localStorage.getItem("officerOrgImage") || logo}
+            alt="Logo"
+            className={`transition-all duration-300 ease-in-out ${
+              isExpanded ? "w-24" : "w-20"
+            }`}
           />
         </div>
       </div>
 
+      {/* Main Dashboard Heading */}
       <h1 className="font-tungsten text-[5vh] md:text-[6vh] sm:text-[5vh] text-[#3a1078] px-5 flex items-center gap-4">
         <span className="flex-1 h-1 bg-[#3a1078]"></span>
         Dashboard
@@ -292,6 +306,7 @@ function Home() {
       </h1>
 
       <div className="flex flex-col lg:flex-row w-full h-full px-5 md:px-10 py-5 md:py-10 gap-5 md:gap-10">
+        {/* Left Column: Greeting + Calendar */}
         <div className="flex flex-col w-full lg:w-3/4 gap-5 md:gap-10">
           {userData && (
             <div className="bg-[#f7f7f9] h-[25vh] md:h-[30vh] p-4 md:p-6 rounded-3xl shadow-lg flex flex-col md:flex-row justify-between items-center hover:shadow-xl transition-shadow duration-300 fade-in-left">
@@ -335,12 +350,13 @@ function Home() {
           </div>
         </div>
 
+        {/* Right Column: Stats */}
         <div className="w-full lg:w-1/4 flex flex-col gap-3 md:gap-5 fade-in-up">
           {[
-            { label: "Members", count: 1500 },
+            { label: "Members", count: 1500 }, // Example static
             { label: "Events", count: eventCount },
             { label: "Officers", count: officerCount },
-            { label: "Registered Users", count: userCount },
+            { label: "Registered Members", count: userCount },
           ].map((item) => (
             <div
               key={item.label}

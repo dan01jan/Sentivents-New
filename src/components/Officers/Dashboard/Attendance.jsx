@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const Attendance = () => {
-  const [user, setUser] = useState(null);
   const [eventId, setEventId] = useState("");
   const [eventName, setEventName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,34 +15,37 @@ const Attendance = () => {
   const [attendees, setAttendees] = useState([]);
   const [selectedAttendees, setSelectedAttendees] = useState([]);
   const [fetchClicked, setFetchClicked] = useState(false);
+  const [eventType, setEventType] = useState("");
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEvents = async () => {
-      setLoading(true);
       try {
         const token = localStorage.getItem("authToken");
         const userData = JSON.parse(localStorage.getItem("userData"));
-
-        if (!userData || !userData.organizationName) {
+        // Try to get organization name from local storage (for officer users)
+        const officerOrgName = localStorage.getItem("officerOrgName");
+        const organizationName = officerOrgName || (userData && userData.organizationName);
+        
+        if (!organizationName) {
           throw new Error("Organization name not found in user data.");
         }
-
-        const organizationName = userData.organizationName;
+  
+        // Append eventType as query param if provided
+        const typeQuery = eventType ? `&type=${eventType}` : "";
         const response = await axios.get(
-          `${apiUrl}events/adminevents?organization=${organizationName}`,
+          `${apiUrl}events/adminevents?organization=${organizationName}${typeQuery}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setEvents(response.data || []);
-      } catch (err) {
-        setError(err.message || "Error fetching events");
-      } finally {
-        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+        setEvents([]);
       }
     };
     fetchEvents();
-  }, []);
+  }, [eventType]);
 
   const fetchAttendees = async () => {
     if (!eventId) {
@@ -70,7 +72,9 @@ const Attendance = () => {
 
   const handleCheckboxChange = (userId) => {
     setSelectedAttendees((prev) =>
-      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
     );
   };
 
@@ -99,7 +103,9 @@ const Attendance = () => {
 
       setAttendees((prev) =>
         prev.map((att) =>
-          selectedAttendees.includes(att.userId) ? { ...att, hasRegistered: true } : att
+          selectedAttendees.includes(att.userId)
+            ? { ...att, hasRegistered: true }
+            : att
         )
       );
 
@@ -119,7 +125,9 @@ const Attendance = () => {
       </h1>
       <div className="flex gap-6">
         <div className="bg-white shadow-lg rounded-2xl p-6 w-1/3">
-          <h2 className="font-tungsten text-[4vh] text-[#3a1078] md:text-[6vh] sm:text-[4vh]">Select Event</h2>
+          <h2 className="font-tungsten text-[4vh] text-[#3a1078] md:text-[6vh] sm:text-[4vh]">
+            Select Event
+          </h2>
           <select
             className="w-full p-2 border border-gray-300 rounded-lg"
             value={eventId}

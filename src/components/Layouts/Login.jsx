@@ -28,7 +28,7 @@ const Login = () => {
 
       const data = await response.json();
 
-      // Save token and user data to localStorage if needed
+      // Save token and ALL user data to localStorage
       localStorage.setItem("authToken", data.token);
       localStorage.setItem("userData", JSON.stringify(data.user));
 
@@ -67,6 +67,10 @@ const Login = () => {
             localStorage.setItem(
               "officerOrgId",
               officerMembership.organization._id
+            );
+            localStorage.setItem(
+              "officerDepartment",
+              officerMembership.department
             );
           }
           navigate("/dashboard");
@@ -164,7 +168,7 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Overlay OrgLoginModal */}
+      {/* Overlay OrgLoginModal if needed */}
       {showModal && loggedInUser && (
         <OrgLoginModal user={loggedInUser} closeModal={closeModal} />
       )}

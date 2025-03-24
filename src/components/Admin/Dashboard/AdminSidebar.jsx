@@ -96,15 +96,6 @@ const AdminSideBar = () => {
                 {isExpanded && <span>Officers Approval</span>}
               </Link>
             </li>
-            {/* <li>
-              <Link
-                to="/admin/"
-                className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
-              >
-                <IoMdAnalytics size={40} />
-                {isExpanded && <span>Analysis</span>}
-              </Link>
-            </li> */}
           </ul>
         </nav>
         <button
@@ -125,7 +116,7 @@ const AdminSideBar = () => {
             {userData && (
               <>
                 <img
-                  src={userData.image}
+                  src={userData.image || "https://via.placeholder.com/40"}
                   alt="User"
                   className="w-10 h-10 rounded-full cursor-pointer"
                   onClick={toggleDropdown}

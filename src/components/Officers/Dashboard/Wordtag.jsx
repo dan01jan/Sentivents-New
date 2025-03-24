@@ -47,10 +47,14 @@ const Wordtag = () => {
       try {
         const token = localStorage.getItem("authToken");
         const userData = JSON.parse(localStorage.getItem("userData"));
-        if (!userData || !userData.organizationName) {
+        // Try to get organization name from local storage (for officer users)
+        const officerOrgName = localStorage.getItem("officerOrgName");
+        const organizationName = officerOrgName || (userData && userData.organizationName);
+        
+        if (!organizationName) {
           throw new Error("Organization name not found in user data.");
         }
-        const organizationName = userData.organizationName;
+  
         // Append eventType as query param if provided
         const typeQuery = eventType ? `&type=${eventType}` : "";
         const response = await axios.get(
@@ -65,6 +69,7 @@ const Wordtag = () => {
     };
     fetchEvents();
   }, [eventType]);
+  
 
   // Fetch comments for a specific event
   const fetchComments = async (eventId) => {
