@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
 import "react-calendar/dist/Calendar.css";
 import Calendar from "react-calendar";
@@ -13,17 +13,19 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const [organizations, setOrganizations] = useState([]);
   const [orgCount, setOrgCount] = useState(0);
-  const [pendingApprovals, setPendingApprovals] = useState([]);
+  const [approvalOrgData, setApprovalOrgData] = useState([]); // aggregated pending approvals data
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedOrg, setSelectedOrg] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedOfficers, setSelectedOfficers] = useState([]); // pending officers to show in modal
+  const [selectedOrgId, setSelectedOrgId] = useState(null);
   const [userData, setUserData] = useState(null);
   const [date, setDate] = useState(new Date());
   const [upcomingEvents, setUpcomingEvents] = useState([]);
-  // Added events state to store all fetched events
   const [events, setEvents] = useState([]);
 
+  // Ensure admin is logged in
   useEffect(() => {
     const storedUserData = JSON.parse(localStorage.getItem("userData"));
     if (storedUserData && storedUserData.isAdmin) {
@@ -82,7 +84,7 @@ function AdminDashboard() {
     return () => clearInterval(countIntervalId);
   }, []);
 
-  // Fetch upcoming events from the new route
+  // Fetch upcoming events
   useEffect(() => {
     const fetchUpcomingEvents = async () => {
       try {
@@ -102,15 +104,16 @@ function AdminDashboard() {
     fetchUpcomingEvents();
   }, []);
 
-  // Fetch pending officer approval requests using the aggregation route
+  // Fetch pending officer approval requests (aggregated)
   useEffect(() => {
     const fetchPendingApprovals = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const response = await axios.get(`${apiUrl}organizations/officers`, {
+        const response = await axios.get(`${apiUrl}users/organizations/officers`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setPendingApprovals(response.data || []);
+        console.log("Pending approvals response:", response.data);
+        setApprovalOrgData(response.data || []);
       } catch (error) {
         console.error("Error fetching pending approvals:", error);
       }
@@ -118,7 +121,7 @@ function AdminDashboard() {
     fetchPendingApprovals();
   }, []);
 
-  // Fetch all events and store them in state.
+  // Fetch all events
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -140,9 +143,11 @@ function AdminDashboard() {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedOrg(null);
+    setSelectedOfficers([]);
+    setSelectedOrgId(null);
   };
 
-  // Function to check if a given date has any events.
+  // For calendar: get events on a specific date
   const getEventsForDate = (date) => {
     return events.filter((event) => {
       const eventDate = new Date(event.dateStart);
@@ -150,8 +155,87 @@ function AdminDashboard() {
     });
   };
 
+  // Modal: open pending officers for a given organization
+  const openApprovalModal = (orgId, officers) => {
+    setSelectedOrgId(orgId);
+    setSelectedOfficers(officers);
+  };
+
+  // Approve an officer
+  const handleApprove = async (officerId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${apiUrl}users/organizations/officers/${officerId}/approve`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) throw new Error("Failed to approve officer.");
+      // Remove approved officer from approvalOrgData and modal list
+      setApprovalOrgData((prevData) =>
+        prevData.map((org) => {
+          if (org._id === selectedOrgId) {
+            return {
+              ...org,
+              officers: org.officers.filter((officer) => officer._id !== officerId),
+            };
+          }
+          return org;
+        })
+      );
+      setSelectedOfficers((prev) =>
+        prev.filter((officer) => officer._id !== officerId)
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Decline an officer
+  const handleDecline = async (officerId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${apiUrl}users/organizations/officers/${officerId}/decline`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) throw new Error("Failed to decline officer.");
+      const data = await response.json();
+      alert(data.message);
+      // Remove declined officer from approvalOrgData and modal list
+      setApprovalOrgData((prevData) =>
+        prevData.map((org) => {
+          if (org._id === selectedOrgId) {
+            return {
+              ...org,
+              officers: org.officers.filter((officer) => officer._id !== officerId),
+            };
+          }
+          return org;
+        })
+      );
+      setSelectedOfficers((prev) =>
+        prev.filter((officer) => officer._id !== officerId)
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="flex flex-row pl-10">
+      {/* Left side: Dashboard Cards and Organizations table */}
       <div className="flex flex-col w-3/4 pr-5">
         {userData && (
           <div className="bg-[#f7f7f9] h-[30vh] p-6 rounded-3xl shadow-lg mb-10 flex justify-between items-center hover:shadow-xl transition-shadow duration-300">
@@ -175,7 +259,7 @@ function AdminDashboard() {
             <p className="text-[#f7f7f8] font-bold text-xl">Org. Count: {orgCount}</p>
           </div>
           <div className="w-1/4 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
-            <p className="text-[#f7f7f8] font-bold text-xl">Box 2</p>
+            <p className="text-[#f7f7f8] font-bold text-xl">Events: {events.length}</p>
           </div>
           <div className="w-1/4 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
             <p className="text-[#f7f7f8] font-bold text-xl">Box 3</p>
@@ -232,9 +316,9 @@ function AdminDashboard() {
         </section>
       </div>
 
+      {/* Right side: Calendar, Upcoming Events, and Pending Approvals */}
       <div className="w-1/4 px-5">
         <div className="flex">
-          {/* Integrated Calendar with event names */}
           <Calendar
             onChange={setDate}
             value={date}
@@ -278,31 +362,76 @@ function AdminDashboard() {
         </div>
         <div className="mt-10">
           <h2 className="text-xl font-bold text-[#3a1078]">Pending Officers Approval</h2>
-          <ul className="mt-4">
-            {pendingApprovals.length > 0 ? (
-              pendingApprovals.map((org) =>
-                org.officers.map((officer) => (
-                  <li
-                    key={officer._id}
-                    className="mb-2 hover:bg-[#f0f0f0] transition-colors duration-300"
+          <ul className="mt-4 grid grid-cols-2 gap-4">
+            {approvalOrgData
+              .filter((org) => org.officers && org.officers.length > 0) // Only show organizations with pending officers
+              .map((org) => {
+                const pending = org.officers; // pending officers for this organization
+                return (
+                  <div
+                    key={org._id || org.name}
+                    className="relative bg-white rounded-lg p-4 shadow-md hover:shadow-xl transition cursor-pointer"
+                    onClick={() => openApprovalModal(org._id, pending)}
                   >
-                    <div className="bg-[#f7f7f9] p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                      <h3 className="text-lg font-bold text-[#3a1078]">
-                        {officer.name} {officer.surname}
-                      </h3>
-                      <p className="text-gray-600">
-                        Organization: {org.name}
-                      </p>
+                    <h2 className="text-center text-lg text-[#3a1078] font-semibold">
+                      {org.name}
+                    </h2>
+                    <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
+                      {pending.length}
                     </div>
-                  </li>
-                ))
-              )
-            ) : (
-              <li>No pending approvals</li>
-            )}
+                  </div>
+                );
+              })}
           </ul>
         </div>
       </div>
+
+      {/* Modal for officer approvals */}
+      {selectedOfficers.length > 0 && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg w-96 relative">
+            <button
+              onClick={closeModal}
+              className="absolute top-2 right-2 text-gray-600 hover:text-black"
+            >
+              &times;
+            </button>
+            <h2 className="text-4xl font-bold mb-4 text-[#3a1078]">
+              Officer Approvals
+            </h2>
+            {selectedOfficers.map((officer) => (
+              <div key={officer._id} className="mb-4 p-4 border rounded-lg">
+                <img
+                  src={
+                    officer.image ||
+                    "https://res.cloudinary.com/do2utxjmc/image/upload/v1741749795/3918329-200_bpfm11.png"
+                  }
+                  alt="Officer"
+                  className="w-24 h-24 rounded-full mb-2 mx-auto"
+                />
+                <p className="text-2xl text-center text-[#3a1078] font-semibold">
+                  {officer.name} {officer.surname}
+                </p>
+                <p className="text-center text-[#3a1078]">{officer.email}</p>
+                <div className="flex space-x-4 mt-2 justify-center">
+                  <button
+                    onClick={() => handleApprove(officer._id)}
+                    className="bg-[#3a1078] text-white px-4 py-2 rounded-lg hover:bg-[#3a1078c5]"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleDecline(officer._id)}
+                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-400"
+                  >
+                    Decline
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
