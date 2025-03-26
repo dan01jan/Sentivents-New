@@ -56,6 +56,7 @@ const AdminEventList = () => {
   const handleUpdate = (event) => {
     navigate(`/admin/eventupdate/${event._id}`, { state: { event } });
   };
+
   const handleRegister = (event) => {
     navigate(`/admin/eventregister/${event._id}`, { state: { event } });
   };
@@ -72,10 +73,33 @@ const AdminEventList = () => {
     setSelectedEvent(null);
   };
 
-  // Delete button remains unchanged
-  const openDeleteModal = (eventId) => {
-    console.log("Delete event", eventId);
-    // Your delete modal logic here
+  // Delete an event by sending a DELETE request to the API.
+  const openDeleteModal = async (eventId) => {
+    if (window.confirm("Are you sure you want to delete this event?")) {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await fetch(`${apiUrl}events/${eventId}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          alert("Event deleted successfully!");
+          // Update local state by removing the deleted event
+          setEvents((prevEvents) =>
+            prevEvents.filter((event) => event._id !== eventId)
+          );
+        } else {
+          const data = await response.json();
+          alert("Failed to delete event: " + data.message);
+        }
+      } catch (error) {
+        console.error("Error deleting event:", error);
+        alert("Error deleting event. Please try again.");
+      }
+    }
   };
 
   return (

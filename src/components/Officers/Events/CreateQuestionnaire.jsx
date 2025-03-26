@@ -14,6 +14,7 @@ const CreateQuestionnaire = () => {
   const [ratings, setRatings] = useState({});
   const [expandedTraits, setExpandedTraits] = useState({});
 
+  // Retrieve eventId from localStorage
   useEffect(() => {
     const storedEventId = localStorage.getItem("selectedEventId");
     if (storedEventId) {
@@ -23,20 +24,20 @@ const CreateQuestionnaire = () => {
     }
   }, []);
 
+  // Fetch questions for the event and group them by trait
   useEffect(() => {
     const fetchQuestionsByEvent = async () => {
       if (!selectedEventId) return;
-
       setLoading(true);
       try {
-        console.log("Selected Event ID:", selectedEventId); // Log the event ID
+        console.log("Selected Event ID:", selectedEventId);
         const response = await fetch(
           `${apiUrl}questions/event-type/${selectedEventId}`
         );
         const data = await response.json();
 
         if (response.ok) {
-          // Group questions by traitId
+          // Group questions by trait (using traitId.trait or fallback)
           const grouped = data.reduce((acc, question) => {
             const trait = question.traitId?.trait || "Unknown Trait";
             if (!acc[trait]) {
@@ -61,6 +62,7 @@ const CreateQuestionnaire = () => {
     fetchQuestionsByEvent();
   }, [selectedEventId]);
 
+  // Trigger questionnaire creation using currently selected questions
   const handleCreateQuestionnaire = async () => {
     if (!selectedEventId) {
       console.error("Event ID is missing");
@@ -104,38 +106,66 @@ const CreateQuestionnaire = () => {
     }
   };
 
+  // Randomize selection for each trait and trigger questionnaire creation
   const handleRandomizeQuestions = async () => {
     if (!selectedEventId) {
       alert("Please select an event first.");
       return;
     }
 
+    // Create a randomized selection object
+    const randomizedSelection = {};
+    Object.keys(groupedQuestions).forEach((trait) => {
+      const questionsArray = groupedQuestions[trait];
+      // Shuffle the questions array using a simple random sort
+      const shuffled = [...questionsArray].sort(() => Math.random() - 0.5);
+      // Select up to 5 questions (or all if less than 5)
+      const selected = shuffled.slice(0, Math.min(5, shuffled.length));
+      selected.forEach((q) => {
+        randomizedSelection[q._id] = true;
+      });
+    });
+
+    // Update state (optional, for UI feedback)
+    setSelectedQuestions(randomizedSelection);
+
+    // Extract selected question IDs
+    const selectedQuestionIds = Object.keys(randomizedSelection).filter(
+      (id) => randomizedSelection[id]
+    );
+
+    if (selectedQuestionIds.length === 0) {
+      alert("No questions were randomized.");
+      return;
+    }
+
+    // Now trigger the POST request to create the questionnaire
+    const token = localStorage.getItem("authToken");
+
     try {
-      const response = await fetch(`${apiUrl}questionnaires/randomize-create`, {
+      const response = await fetch(`${apiUrl}questionnaires/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ eventId: selectedEventId }),
+        body: JSON.stringify({
+          eventId: selectedEventId,
+          selectedQuestions: selectedQuestionIds,
+          ratings,
+        }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to randomize questions");
+      const result = await response.json();
+      if (response.ok) {
+        console.log("Randomized questionnaire created successfully:", result);
+        alert("Randomized questionnaire created successfully!");
+        navigate("/dashboard/events");
+      } else {
+        console.error("Error creating questionnaire:", result.message);
       }
-
-      // Update selectedQuestions state with the randomized questions from the backend
-      const randomizedSelection = {};
-      data.questionnaire.questions.forEach((qId) => {
-        randomizedSelection[qId] = true;
-      });
-
-      setSelectedQuestions(randomizedSelection);
-      alert("Randomized questionnaire created successfully!");
-      navigate("/dashboard/events");
     } catch (error) {
-      console.error("Error randomizing questionnaire:", error);
+      console.error("Error:", error);
       alert(error.message);
     }
   };
@@ -148,7 +178,7 @@ const CreateQuestionnaire = () => {
   };
 
   return (
-    <div className="p-4 max-w-full mx-auto ">
+    <div className="p-4 max-w-full mx-auto">
       <h1 className="text-[8vh] font-semibold text-[#3a1078] font-tungsten">
         Create Event Questionnaire
       </h1>
@@ -177,7 +207,7 @@ const CreateQuestionnaire = () => {
                 />
               </button>
               {expandedTraits[trait] && (
-                <ul className="space-y-4 ">
+                <ul className="space-y-4">
                   {groupedQuestions[trait].map((question) => (
                     <li key={question._id} className="flex flex-col">
                       <div className="flex items-center space-x-3">
@@ -187,9 +217,7 @@ const CreateQuestionnaire = () => {
                           checked={selectedQuestions[question._id] || false}
                           onChange={(e) => {
                             const isChecked = e.target.checked;
-                            const selectedCount = Object.keys(
-                              selectedQuestions
-                            ).filter(
+                            const selectedCount = Object.keys(selectedQuestions).filter(
                               (qId) =>
                                 selectedQuestions[qId] &&
                                 groupedQuestions[trait].some(
@@ -198,9 +226,7 @@ const CreateQuestionnaire = () => {
                             ).length;
 
                             if (isChecked && selectedCount >= 5) {
-                              alert(
-                                "You can select up to 5 questions per trait."
-                              );
+                              alert("You can select up to 5 questions per trait.");
                               return;
                             }
                             setSelectedQuestions((prev) => ({
