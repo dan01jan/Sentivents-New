@@ -1,5 +1,5 @@
 import React from "react";
-import eventBG from "../../assets/website/eventBG_flip.png";
+import eventBG from "../../assets/website/eventbg_flip.png";
 import eventVOYS from "../../assets/website/aboutvoys.png";
 import logo from "../../assets/website/V_logo.png";
 import TUPLogo from "../../assets/website/TUP logo.png";
