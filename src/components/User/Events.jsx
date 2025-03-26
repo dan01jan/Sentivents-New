@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import TUPLogo from "../../assets/website/TUP LOGO.png";
-import logo from "../../assets/website/V_logo.png";
+import logo from "../../assets/website/V_Logo.png";
 import eventBG from "../../assets/website/eventBG.png";
 import backgroundVideo from "../../assets/website/bg_events.mp4";
 import { Link } from "react-router-dom";
