@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import bgplain1 from "../../assets/website/bg_plain.png";
 import logo from "../../assets/website/V_DarkerLogo.png";
-import TUPLogo from "../../assets/website/TUP logo.png";
+import TUPLogo from "../../assets/website/TUP LOGO.png";
 import Loader from "../Layouts/Loader.jsx"
 const apiUrl = import.meta.env.VITE_API_URL;
 
