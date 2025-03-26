@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import bg2 from "../../assets/website/bg2.png";
 import logo from "../../assets/website/V_DarkerLogo.png";
+import downloadImage from "../../assets/website/qr.png"; // <-- Example image for the modal
 import teamMember1 from "../../assets/website/google-logo.png";
 import teamMember2 from "../../assets/website/google-logo.png";
 import teamMember3 from "../../assets/website/google-logo.png";
@@ -10,7 +11,6 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import { Link } from "react-router-dom";
-import "../Layouts/Loader.jsx";
 import TUPLogo from "../../assets/website/TUP LOGO.png";
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -19,6 +19,7 @@ function HomeScreen() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false); // <-- State to track modal
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -37,7 +38,6 @@ function HomeScreen() {
           .filter((event) => new Date(event.dateStart) > new Date()) // Only future events
           .sort((a, b) => new Date(a.dateStart) - new Date(b.dateStart)); // Sort ascending
 
-        // Update state only once
         setEvents(sortedEvents.slice(0, 3));
       } catch (error) {
         setError(error.message);
@@ -47,14 +47,11 @@ function HomeScreen() {
     };
 
     fetchEvents();
-    // Remove or adjust the interval if real-time updates are not needed
-    // const intervalId = setInterval(fetchEvents, 5000); // example: every 5 seconds
-    // return () => clearInterval(intervalId);
   }, []);
 
   const settings = {
     dots: false,
-    infinite: false, // Disable infinite mode to prevent slide cloning
+    infinite: false,
     speed: 500,
     slidesToShow: 3,
     slidesToScroll: 1,
@@ -78,48 +75,10 @@ function HomeScreen() {
     ],
   };
 
-  const CustomArrow = ({ className, style, onClick, direction }) => (
-    <div onClick={onClick}>{/* You can customize your arrow here */}</div>
-  );
-
-  const footerSliderSettings = {
-    dots: false,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 15,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 1000,
-    prevArrow: <CustomArrow direction="prev" />,
-    nextArrow: <CustomArrow direction="next" />,
-    responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 1,
-        },
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
-        },
-      },
-      {
-        breakpoint: 480,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-        },
-      },
-    ],
-  };
-
   return (
     <div className="w-full flex flex-col">
-      <div className="relative w-full min-h-[70vh] ">
+      {/* Background Section */}
+      <div className="relative w-full min-h-[70vh]">
         <img
           className="absolute inset-0 w-full h-full object-cover"
           src={bg2}
@@ -136,13 +95,16 @@ function HomeScreen() {
               Your Sentiments
             </strong>
           </h1>
-
           <div className="flex flex-col items-start gap-5 mt-5 pl-5 pt-4 fade-in-left">
             <p className="text-2xl text-white font-roboto">
               An Event Management System with Sentiment Analysis
             </p>
             <div className="p-1 border-2 border-white">
-              <button className="px-9 py-4 bg-red-500 text-white text-lg font-semibold hover:bg-[#2a0858] transition">
+              {/* Button to open the modal */}
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="px-9 py-4 bg-red-500 text-white text-lg font-semibold hover:bg-[#2a0858] transition"
+              >
                 Download our App
               </button>
             </div>
@@ -150,6 +112,36 @@ function HomeScreen() {
         </div>
       </div>
 
+      {/* Modal (conditionally rendered) */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          {/* Modal content container */}
+          <div className="bg-white p-6 rounded shadow-lg relative">
+            {/* Close button */}
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+            >
+              &times;
+            </button>
+
+            {/* Modal image (e.g., QR code or app store badge) */}
+            <img
+              src={downloadImage}
+              alt="Download the VOYS app"
+              className="w-full h-auto object-contain"
+            />
+
+            {/* Additional text or instructions */}
+            <p className="mt-4 text-center text-gray-700">
+              Scan this QR code to download the VOYS app, or visit the app store
+              on your device.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Upcoming Events Section */}
       <section className="w-full h-[80vh] bg-[#f7f7f8] py-16 px-10">
         <div className="flex flex-col md:flex-row justify-between items-center py-10 px-10">
           <h2 className="text-[6vh] font-tungsten text-[#3a1078] leading-tight uppercase">
@@ -162,7 +154,6 @@ function HomeScreen() {
             Go to Event Page
           </Link>
         </div>
-
         {loading ? (
           <p className="text-center text-lg">Loading...</p>
         ) : error ? (
@@ -224,6 +215,8 @@ function HomeScreen() {
           </Slider>
         )}
       </section>
+
+      {/* About Us & Our Team Section */}
       <section className="w-full min-h-[80vh] bg-[#ffffff] py-16 px-10 grid grid-cols-1 md:grid-cols-2 items-center">
         <div className="flex justify-center items-center">
           <img
@@ -279,6 +272,7 @@ function HomeScreen() {
         </div>
       </section>
 
+      {/* Footer */}
       <footer className="w-full bg-[#ffffff] py-10 px-10 text-center text-gray-800 flex flex-col items-center gap-4">
         <div className="flex justify-center items-center gap-4">
           <img src={logo} alt="VOYS Logo" className="h-12 w-auto" />
