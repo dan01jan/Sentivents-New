@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
+import AdminEventModal from "./AdminEventModal"; // Import the modal component
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -12,6 +13,8 @@ const AdminEventList = () => {
   const [selectedOrganization, setSelectedOrganization] = useState("");
   const [types, setTypes] = useState([]);
   const [selectedType, setSelectedType] = useState("");
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const navigate = useNavigate();
 
@@ -49,6 +52,32 @@ const AdminEventList = () => {
     navigate("/admin/eventcreate");
   };
 
+  // Redirect to /admin/eventupdate with event data
+  const handleUpdate = (event) => {
+    navigate(`/admin/eventupdate/${event._id}`, { state: { event } });
+  };
+  const handleRegister = (event) => {
+    navigate(`/admin/eventregister/${event._id}`, { state: { event } });
+  };
+
+  // Instead of navigating, open the modal for viewing and save the event ID in localStorage
+  const handleModalOpen = (event) => {
+    localStorage.setItem("selectedEventId", event._id);
+    setSelectedEvent(event);
+    setModalIsOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalIsOpen(false);
+    setSelectedEvent(null);
+  };
+
+  // Delete button remains unchanged
+  const openDeleteModal = (eventId) => {
+    console.log("Delete event", eventId);
+    // Your delete modal logic here
+  };
+
   return (
     <div className="p-4 max-w-full mx-auto">
       <h1 className="text-[8vh] font-bold mb-4 font-tungsten text-[#3a1078]">
@@ -84,10 +113,7 @@ const AdminEventList = () => {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
         {filteredEvents.map((event) => (
           <motion.div key={event._id} whileHover={{ scale: 1.05 }}>
-            <div
-              className="rounded-lg overflow-hidden shadow-lg bg-white max-w-full hover:shadow-2xl transition duration-300 ease-in-out mt-5"
-            >
-              {/* Event Image */}
+            <div className="rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 ease-in-out mt-5 bg-white">
               {event.images && event.images.length > 0 ? (
                 <img
                   className="w-full h-48 object-cover"
@@ -97,12 +123,10 @@ const AdminEventList = () => {
               ) : (
                 <div className="w-full h-48 bg-gray-200"></div>
               )}
-
-              <div className="px-4 py-4">
+              <div className="p-4">
                 <div className="font-bold text-lg mb-2 truncate">
                   {event.name || "No Name"}
                 </div>
-
                 <p className="text-gray-700 text-sm mb-2 line-clamp-3">
                   {event.description || "No Description"}
                 </p>
@@ -123,6 +147,37 @@ const AdminEventList = () => {
                     : "Unknown"}
                 </p>
               </div>
+              {/* Only render buttons if the event's organization is "League of Student Organization" */}
+              {event.organization === "League of Student Organization" && (
+                <div className="px-4 py-2 flex justify-center items-center border-t border-gray-200">
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => handleUpdate(event)}
+                      className="bg-yellow-200 text-yellow-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-yellow-300"
+                    >
+                      UPDATE
+                    </button>
+                    <button
+                      onClick={() => openDeleteModal(event._id)}
+                      className="bg-red-200 text-red-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-red-300"
+                    >
+                      DELETE
+                    </button>
+                    <button
+                      onClick={() => handleModalOpen(event)}
+                      className="bg-pink-200 text-pink-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-pink-300"
+                    >
+                      VIEW
+                    </button>
+                    <button
+                      onClick={() => handleRegister(event)}
+                      className="bg-blue-200 text-pink-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-pink-300"
+                    >
+                      REGISTER APPROVAL
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         ))}
@@ -134,6 +189,13 @@ const AdminEventList = () => {
       >
         <FaPlus size={24} />
       </button>
+
+      {/* Render the modal */}
+      <AdminEventModal
+        selectedEvent={selectedEvent}
+        modalIsOpen={modalIsOpen}
+        handleModalClose={handleModalClose}
+      />
     </div>
   );
 };

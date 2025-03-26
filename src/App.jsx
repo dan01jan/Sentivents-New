@@ -58,6 +58,13 @@ import OrgUpdate from "./components/Admin/Organization/OrgUpdate";
 import AdminApproval from "./components/Admin/Dashboard/AdminApproval";
 import OrgOfficerUpdate from "./components/Admin/Organization/OrgOfficerUpdate";
 import AdminEventCreate from "./components/Admin/Events/AdminEventCreate";
+import AdminCreateQuestionnaire from "./components/Admin/Events/AdminCreateQuestionnaire";
+import AdminEventModal from "./components/Admin/Events/AdminEventModal";
+import AdminEventUpdate from "./components/Admin/Events/AdminEventUpdate";
+import AdminViewQuestionnaire from "./components/Admin/Events/AdminViewQuestionnaire";
+import AdminViewReports from "./components/Admin/Events/AdminViewReports";
+import AdminAttendanceChart from "./components/Admin/Dashboard/AdminAttendanceChart";
+import AdminEventRegister from "./components/Admin/Events/AdminEventRegister";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -297,10 +304,58 @@ function AppContent({ loading, user }) {
                   }
                 />
                 <Route
-                  path="create"
+                  path="eventupdate/:eventId"
                   element={
                     <ProtectedAdminRoute>
-                      <OrgCreate />
+                      <AdminEventUpdate />
+                    </ProtectedAdminRoute>
+                  }
+                />
+                <Route
+                  path="eventmodal"
+                  element={
+                    <ProtectedAdminRoute>
+                      <AdminEventModal />
+                    </ProtectedAdminRoute>
+                  }
+                />
+                <Route
+                  path="attendancechart"
+                  element={
+                    <ProtectedAdminRoute>
+                      <AdminAttendanceChart />
+                    </ProtectedAdminRoute>
+                  }
+                />
+                <Route
+                  path="createquestionnaire"
+                  element={
+                    <ProtectedAdminRoute>
+                      <AdminCreateQuestionnaire />
+                    </ProtectedAdminRoute>
+                  }
+                />
+                <Route
+                  path="viewquestions"
+                  element={
+                    <ProtectedAdminRoute>
+                      <AdminViewQuestionnaire />
+                    </ProtectedAdminRoute>
+                  }
+                />
+                <Route
+                  path="viewreports"
+                  element={
+                    <ProtectedAdminRoute>
+                      <AdminViewReports />
+                    </ProtectedAdminRoute>
+                  }
+                />
+                 <Route
+                  path="eventregister/:eventId"
+                  element={
+                    <ProtectedAdminRoute>
+                      <AdminEventRegister />
                     </ProtectedAdminRoute>
                   }
                 />
