@@ -1,16 +1,19 @@
 import React, { useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const OrgUpdate = ({ isOpen, onClose, organization }) => {
   const [name, setName] = useState(organization.name);
   const [description, setDescription] = useState(organization.description);
   const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState(organization.image); // Fetch and display existing image
+  const [preview, setPreview] = useState(organization.image);
 
   const handleUpdate = async () => {
     const token = localStorage.getItem("authToken");
     const formData = new FormData();
-  
+
     if (name !== organization.name) {
       formData.append("name", name);
     }
@@ -20,7 +23,7 @@ const OrgUpdate = ({ isOpen, onClose, organization }) => {
     if (image) {
       formData.append("image", image);
     }
-  
+
     try {
       const response = await fetch(`${apiUrl}organizations/${organization._id}`, {
         method: "PUT",
@@ -29,90 +32,96 @@ const OrgUpdate = ({ isOpen, onClose, organization }) => {
         },
         body: formData,
       });
-  
+
       const result = await response.json();
-  
+
       if (!response.ok) {
         throw new Error(result.message || "Failed to update organization");
       }
-  
-      onClose();
+
+      console.log("Success toast triggered");
+      toast.success("Organization updated successfully!");
+      setTimeout(() => onClose(), 3000);
     } catch (error) {
       console.error("Error updating organization:", error);
+      console.log("Error toast triggered");
+      toast.error("Failed to update organization. Please try again.");
     }
   };
-  
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setImage(file);
-    setPreview(URL.createObjectURL(file)); // Preview new image
+    setPreview(URL.createObjectURL(file));
   };
 
   return (
     isOpen && (
-      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
-        <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-lg">
-          <h2 className="text-3xl font-extrabold text-gray-900 mb-6">
-            Update Organization
-          </h2>
+      <>
+        <ToastContainer />
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-lg">
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-6">
+              Update Organization
+            </h2>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Organization Name
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Organization Name
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Upload Image
+                </label>
+                {preview && (
+                  <img src={preview} alt="Organization" className="mb-2 w-full h-40 object-cover rounded-lg" />
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
+            <div className="flex justify-end space-x-4 mt-6">
+              <button
+                onClick={handleUpdate}
+                className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition"
+              >
+                Update
+              </button>
+              <button
+                onClick={onClose}
+                className="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-medium hover:bg-gray-400 transition"
+              >
+                Cancel
+              </button>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Image
-              </label>
-              {preview && (
-                <img src={preview} alt="Organization" className="mb-2 w-full h-40 object-cover rounded-lg" />
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end space-x-4 mt-6">
-            <button
-              onClick={handleUpdate}
-              className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition"
-            >
-              Update
-            </button>
-            <button
-              onClick={onClose}
-              className="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-medium hover:bg-gray-400 transition"
-            >
-              Cancel
-            </button>
           </div>
         </div>
-      </div>
+      </>
     )
   );
 };
