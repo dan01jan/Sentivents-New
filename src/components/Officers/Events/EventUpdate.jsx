@@ -168,7 +168,7 @@ const EventUpdate = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
       <ToastContainer position="bottom-right" autoClose={3000} />
-      <h2 className="text-2xl font-semibold text-center mb-6">
+      <h2 className="text-[5vh] font-tungsten text-[#3a1078] mb-6 text-center">
         Update Your Event
       </h2>
       <form onSubmit={handleSubmit}>
@@ -319,7 +319,7 @@ const EventUpdate = () => {
 
         <button
           type="submit"
-          className="w-full bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700 transition duration-300"
+          className="w-full bg-[#3a1078] font-semibold text-white py-3 rounded-lg hover:bg-[#2a0858] transition duration-300"
           disabled={submitting}
         >
           {submitting ? "Updating..." : "Update Event"}

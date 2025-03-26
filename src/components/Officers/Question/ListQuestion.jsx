@@ -201,7 +201,7 @@ const ListQuestion = () => {
             >
               ✕
             </button>
-            <h2 className="text-2xl font-semibold mb-6">
+            <h2 className="text-[5vh] font-bold mb-4 font-tungsten text-[#3a1078]">
               {editingQuestion ? "Edit Question" : "Create Questions"}
             </h2>
             <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
@@ -259,7 +259,7 @@ const ListQuestion = () => {
                 <button
                   type="button"
                   onClick={editingQuestion ? handleUpdateQuestion : handleAddQuestion}
-                  className="bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 flex-1"
+                  className="bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 flex-1"
                 >
                   {editingQuestion ? "Update Question" : "Add Another Question"}
                 </button>
@@ -267,7 +267,7 @@ const ListQuestion = () => {
                   <button
                     type="button"
                     onClick={handleCreateQuestions}
-                    className="bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 flex-1"
+                    className="bg-[#3a1078] text-white py-3 px-4 rounded-lg hover:bg-[#2a0858] flex-1"
                   >
                     Submit Questionnaire
                   </button>
