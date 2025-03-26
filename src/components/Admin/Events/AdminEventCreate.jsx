@@ -1,333 +1,218 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom"; 
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-const AdminEventCreate = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    type: "",
-    organization: "",
-    department: "",
-    dateStart: "",
-    dateEnd: "",
-    timeStart: "",
-    timeEnd: "",
-    location: "",
-    images: [],
-  });
-
-  const [eventTypes, setEventTypes] = useState([]);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
+  const [officers, setOfficers] = useState([]);
 
   useEffect(() => {
-    const fetchEventTypes = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}types/`);
-        console.log("Fetched event types:", response.data);
-
-        if (Array.isArray(response.data)) {
-          setEventTypes(response.data);
-        } else {
-          setError("Unexpected response format");
-        }
-      } catch (err) {
-        console.error("Error fetching event types:", err);
-        setError("Failed to fetch event types. Please try again.");
-      }
-    };
-
-    fetchEventTypes();
-
-    // Retrieve userData from localStorage
-    const userData = JSON.parse(localStorage.getItem("userData"));
-
-    // Get the organization from the nested organizations array.
-    // We assume the first organization is the one to use.
-    const organization = userData?.organizations?.[0]?.organization;
-    const department = userData?.organizations?.[0]?.department;
-
-    if (userData && organization) {
-      setFormData((prevData) => ({
-        ...prevData,
-        organization: organization.name, // you can use organization.name if needed
-        department: department || "",
-        userId: userData.userId || "",
-      }));
+    const token = localStorage.getItem('authToken');
+    if (organization && organization._id) {
+      fetch(`${apiUrl}organizations/eligible-officers/${organization._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data) {
+            setOfficers(data);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching eligible officers:', error);
+          toast.error('Failed to fetch eligible officers');
+        });
     }
-  }, []);
+  }, [organization]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+  const handleOfficerChange = (index, field, value) => {
+    const newOfficers = [...officers];
+    newOfficers[index] = {
+      ...newOfficers[index],
+      [field]: value,
+    };
+    setOfficers(newOfficers);
   };
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files).filter((file) =>
-      file.type.startsWith("image/")
-    );
-    setFormData((prevData) => ({
-      ...prevData,
-      images: files,
-    }));
+  const handleAddOfficer = () => {
+    setOfficers([...officers, { name: '', image: '', position: '' }]);
+    toast.info('New officer added');
+  };
+
+  const handleRemoveOfficer = async (index) => {
+    const officerToRemove = officers[index];
+    const newOfficers = officers.filter((_, i) => i !== index);
+    setOfficers(newOfficers);
+
+    if (officerToRemove._id) {
+      const token = localStorage.getItem('authToken');
+      try {
+        const response = await fetch(`${apiUrl}organizations/${organization._id}/officers`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ officers: newOfficers }),
+        });
+        if (!response.ok) {
+          throw new Error('Failed to update officers after removal');
+        }
+        toast.success('Officer removed successfully');
+      } catch (error) {
+        console.error('Error updating officers after removal:', error);
+        toast.error('Failed to remove officer');
+      }
+    } else {
+      toast.info('Officer removed locally');
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem('authToken');
 
-    if (formData.images.length === 0) {
-      alert("Please select at least one image.");
-      return;
-    }
-
-    const startDateTime = new Date(
-      `${formData.dateStart}T${formData.timeStart}:00`
-    );
-    const endDateTime = new Date(`${formData.dateEnd}T${formData.timeEnd}:00`);
-
-    const form = new FormData();
-    for (const [key, value] of Object.entries(formData)) {
-      if (!["images", "dateStart", "dateEnd", "timeStart", "timeEnd"].includes(key)) {
-        form.append(key, value);
+    const formData = new FormData();
+    const officersForSubmission = officers.map((officer) => {
+      if (officer.image instanceof File) {
+        return { ...officer, image: '' };
       }
-    }
+      return officer;
+    });
+    formData.append('officers', JSON.stringify(officersForSubmission));
 
-    form.append("dateStart", startDateTime.toISOString());
-    form.append("dateEnd", endDateTime.toISOString());
-    formData.images.forEach((file) => form.append("images", file));
-
-    // Add 'type' field correctly as ObjectId
-    if (formData.type) {
-      form.append("type", formData.type);
-    }
+    officers.forEach((officer, index) => {
+      if (officer.image instanceof File) {
+        formData.append(`image_${index}`, officer.image);
+      }
+    });
 
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(`${apiUrl}events/create`, {
-        method: "POST",
+      const response = await fetch(`${apiUrl}organizations/${organization._id}/officers`, {
+        method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        body: form,
+        body: formData,
       });
-
-      const data = await response.json();
-      console.log("API Response:", data);
-
-      if (response.ok) {
-        toast.success("Event Created Successfully!", {
-          position: "bottom-right",
-          autoClose: 3000,
-        });
-        setTimeout(() => {
-          navigate("/admin/eventlist");
-        }, 3000);
+      if (!response.ok) {
+        throw new Error('Failed to update officers');
       }
+      toast.success('Officers updated successfully');
+      setTimeout(() => onClose(), 3000);
     } catch (error) {
-      toast.error("Error creating event: " + error.message);
+      console.error('Error updating officers:', error);
+      toast.error('Failed to update officers');
     }
   };
 
   return (
-    <>
-      <ToastContainer position="bottom-right" autoClose={3000} />
-      <h2 className="text-3xl font-semibold text-center text-teal-700 mb-6">
-        Create Your Event
-      </h2>
-      <form
-        onSubmit={handleSubmit}
-        className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg space-y-6"
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-lg font-medium mb-2 text-gray-700"
-            >
-              Event Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="type"
-              className="block text-lg font-medium mb-2 text-gray-700"
-            >
-              Event Type
-            </label>
-            <select
-              id="type"
-              name="type"
-              value={formData.type}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            >
-              <option value="">Select Event Type</option>
-              {eventTypes.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.eventType}
-                </option>
-              ))}
-            </select>
-            {error && <p className="text-red-600 mt-1">{error}</p>}
-          </div>
-        </div>
-
-        <div>
-          <label
-            htmlFor="description"
-            className="block text-lg font-medium mb-2 text-gray-700"
-          >
-            Event Description
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            required
-            rows="4"
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label
-              htmlFor="dateStart"
-              className="block text-lg font-medium mb-2 text-gray-700"
-            >
-              Start Date
-            </label>
-            <input
-              type="date"
-              id="dateStart"
-              name="dateStart"
-              value={formData.dateStart}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="dateEnd"
-              className="block text-lg font-medium mb-2 text-gray-700"
-            >
-              End Date
-            </label>
-            <input
-              type="date"
-              id="dateEnd"
-              name="dateEnd"
-              value={formData.dateEnd}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label
-              htmlFor="timeStart"
-              className="block text-lg font-medium mb-2 text-gray-700"
-            >
-              Start Time
-            </label>
-            <input
-              type="time"
-              id="timeStart"
-              name="timeStart"
-              value={formData.timeStart}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="timeEnd"
-              className="block text-lg font-medium mb-2 text-gray-700"
-            >
-              End Time
-            </label>
-            <input
-              type="time"
-              id="timeEnd"
-              name="timeEnd"
-              value={formData.timeEnd}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label
-            htmlFor="location"
-            className="block text-lg font-medium mb-2 text-gray-700"
-          >
-            Location
-          </label>
-          <input
-            type="text"
-            id="location"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="images"
-            className="block text-lg font-medium mb-2 text-gray-700"
-          >
-            Event Images
-          </label>
-          <input
-            type="file"
-            name="images"
-            multiple
-            onChange={handleImageChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700 transition duration-300"
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50"
         >
-          Create Event
-        </button>
-      </form>
-    </>
+          <ToastContainer />
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="bg-white p-6 rounded-md w-11/12 md:w-1/2 max-h-screen overflow-auto"
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-[5vh] font-tungsten text-[#3a1078] mb-6">Update Officers</h2>
+              <button onClick={onClose} className="text-gray-600 hover:text-gray-800 text-2xl">
+                &times;
+              </button>
+            </div>
+            <form onSubmit={handleSubmit}>
+              {officers.map((officer, index) => (
+                <div key={index} className="mb-6 border p-4 rounded">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold">Officer {index + 1}</h3>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveOfficer(index)}
+                      className="text-red-600"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Name</label>
+                    <input
+                      type="text"
+                      value={officer.name}
+                      onChange={(e) => handleOfficerChange(index, 'name', e.target.value)}
+                      className="w-full border p-2 rounded"
+                      required
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Image</label>
+                    <input
+                      type="file"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        handleOfficerChange(index, 'image', file);
+                      }}
+                      className="w-full border p-2 rounded"
+                      accept="image/*"
+                    />
+                    {officer.image && !(officer.image instanceof File) && (
+                      <img src={officer.image} alt={`Officer ${index + 1}`} className="mt-2 h-20" />
+                    )}
+                    {officer.image && officer.image instanceof File && (
+                      <p className="mt-2 text-sm text-gray-600">{officer.image.name}</p>
+                    )}
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Position</label>
+                    <input
+                      type="text"
+                      value={officer.position}
+                      onChange={(e) => handleOfficerChange(index, 'position', e.target.value)}
+                      className="w-full border p-2 rounded"
+                    />
+                  </div>
+                </div>
+              ))}
+              <div className="mb-4">
+                <button
+                  type="button"
+                  onClick={handleAddOfficer}
+                  className="bg-green-600 text-white px-4 py-2 rounded"
+                >
+                  Add Officer
+                </button>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded">
+                  Update Officers
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
-export default AdminEventCreate;
+export default OrgOfficerUpdate;

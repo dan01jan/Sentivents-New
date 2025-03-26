@@ -120,7 +120,7 @@ const OrgUpdate = ({ isOpen, onClose, organization }) => {
             <div className="flex justify-end space-x-4 mt-6">
               <button
                 onClick={handleUpdate}
-                className="bg-[#3a1078] text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition"
+                className="bg-[#3a1078] text-white px-6 py-2 rounded-lg font-medium hover:bg-[#2a0858] transition"
               >
                 Update
               </button>
