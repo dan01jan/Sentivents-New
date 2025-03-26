@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
   const [officers, setOfficers] = useState([]);
 
-  // When the modal opens or the organization prop changes,
-  // fetch the latest eligible officers for the organization.
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     if (organization && organization._id) {
@@ -21,9 +21,10 @@ const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
             setOfficers(data);
           }
         })
-        .catch((error) =>
-          console.error('Error fetching eligible officers:', error)
-        );
+        .catch((error) => {
+          console.error('Error fetching eligible officers:', error);
+          toast.error('Failed to fetch eligible officers');
+        });
     }
   }, [organization]);
 
@@ -36,19 +37,15 @@ const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
     setOfficers(newOfficers);
   };
 
-  // Add a new officer row to the form
   const handleAddOfficer = () => {
     setOfficers([...officers, { name: '', image: '', position: '' }]);
   };
 
-  // Remove an officer row from the form.
-  // If the officer exists in the backend (has _id), immediately update the server.
   const handleRemoveOfficer = async (index) => {
     const officerToRemove = officers[index];
     const newOfficers = officers.filter((_, i) => i !== index);
     setOfficers(newOfficers);
 
-    // If the officer already exists in the backend, immediately update the organization.
     if (officerToRemove._id) {
       const token = localStorage.getItem('authToken');
       try {
@@ -63,9 +60,13 @@ const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
         if (!response.ok) {
           throw new Error('Failed to update officers after removal');
         }
+        toast.success('Officer removed successfully');
       } catch (error) {
         console.error('Error updating officers after removal:', error);
+        toast.error('Failed to remove officer');
       }
+    } else {
+      toast.info('Officer removed locally');
     }
   };
 
@@ -73,11 +74,7 @@ const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
     e.preventDefault();
     const token = localStorage.getItem('authToken');
 
-    // Create a FormData instance to send multipart/form-data
     const formData = new FormData();
-    // Prepare the officers data for submission.
-    // For any officer with a File as its image, clear the image property here
-    // because the file will be appended separately.
     const officersForSubmission = officers.map((officer) => {
       if (officer.image instanceof File) {
         return { ...officer, image: '' };
@@ -86,7 +83,6 @@ const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
     });
     formData.append('officers', JSON.stringify(officersForSubmission));
 
-    // For each officer that has a File, append it with a field name "image_INDEX"
     officers.forEach((officer, index) => {
       if (officer.image instanceof File) {
         formData.append(`image_${index}`, officer.image);
@@ -98,17 +94,17 @@ const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
-          // Do not set Content-Type; let the browser set it for FormData
         },
         body: formData,
       });
       if (!response.ok) {
         throw new Error('Failed to update officers');
       }
-      // Optionally process response data
-      onClose();
+      toast.success('Officers updated successfully');
+      setTimeout(() => onClose(), 3000);
     } catch (error) {
       console.error('Error updating officers:', error);
+      toast.error('Failed to update officers');
     }
   };
 
@@ -116,6 +112,7 @@ const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+      <ToastContainer />
       <div className="bg-white p-6 rounded-md w-11/12 md:w-1/2 max-h-screen overflow-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Update Officers</h2>
