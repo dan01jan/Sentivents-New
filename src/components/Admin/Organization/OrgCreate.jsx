@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Loader from "../../Layouts/Loader";
+
 const apiUrl = import.meta.env.VITE_API_URL;
 
 // Function to determine department based on organization name
@@ -78,6 +81,7 @@ function OrgCreate({ isOpen, onClose }) {
   const removeOrganization = (index) => {
     const newOrganizations = organizations.filter((_, i) => i !== index);
     setOrganizations(newOrganizations);
+    toast.success("Organization successfully deleted!");
   };
 
   // Handle submission by building a FormData object
@@ -109,14 +113,14 @@ function OrgCreate({ isOpen, onClose }) {
 
       const data = await response.json();
       if (response.ok) {
-        alert("Organizations created successfully!");
-        onClose();
+        toast.success("Organizations created successfully!");
+        setTimeout(() => onClose(), 3000);
       } else {
-        alert(`Error: ${data.message}`);
+        toast.error(`Error: ${data.message}`);
       }
     } catch (error) {
       console.error("Error creating organizations:", error);
-      alert("Failed to create organizations");
+      toast.error("Failed to create organizations");
     } finally {
       setLoading(false);
     }
@@ -126,6 +130,7 @@ function OrgCreate({ isOpen, onClose }) {
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <ToastContainer />
           <motion.div
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
@@ -133,13 +138,13 @@ function OrgCreate({ isOpen, onClose }) {
             transition={{ duration: 0.3 }}
             className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto"
           >
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">
+            <h2 className="text-[5vh] font-tungsten text-[#3a1078] mb-6">
               Create Organizations
             </h2>
             <form className="space-y-5" onSubmit={handleSubmit}>
               {organizations.map((org, index) => (
                 <div key={index} className="border p-4 rounded-lg">
-                  <h3 className="text-xl font-semibold mb-4">
+                  <h3 className="text-xl font-semibold mb-4 text-[#3a1078]">
                     Organization {index + 1}
                   </h3>
                   <div className="mb-3">
@@ -229,7 +234,7 @@ function OrgCreate({ isOpen, onClose }) {
                 <button
                   type="button"
                   onClick={addOrganization}
-                  className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg"
+                  className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg"
                 >
                   Add Another Organization
                 </button>
@@ -243,7 +248,7 @@ function OrgCreate({ isOpen, onClose }) {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg"
+                    className="px-5 py-2 bg-[#3a1078] hover:bg-[#121149] text-white font-medium rounded-lg"
                   >
                     Create
                   </button>
