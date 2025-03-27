@@ -146,7 +146,7 @@ const EventCreate = () => {
   return (
     <>
       <ToastContainer position="bottom-right" autoClose={3000} />
-      <h2 className="text-3xl font-semibold text-center text-teal-700 mb-6">
+      <h2 className="text-[5vh] font-tungsten text-[#3a1078] mb-6 text-center">
         Create Your Event
       </h2>
       <form
@@ -157,7 +157,7 @@ const EventCreate = () => {
           <div>
             <label
               htmlFor="name"
-              className="block text-lg font-medium mb-2 text-gray-700"
+              className="block text-lg font-medium mb-2 "
             >
               Event Name
             </label>
@@ -175,7 +175,7 @@ const EventCreate = () => {
           <div>
             <label
               htmlFor="type"
-              className="block text-lg font-medium mb-2 text-gray-700"
+              className="block text-lg font-medium mb-2 "
             >
               Event Type
             </label>
@@ -201,7 +201,7 @@ const EventCreate = () => {
         <div>
           <label
             htmlFor="description"
-            className="block text-lg font-medium mb-2 text-gray-700"
+            className="block text-lg font-medium mb-2 "
           >
             Event Description
           </label>
@@ -220,7 +220,7 @@ const EventCreate = () => {
           <div>
             <label
               htmlFor="dateStart"
-              className="block text-lg font-medium mb-2 text-gray-700"
+              className="block text-lg font-medium mb-2 "
             >
               Start Date
             </label>
@@ -238,7 +238,7 @@ const EventCreate = () => {
           <div>
             <label
               htmlFor="dateEnd"
-              className="block text-lg font-medium mb-2 text-gray-700"
+              className="block text-lg font-medium mb-2 "
             >
               End Date
             </label>
@@ -258,7 +258,7 @@ const EventCreate = () => {
           <div>
             <label
               htmlFor="timeStart"
-              className="block text-lg font-medium mb-2 text-gray-700"
+              className="block text-lg font-medium mb-2 "
             >
               Start Time
             </label>
@@ -276,7 +276,7 @@ const EventCreate = () => {
           <div>
             <label
               htmlFor="timeEnd"
-              className="block text-lg font-medium mb-2 text-gray-700"
+              className="block text-lg font-medium mb-2 "
             >
               End Time
             </label>
@@ -295,7 +295,7 @@ const EventCreate = () => {
         <div>
           <label
             htmlFor="location"
-            className="block text-lg font-medium mb-2 text-gray-700"
+            className="block text-lg font-medium mb-2 "
           >
             Location
           </label>
@@ -313,7 +313,7 @@ const EventCreate = () => {
         <div>
           <label
             htmlFor="images"
-            className="block text-lg font-medium mb-2 text-gray-700"
+            className="block text-lg font-medium mb-2 "
           >
             Event Images
           </label>
@@ -328,7 +328,7 @@ const EventCreate = () => {
 
         <button
           type="submit"
-          className="w-full bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700 transition duration-300"
+          className="w-full bg-[#3a1078] font-semibold text-white py-3 rounded-lg hover:bg-[#2a0858] transition duration-300"
         >
           Create Event
         </button>

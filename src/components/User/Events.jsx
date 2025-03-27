@@ -19,7 +19,7 @@ const organizationCategories = {
   "DOST Scholars Association for Innovation and Technology": "Non Academic",
   "Peer Facilitators Group": "Non Academic",
   "LANI Scholars of Technology and Engineering Pioneers": "Non Academic",
-  
+
   // Multi-Faith organizations
   "Catholic Youth Movement": "Multi-Faith",
   "Christian Brotherhood International": "Multi-Faith",
@@ -36,7 +36,12 @@ function Events() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // The order in which you want to display categories
-  const categoriesInOrder = ["Unknown", "Academic", "Non Academic", "Multi-Faith"];
+  const categoriesInOrder = [
+    "Unknown",
+    "Academic",
+    "Non Academic",
+    "Multi-Faith",
+  ];
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -87,7 +92,16 @@ function Events() {
 
   // Helper to display label; rename "Unknown" to "Overall Organization"
   const getCategoryLabel = (category) => {
-    return category === "Unknown" ? "Overall Organization" : category;
+    return (
+      <span
+        className={`text-[7vh] sm:text-[5vh] md:text[1vh]] lg:text-[75px] font-tungsten text-[#3a1078] leading-tight uppercase ${
+          category === "Unknown"
+        }`}
+      >
+        {category === "Unknown" ? "Overall Organization" : category}
+      </span>
+      
+    );
   };
 
   return (
@@ -129,7 +143,6 @@ function Events() {
         ) : (
           <div className="max-w-screen-xl w-full px-4 md:px-10">
             {categoriesInOrder.map((cat) => {
-              // For each event, derive its category using the mapping
               const catEvents = events.filter(
                 (ev) => getEventCategory(ev.organization) === cat
               );
