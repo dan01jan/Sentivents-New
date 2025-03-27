@@ -35,7 +35,7 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/login");
+    navigate("/");
     window.location.reload();
   };
 
