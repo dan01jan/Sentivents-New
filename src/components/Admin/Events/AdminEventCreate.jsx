@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-const EventCreate = () => {
+const AdminEventCreate = () => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -23,7 +23,7 @@ const EventCreate = () => {
 
   const [eventTypes, setEventTypes] = useState([]);
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // initialize navigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEventTypes = async () => {
@@ -46,14 +46,30 @@ const EventCreate = () => {
 
     // Pre-fill organization, department, and userId based on user data from localStorage
     const userData = JSON.parse(localStorage.getItem("userData"));
+
+    // Try to retrieve values from specific keys first
     const officerOrgName = localStorage.getItem("officerOrgName");
+    const officerDepartment = localStorage.getItem("officerDepartment");
+
+    // If not set directly, extract from the organizations array in userData
     const organizationName =
       officerOrgName ||
-      (userData && userData.organizationName ? userData.organizationName : "");
-    const officerDepartment = localStorage.getItem("officerDepartment");
+      (userData &&
+        userData.organizations &&
+        userData.organizations.length > 0 &&
+        userData.organizations[0].organization &&
+        userData.organizations[0].organization.name
+        ? userData.organizations[0].organization.name
+        : "");
+
     const department =
       officerDepartment ||
-      (userData && userData.department ? userData.department : "");
+      (userData &&
+        userData.organizations &&
+        userData.organizations.length > 0 &&
+        userData.organizations[0].department
+        ? userData.organizations[0].department
+        : "");
 
     if (userData) {
       setFormData((prevData) => ({
@@ -155,10 +171,7 @@ const EventCreate = () => {
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <label
-              htmlFor="name"
-              className="block text-lg font-medium mb-2 "
-            >
+            <label htmlFor="name" className="block text-lg font-medium mb-2">
               Event Name
             </label>
             <input
@@ -173,10 +186,7 @@ const EventCreate = () => {
           </div>
 
           <div>
-            <label
-              htmlFor="type"
-              className="block text-lg font-medium mb-2 "
-            >
+            <label htmlFor="type" className="block text-lg font-medium mb-2">
               Event Type
             </label>
             <select
@@ -201,7 +211,7 @@ const EventCreate = () => {
         <div>
           <label
             htmlFor="description"
-            className="block text-lg font-medium mb-2 "
+            className="block text-lg font-medium mb-2"
           >
             Event Description
           </label>
@@ -220,7 +230,7 @@ const EventCreate = () => {
           <div>
             <label
               htmlFor="dateStart"
-              className="block text-lg font-medium mb-2 "
+              className="block text-lg font-medium mb-2"
             >
               Start Date
             </label>
@@ -238,7 +248,7 @@ const EventCreate = () => {
           <div>
             <label
               htmlFor="dateEnd"
-              className="block text-lg font-medium mb-2 "
+              className="block text-lg font-medium mb-2"
             >
               End Date
             </label>
@@ -258,7 +268,7 @@ const EventCreate = () => {
           <div>
             <label
               htmlFor="timeStart"
-              className="block text-lg font-medium mb-2 "
+              className="block text-lg font-medium mb-2"
             >
               Start Time
             </label>
@@ -276,7 +286,7 @@ const EventCreate = () => {
           <div>
             <label
               htmlFor="timeEnd"
-              className="block text-lg font-medium mb-2 "
+              className="block text-lg font-medium mb-2"
             >
               End Time
             </label>
@@ -295,7 +305,7 @@ const EventCreate = () => {
         <div>
           <label
             htmlFor="location"
-            className="block text-lg font-medium mb-2 "
+            className="block text-lg font-medium mb-2"
           >
             Location
           </label>
@@ -313,7 +323,7 @@ const EventCreate = () => {
         <div>
           <label
             htmlFor="images"
-            className="block text-lg font-medium mb-2 "
+            className="block text-lg font-medium mb-2"
           >
             Event Images
           </label>
@@ -337,4 +347,4 @@ const EventCreate = () => {
   );
 };
 
-export default EventCreate;
+export default AdminEventCreate;
