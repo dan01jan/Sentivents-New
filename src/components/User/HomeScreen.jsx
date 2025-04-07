@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import bg2 from "../../assets/website/bg2.png";
 import logo from "../../assets/website/V_DarkerLogo.png";
 import downloadImage from "../../assets/website/qr.png"; // <-- Example image for the modal
-import teamMember1 from "../../assets/website/google-logo.png";
-import teamMember2 from "../../assets/website/google-logo.png";
-import teamMember3 from "../../assets/website/google-logo.png";
-import teamMember4 from "../../assets/website/google-logo.png";
+import teamMember1 from "../../assets/website/twinkle.jpg";
+import teamMember2 from "../../assets/website/dan.jpg";
+import teamMember3 from "../../assets/website/ej.jpg";
+import teamMember4 from "../../assets/website/jp.jpg";
 import "../../index.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";

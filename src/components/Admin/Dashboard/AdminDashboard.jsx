@@ -45,7 +45,9 @@ function AdminDashboard() {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) {
-          throw new Error("There are no organizations available at the moment.");
+          throw new Error(
+            "There are no organizations available at the moment."
+          );
         }
         const data = await response.json();
         console.log("Fetched organizations data:", data);
@@ -109,9 +111,12 @@ function AdminDashboard() {
     const fetchPendingApprovals = async () => {
       try {
         const token = localStorage.getItem("authToken");
-        const response = await axios.get(`${apiUrl}users/organizations/officers`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          `${apiUrl}users/organizations/officers`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         console.log("Pending approvals response:", response.data);
         setApprovalOrgData(response.data || []);
       } catch (error) {
@@ -182,7 +187,9 @@ function AdminDashboard() {
           if (org._id === selectedOrgId) {
             return {
               ...org,
-              officers: org.officers.filter((officer) => officer._id !== officerId),
+              officers: org.officers.filter(
+                (officer) => officer._id !== officerId
+              ),
             };
           }
           return org;
@@ -219,7 +226,9 @@ function AdminDashboard() {
           if (org._id === selectedOrgId) {
             return {
               ...org,
-              officers: org.officers.filter((officer) => officer._id !== officerId),
+              officers: org.officers.filter(
+                (officer) => officer._id !== officerId
+              ),
             };
           }
           return org;
@@ -235,157 +244,185 @@ function AdminDashboard() {
 
   return (
     <div className="flex flex-row pl-10">
-      {/* Left side: Dashboard Cards and Organizations table */}
-      <div className="flex flex-col w-3/4 pr-5">
-        {userData && (
-          <div className="bg-[#f7f7f9] h-[30vh] p-6 rounded-3xl shadow-lg mb-10 flex justify-between items-center hover:shadow-xl transition-shadow duration-300">
-            <div className="mx-10">
-              <h1 className="text-[8vh] font-bold text-[#3a1078] font-tungsten">
-                Hi, {userData.name} {userData.surname}! 👋
-              </h1>
-            </div>
-            <div className="w-1/3 h-full flex justify-center items-center">
-              <DotLottieReact
-                src="https://lottie.host/e293ffde-604c-4608-8989-03852875a233/4qcsmg5xtt.lottie"
-                loop
-                autoplay
-                style={{ width: "100%", height: "100%" }}
-              />
-            </div>
-          </div>
-        )}
-        <div className="h-[30vh] w-full bg-[#f7f7f9] flex rounded-3xl justify-center items-center shadow-lg px-10 gap-8 hover:shadow-xl transition-shadow duration-300">
-          <div className="w-1/4 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
-            <p className="text-[#f7f7f8] font-bold text-xl">Org. Count: {orgCount}</p>
-          </div>
-          <div className="w-1/4 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
-            <p className="text-[#f7f7f8] font-bold text-xl">Events: {events.length}</p>
-          </div>
-          <div className="w-1/4 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
-            <p className="text-[#f7f7f8] font-bold text-xl">Box 3</p>
-          </div>
-          <div className="w-1/4 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
-            <p className="text-[#f7f7f8] font-bold text-xl">Box 4</p>
-          </div>
-        </div>
-
-        <section className="w-full bg-[#f7f7f9] shadow-lg px-10 mt-11 h-[40vh] overflow-y-auto rounded-3xl hover:shadow-xl transition-shadow duration-300">
-          {loading ? (
-            <p className="text-white text-center">Loading...</p>
-          ) : error ? (
-            <p className="text-red-500 text-center">{error}</p>
-          ) : (
-            <div className="border-b-4 border-[#f7f7f9]">
-              <table className="w-full text-left text-xl text-[#3a1078] font-bold">
-                <thead className="sticky top-0 bg-[#f7f7f8] text-[#3a1078]">
-                  <tr>
-                    <th className="w-[15%] p-5">Organization</th>
-                    <th className="w-[70%] p-5">Details</th>
-                    <th className="w-[15%] p-5 text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {organizations.map((org) => (
-                    <tr key={org.id} className="hover:bg-[#f0f0f0] transition-colors duration-300">
-                      <td className="p-5 align-middle">
-                        <img src={org.image} alt={org.name} className="w-16 h-16 rounded-full" />
-                      </td>
-                      <td className="p-5 align-middle">
-                        <h3 className="text-[#3a1078] font-bold text-lg">{org.name}</h3>
-                        <p className="text-gray-600 text-sm">{org.description}</p>
-                      </td>
-                      <td className="p-5 text-center align-middle">
-                        <button
-                          className="bg-[#3a1078] text-white px-4 py-2 rounded-lg hover:bg-[#2a0d5e] transition"
-                          onClick={() => handleViewClick(org)}
-                        >
-                          <FaEye />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot className="sticky bottom-0 bg-[#f7f7f8] h-10">
-                  <tr>
-                    <td colSpan="3" className="p-0"></td>
-                  </tr>
-                </tfoot>
-              </table>
+      <div className="flex flex-col lg:flex-row p-4 lg:pl-10">
+        {/* Left side */}
+        <div className="flex flex-col w-full lg:w-3/4 pr-0 lg:pr-5">
+          {userData && (
+            <div className="bg-[#f7f7f9] h-auto lg:h-[30vh] p-6 rounded-3xl shadow-lg mb-10 flex flex-col lg:flex-row justify-between items-center hover:shadow-xl transition-shadow duration-300">
+              <div className="mx-10 text-center lg:text-left">
+                <h1 className="text-[5vh] lg:text-[8vh] font-bold text-[#3a1078] font-tungsten">
+                  Hi, {userData.name} {userData.surname}! 👋
+                </h1>
+              </div>
+              <div className="w-full lg:w-1/3 h-full flex justify-center items-center">
+                <DotLottieReact
+                  src="https://lottie.host/e293ffde-604c-4608-8989-03852875a233/4qcsmg5xtt.lottie"
+                  loop
+                  autoplay
+                  style={{ width: "100%", height: "100%" }}
+                />
+              </div>
             </div>
           )}
-        </section>
-      </div>
+          <div className="h-auto lg:h-[30vh] w-full bg-[#f7f7f9] flex flex-wrap lg:flex-nowrap rounded-3xl justify-center items-center shadow-lg px-4 lg:px-10 gap-4 lg:gap-8 hover:shadow-xl transition-shadow duration-300">
+            <div className="w-full lg:w-1/4 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
+              <p className="text-[#f7f7f8] font-bold text-lg lg:text-xl">
+                Org. Count: {orgCount}
+              </p>
+            </div>
+            <div className="w-full lg:w-1/4 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
+              <p className="text-[#f7f7f8] font-bold text-lg lg:text-xl">
+                Events: {events.length}
+              </p>
+            </div>
+            <div className="w-full lg:w-1/4 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
+              <p className="text-[#f7f7f8] font-bold text-lg lg:text-xl">
+                Box 3
+              </p>
+            </div>
+            <div className="w-full lg:w-1/4 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
+              <p className="text-[#f7f7f8] font-bold text-lg lg:text-xl">
+                Box 4
+              </p>
+            </div>
+          </div>
 
-      {/* Right side: Calendar, Upcoming Events, and Pending Approvals */}
-      <div className="w-1/4 px-5">
-        <div className="flex">
-          <Calendar
-            onChange={setDate}
-            value={date}
-            tileContent={({ date, view }) => {
-              if (view === "month") {
-                const dayEvents = getEventsForDate(date);
-                return dayEvents.length > 0 ? (
-                  <div className="text-xs text-center mt-1">
-                    {dayEvents.map((event, index) => (
-                      <div key={index}>{event.name}</div>
-                    ))}
-                  </div>
-                ) : null;
-              }
-              return null;
-            }}
-            className="calendar-custom hover:shadow-lg transition-shadow duration-300"
-          />
-        </div>
-        <div className="mt-10">
-          <h2 className="text-xl font-bold text-[#3a1078]">Upcoming Events</h2>
-          <ul className="mt-4">
-            {upcomingEvents.length > 0 ? (
-              upcomingEvents.map((event) => (
-                <li
-                  key={event._id}
-                  className="mb-2 hover:bg-[#f0f0f0] transition-colors duration-300"
-                >
-                  <div className="bg-[#f7f7f9] p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                    <h3 className="text-lg font-bold text-[#3a1078]">{event.name}</h3>
-                    <p className="text-gray-600">
-                      {new Date(event.dateStart).toLocaleDateString()}
-                    </p>
-                  </div>
-                </li>
-              ))
+          <section className="w-full bg-[#f7f7f9] shadow-lg px-4 lg:px-10 mt-6 lg:mt-11 h-auto lg:h-[40vh] overflow-y-auto rounded-3xl hover:shadow-xl transition-shadow duration-300">
+            {loading ? (
+              <p className="text-center text-[#3a1078]">Loading...</p>
+            ) : error ? (
+              <p className="text-red-500 text-center">{error}</p>
             ) : (
-              <li>No upcoming events</li>
+              <div className="border-b-4 border-[#f7f7f9]">
+                <table className="w-full text-left text-sm lg:text-xl text-[#3a1078] font-bold">
+                  <thead className="sticky top-0 bg-[#f7f7f8] text-[#3a1078]">
+                    <tr>
+                      <th className="w-[15%] p-2 lg:p-5">Organization</th>
+                      <th className="w-[70%] p-2 lg:p-5">Details</th>
+                      <th className="w-[15%] p-2 lg:p-5 text-center">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {organizations.map((org) => (
+                      <tr
+                        key={org.id}
+                        className="hover:bg-[#f0f0f0] transition-colors duration-300"
+                      >
+                        <td className="p-2 lg:p-5 align-middle">
+                          <img
+                            src={org.image}
+                            alt={org.name}
+                            className="w-12 h-12 lg:w-16 lg:h-16 rounded-full"
+                          />
+                        </td>
+                        <td className="p-2 lg:p-5 align-middle">
+                          <h3 className="text-[#3a1078] font-bold text-sm lg:text-lg">
+                            {org.name}
+                          </h3>
+                          <p className="text-gray-600 text-xs lg:text-sm">
+                            {org.description}
+                          </p>
+                        </td>
+                        <td className="p-2 lg:p-5 text-center align-middle">
+                          <button
+                            className="bg-[#3a1078] text-white px-2 py-1 lg:px-4 lg:py-2 rounded-lg hover:bg-[#2a0d5e] transition"
+                            onClick={() => handleViewClick(org)}
+                          >
+                            <FaEye />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="sticky bottom-0 bg-[#f7f7f8] h-10">
+                    <tr>
+                      <td colSpan="3" className="p-0"></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             )}
-          </ul>
+          </section>
         </div>
-        <div className="mt-10">
-          <h2 className="text-xl font-bold text-[#3a1078]">Pending Officers Approval</h2>
-          <ul className="mt-4 grid grid-cols-2 gap-4">
-            {approvalOrgData
-              .filter((org) => org.officers && org.officers.length > 0) // Only show organizations with pending officers
-              .map((org) => {
-                const pending = org.officers; // pending officers for this organization
-                return (
-                  <div
-                    key={org._id || org.name}
-                    className="relative bg-white rounded-lg p-4 shadow-md hover:shadow-xl transition cursor-pointer"
-                    onClick={() => openApprovalModal(org._id, pending)}
-                  >
-                    <h2 className="text-center text-lg text-[#3a1078] font-semibold">
-                      {org.name}
-                    </h2>
-                    <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
-                      {pending.length}
+
+        {/* Right side */}
+        <div className="w-full lg:w-1/4 px-0 lg:px-5 mt-6 lg:mt-0">
+          <div className="flex justify-center lg:justify-start">
+            <Calendar
+              onChange={setDate}
+              value={date}
+              tileContent={({ date, view }) => {
+                if (view === "month") {
+                  const dayEvents = getEventsForDate(date);
+                  return dayEvents.length > 0 ? (
+                    <div className="text-xs text-center mt-1">
+                      {dayEvents.map((event, index) => (
+                        <div key={index}>{event.name}</div>
+                      ))}
                     </div>
-                  </div>
-                );
-              })}
-          </ul>
+                  ) : null;
+                }
+                return null;
+              }}
+              className="calendar-custom hover:shadow-lg transition-shadow duration-300"
+            />
+          </div>
+          <div className="mt-6 lg:mt-10">
+            <h2 className="text-lg lg:text-xl font-bold text-[#3a1078]">
+              Upcoming Events
+            </h2>
+            <ul className="mt-4">
+              {upcomingEvents.length > 0 ? (
+                upcomingEvents.map((event) => (
+                  <li
+                    key={event._id}
+                    className="mb-2 hover:bg-[#f0f0f0] transition-colors duration-300"
+                  >
+                    <div className="bg-[#f7f7f9] p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                      <h3 className="text-sm lg:text-lg font-bold text-[#3a1078]">
+                        {event.name}
+                      </h3>
+                      <p className="text-gray-600 text-xs lg:text-sm">
+                        {new Date(event.dateStart).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <li className="text-sm lg:text-base">No upcoming events</li>
+              )}
+            </ul>
+          </div>
+          <div className="mt-6 lg:mt-10">
+            <h2 className="text-lg lg:text-xl font-bold text-[#3a1078]">
+              Pending Officers Approval
+            </h2>
+            <ul className="mt-4 grid grid-cols-2 lg:grid-cols-1 gap-4">
+              {approvalOrgData
+                .filter((org) => org.officers && org.officers.length > 0)
+                .map((org) => {
+                  const pending = org.officers;
+                  return (
+                    <div
+                      key={org._id || org.name}
+                      className="relative bg-white rounded-lg p-4 shadow-md hover:shadow-xl transition cursor-pointer"
+                      onClick={() => openApprovalModal(org._id, pending)}
+                    >
+                      <h2 className="text-center text-sm lg:text-lg text-[#3a1078] font-semibold">
+                        {org.name}
+                      </h2>
+                      <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
+                        {pending.length}
+                      </div>
+                    </div>
+                  );
+                })}
+            </ul>
+          </div>
         </div>
       </div>
-
       {/* Modal for officer approvals */}
       {selectedOfficers.length > 0 && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
