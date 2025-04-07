@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom"; 
+import Loader from "../../Layouts/Loader"; 
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -23,7 +24,8 @@ const EventCreate = () => {
 
   const [eventTypes, setEventTypes] = useState([]);
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // initialize navigate
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchEventTypes = async () => {
@@ -85,9 +87,14 @@ const EventCreate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Show loader when submission starts
 
     if (formData.images.length === 0) {
-      alert("Please select at least one image.");
+      toast.error("Please select at least one image.", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+      setLoading(false); // Hide loader if validation fails
       return;
     }
 
@@ -113,7 +120,7 @@ const EventCreate = () => {
 
     // Add 'type' field correctly as ObjectId
     if (formData.type) {
-      form.append("type", formData.type); // Should be ObjectId, not name
+      form.append("type", formData.type);
     }
 
     try {
@@ -137,15 +144,30 @@ const EventCreate = () => {
         setTimeout(() => {
           navigate("/dashboard/events");
         }, 3000);
+      } else {
+        toast.error(`Error: ${data.message}`, {
+          position: "bottom-right",
+          autoClose: 3000,
+        });
       }
     } catch (error) {
-      toast.error("Error creating event: " + error.message);
+      toast.error("Error creating event: " + error.message, {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    } finally {
+      setLoading(false); // Hide loader after submission completes
     }
   };
 
   return (
     <>
       <ToastContainer position="bottom-right" autoClose={3000} />
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <Loader /> 
+        </div>
+      )}
       <h2 className="text-[5vh] font-tungsten text-[#3a1078] mb-6 text-center">
         Create Your Event
       </h2>
