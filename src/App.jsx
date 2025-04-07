@@ -47,7 +47,6 @@ import OrgDetails from "./components/User/OrgDetails";
 import Home from "./components/Officers/Dashboard/Home";
 import OTP from "./components/User/OTP";
 
-
 // Admin
 import AdminDashboard from "./components/Admin/Dashboard/AdminDashboard";
 import AdminSidebar from "./components/Admin/Dashboard/AdminSidebar";
@@ -83,7 +82,7 @@ function App() {
 
   return (
     <Router>
-      <AppContent loading={loading} user={user} />
+      {loading ? <Loader /> : <AppContent loading={loading} user={user} />}
     </Router>
   );
 }
@@ -279,7 +278,7 @@ function AppContent({ loading, user }) {
                     </ProtectedAdminRoute>
                   }
                 />
-                 <Route
+                <Route
                   path="organization"
                   element={
                     <ProtectedAdminRoute>
@@ -351,7 +350,7 @@ function AppContent({ loading, user }) {
                     </ProtectedAdminRoute>
                   }
                 />
-                 <Route
+                <Route
                   path="eventregister/:eventId"
                   element={
                     <ProtectedAdminRoute>
@@ -359,7 +358,7 @@ function AppContent({ loading, user }) {
                     </ProtectedAdminRoute>
                   }
                 />
-                 <Route
+                <Route
                   path="update"
                   element={
                     <ProtectedAdminRoute>

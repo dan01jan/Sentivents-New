@@ -6,7 +6,8 @@ const apiUrl = import.meta.env.VITE_API_URL;
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaArrowRight } from "react-icons/fa";
-
+import Loader from "../../Layouts/Loader";
+import { ToastContainer } from "react-toastify";
 Modal.setAppElement("#root");
 
 const Pagination = ({ currentPage, totalPages, paginate }) => {
@@ -76,7 +77,10 @@ const EventList = () => {
   const getOrganizationName = () => {
     const officerOrgName = localStorage.getItem("officerOrgName");
     const storedUserData = JSON.parse(localStorage.getItem("userData"));
-    return officerOrgName || (storedUserData ? storedUserData.organizationName : null);
+    return (
+      officerOrgName ||
+      (storedUserData ? storedUserData.organizationName : null)
+    );
   };
 
   useEffect(() => {
@@ -159,6 +163,8 @@ const EventList = () => {
 
   const handleDelete = async () => {
     if (!eventToDelete) return;
+
+    setLoading(true);
     try {
       const token = localStorage.getItem("authToken");
       const response = await fetch(`${apiUrl}events/${eventToDelete}`, {
@@ -187,6 +193,7 @@ const EventList = () => {
         autoClose: 3000,
       });
     } finally {
+      setLoading(false);
       closeDeleteModal();
     }
   };
@@ -226,7 +233,11 @@ const EventList = () => {
   };
 
   if (loading) {
-    return <p>Loading events...</p>;
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <Loader />
+      </div>
+    );
   }
 
   if (error) {
@@ -235,7 +246,10 @@ const EventList = () => {
 
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-  const currentEvents = filteredEvents.slice(indexOfFirstEvent, indexOfLastEvent);
+  const currentEvents = filteredEvents.slice(
+    indexOfFirstEvent,
+    indexOfLastEvent
+  );
   const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -276,6 +290,12 @@ const EventList = () => {
 
   return (
     <div className="p-4 max-w-full mx-auto">
+      <ToastContainer position="bottom-right" autoClose={3000} />
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <Loader />
+        </div>
+      )}
       <div className="flex flex-col md:flex-row justify-between items-center w-full gap-4 fade-in-left">
         <h2 className="text-[8vh] font-semibold text-[#3a1078] font-tungsten">
           EVENTS
@@ -387,18 +407,21 @@ const EventList = () => {
                     <button
                       onClick={() => handleUpdate(event)}
                       className="bg-yellow-200 text-yellow-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-yellow-300"
+                      disabled={loading}
                     >
                       UPDATE
                     </button>
                     <button
                       onClick={() => openDeleteModal(event._id)}
                       className="bg-red-200 text-red-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-red-300"
+                      disabled={loading}
                     >
                       DELETE
                     </button>
                     <button
                       onClick={() => handleModalOpen(event)}
                       className="bg-pink-200 text-pink-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-pink-300"
+                      disabled={loading}
                     >
                       VIEW
                     </button>
@@ -439,23 +462,36 @@ const EventList = () => {
         overlayClassName="fixed inset-0 bg-black bg-opacity-70 z-40"
       >
         <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Are you sure you want to delete this event?
-          </h2>
-          <div className="flex justify-end gap-3">
-            <button
-              onClick={closeDeleteModal}
-              className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-full text-sm transition"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full text-sm transition"
-            >
-              Confirm
-            </button>
-          </div>
+          {loading ? (
+            <div className="flex flex-col items-center justify-center gap-2">
+              <Loader />
+              <p className="text-gray-600 mt-2 text-sm font-medium">
+                Deleting event...
+              </p>
+            </div>
+          ) : (
+            <>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Are you sure you want to delete this event?
+              </h2>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={closeDeleteModal}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-full text-sm transition"
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full text-sm transition"
+                  disabled={loading}
+                >
+                  Confirm
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </Modal>
     </div>
