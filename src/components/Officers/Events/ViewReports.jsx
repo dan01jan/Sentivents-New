@@ -45,42 +45,134 @@ const ViewReports = () => {
   const tablesContainerRef = useRef(null); // Container for left/right columns
   const uniqueInterpretationRef = useRef(null); // Container for Unique Overall Interpretation
 
-  useEffect(() => {
-    if (selectedEvent) {
-      fetchSentimentData(selectedEvent);
-      fetchAggregatedData(selectedEvent);
-    } else {
-      console.error("No event selected.");
-    }
-  }, [selectedEvent]);
+  // Fetch sentiment counts and details for the event
+  const fetchSentimentData = async (eventId) => {
+    try {
+      setLoading(true);
 
-  // When the users list updates, fetch behavioral analysis for each user
-  useEffect(() => {
-    if (users.length > 0) {
-      users.forEach((user) => {
-        fetchUserAnalysis(user.userId);
-      });
-    }
-  }, [users]);
+      // Fetch sentiment counts (positive, negative, neutral)
+      const sentimentResponse = await axios.get(`${apiUrl}ratings/${eventId}?type=counts`);
+      console.log("Sentiment counts response:", sentimentResponse.data);
+      setSentimentCounts(sentimentResponse.data);
 
-  useEffect(() => {
-    console.log("Selected Event:", selectedEvent);
-    console.log("Selected User:", selectedUser);
-
-    if (selectedEvent) {
-      if (selectedUser === "All Users") {
-        console.log("Fetching data for all users");
-        fetchAggregatedData();
+      // Fetch sentiment details for the data table
+      const sentimentsResponse = await axios.get(`${apiUrl}ratings/${eventId}?type=details`);
+      console.log("Sentiment details raw response:", sentimentsResponse.data);
+      if (sentimentsResponse.data && sentimentsResponse.data.length > 0) {
+        // Map the response and ensure proper keys are available
+        const sentimentsWithNames = sentimentsResponse.data.map(item => {
+          // Check if the item contains a populated 'user'
+          const userName = item.user && item.user.name ? item.user.name : 'Unknown';
+          return {
+            ...item,
+            userName,
+            userSentiment: item.sentiment || 'No Sentiment',
+          };
+        });
+        console.log("Mapped sentiment details:", sentimentsWithNames);
+        setEventSentiments(sentimentsWithNames);
       } else {
-        console.log("Fetching data for specific user:", selectedUser);
-        fetchUserRatings();
+        setEventSentiments([]);
       }
+      // Always reset the selected user back to "All Users" after fetching sentiments
+      setSelectedUser("All Users");
+    } catch (error) {
+      console.error("Error fetching sentiment data", error);
+    } finally {
+      setLoading(false);
     }
-  }, [selectedEvent, selectedUser]);
+  };
+
+  // Fetch aggregated ratings and overall interpretation for all users
+  const fetchAggregatedData = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (selectedEvent && token) {
+        const response = await axios.get(`${apiUrl}questionnaires/aggregated-ratings`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { eventId: selectedEvent },
+        });
+
+        if (response.data) {
+          console.log("Aggregated data response:", response.data);
+          // Update both the displayed aggregated ratings and the all-users version
+          setAggregatedRatings(response.data.aggregatedRatings || []);
+          setAllUsersAggregatedRatings(response.data.aggregatedRatings || []);
+          if (response.data.overallInterpretation) {
+            setOverallInterpretation(response.data.overallInterpretation);
+            setAllUsersOverallInterpretation(response.data.overallInterpretation);
+          }
+          // Fetch user info for each userId
+          const userInfos = response.data.users.map(async (userId) => {
+            const userResponse = await axios.get(`${apiUrl}users/${userId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            return {
+              userId: userId.toString(), // Convert userId to string to keep it consistent with dropdown values
+              name: `${userResponse.data.name} ${userResponse.data.surname}`,
+            };
+          });
+
+          const usersWithNames = await Promise.all(userInfos);
+          console.log("Fetched users:", usersWithNames);
+          setUsers(usersWithNames);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching aggregated data:", error.message);
+    }
+  };
+
+  // Fetch behavioral analysis for a specific user
+  const fetchUserAnalysis = async (userId) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (selectedEvent && token) {
+        const params = { eventId: selectedEvent, userId };
+        const response = await axios.get(`${apiUrl}questionnaires/aggregated-ratings`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params,
+        });
+        if (response.data) {
+          setUserAnalyses(prev => ({ ...prev, [userId]: response.data }));
+        }
+      }
+    } catch (error) {
+      console.error(`Error fetching analysis for user ${userId}:`, error);
+    }
+  };
+
+  // Fetch ratings for a specific user
+  const fetchUserRatings = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (selectedEvent && token) {
+        const params = { eventId: selectedEvent };
+        // Make sure to pass the userId (as a string) if necessary
+        if (selectedUser && selectedUser !== "All Users") {
+          params.userId = selectedUser; // if your backend expects a number, consider using parseInt(selectedUser)
+        }
+        const response = await axios.get(`${apiUrl}questionnaires/aggregated-ratings`, {
+          headers: { Authorization: `Bearer ${token}` },
+          params,
+        });
+        if (response.data) {
+          console.log("User-specific aggregated response:", response.data);
+          setAggregatedRatings(response.data.aggregatedRatings || []);
+          if (response.data.overallInterpretation) {
+            setOverallInterpretation(response.data.overallInterpretation);
+          }
+          if (response.data.userInfo) {
+            setUserInfo(response.data.userInfo);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user-specific ratings:", error.message);
+    }
+  };
 
   // Generate a unique overall interpretation based on ALL USERS aggregated data.
-  // It always uses the allUsersOverallInterpretation and allUsersAggregatedRatings,
-  // regardless of the selected user.
   const generateUniqueInterpretation = () => {
     const parts = [];
 
@@ -128,11 +220,10 @@ const ViewReports = () => {
       });
     }
 
-    // Combine parts into a single interpretation string.
     return parts.join(" ");
   };
 
-  // Update the generated interpretation always based on ALL USERS data.
+  // Update the generated interpretation based on ALL USERS data.
   useEffect(() => {
     if (
       allUsersOverallInterpretation &&
@@ -144,120 +235,39 @@ const ViewReports = () => {
     }
   }, [allUsersOverallInterpretation, sentimentCounts, allUsersAggregatedRatings]);
 
-  // Fetch sentiment counts and details for the event
-  const fetchSentimentData = async (eventId) => {
-    try {
-      setLoading(true);
-      // Fetch sentiment counts (positive, negative, neutral)
-      const sentimentResponse = await axios.get(`${apiUrl}ratings/${eventId}?type=counts`);
-      setSentimentCounts(sentimentResponse.data);
+  // Initial fetching of sentiment data and aggregated ratings when the event changes
+  useEffect(() => {
+    if (selectedEvent) {
+      fetchSentimentData(selectedEvent);
+      fetchAggregatedData();
+    } else {
+      console.error("No event selected.");
+    }
+  }, [selectedEvent]);
 
-      // Fetch sentiment details for the data table
-      const sentimentsResponse = await axios.get(`${apiUrl}ratings/${eventId}?type=details`);
-      if (sentimentsResponse.data && sentimentsResponse.data.length > 0) {
-        const sentimentsWithNames = sentimentsResponse.data.map(item => ({
-          ...item,
-          userName: item.user ? item.user.name : 'Unknown',
-          userSentiment: item.sentiment || 'No Sentiment'
-        }));
-        setEventSentiments(sentimentsWithNames);
+  // Fetch per-user behavioral analysis when the users list updates.
+  useEffect(() => {
+    if (users.length > 0) {
+      users.forEach((user) => {
+        fetchUserAnalysis(user.userId);
+      });
+    }
+  }, [users]);
+
+  // Watch selectedEvent and selectedUser to refresh aggregated/user-specific ratings.
+  useEffect(() => {
+    console.log("Selected Event:", selectedEvent);
+    console.log("Selected User:", selectedUser);
+    if (selectedEvent) {
+      if (selectedUser === "All Users") {
+        console.log("Fetching data for all users");
+        fetchAggregatedData();
       } else {
-        setEventSentiments([]);
+        console.log("Fetching data for specific user:", selectedUser);
+        fetchUserRatings();
       }
-      setSelectedUser("All Users");
-    } catch (error) {
-      console.error("Error fetching sentiment data", error);
-    } finally {
-      setLoading(false);
     }
-  };
-
-  // Fetch aggregated ratings and overall interpretation for all users
-  const fetchAggregatedData = async () => {
-    try {
-      const token = localStorage.getItem("authToken");
-      if (selectedEvent && token) {
-        const response = await axios.get(`${apiUrl}questionnaires/aggregated-ratings`, {
-          headers: { Authorization: `Bearer ${token}` },
-          params: { eventId: selectedEvent },
-        });
-
-        if (response.data) {
-          // Update both the displayed aggregated ratings and the all-users version
-          setAggregatedRatings(response.data.aggregatedRatings || []);
-          setAllUsersAggregatedRatings(response.data.aggregatedRatings || []);
-          if (response.data.overallInterpretation) {
-            setOverallInterpretation(response.data.overallInterpretation);
-            setAllUsersOverallInterpretation(response.data.overallInterpretation);
-          }
-          // Fetch user info for each userId
-          const userInfos = response.data.users.map(async (userId) => {
-            const userResponse = await axios.get(`${apiUrl}users/${userId}`, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            return {
-              userId,
-              name: `${userResponse.data.name} ${userResponse.data.surname}`,
-            };
-          });
-
-          const usersWithNames = await Promise.all(userInfos);
-          setUsers(usersWithNames);
-          console.log("Users:", usersWithNames);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching aggregated data:", error.message);
-    }
-  };
-
-  // Fetch behavioral analysis for a specific user
-  const fetchUserAnalysis = async (userId) => {
-    try {
-      const token = localStorage.getItem("authToken");
-      if (selectedEvent && token) {
-        const params = { eventId: selectedEvent, userId };
-        const response = await axios.get(`${apiUrl}questionnaires/aggregated-ratings`, {
-          headers: { Authorization: `Bearer ${token}` },
-          params,
-        });
-        if (response.data) {
-          setUserAnalyses(prev => ({ ...prev, [userId]: response.data }));
-        }
-      }
-    } catch (error) {
-      console.error(`Error fetching analysis for user ${userId}:`, error);
-    }
-  };
-
-  // Fetch ratings for a specific user
-  const fetchUserRatings = async () => {
-    try {
-      const token = localStorage.getItem("authToken");
-      if (selectedEvent && token) {
-        const params = { eventId: selectedEvent };
-        if (selectedUser) {
-          params.userId = selectedUser;
-        }
-        const response = await axios.get(`${apiUrl}questionnaires/aggregated-ratings`, {
-          headers: { Authorization: `Bearer ${token}` },
-          params,
-        });
-        if (response.data) {
-          setAggregatedRatings(response.data.aggregatedRatings || []);
-          if (response.data.overallInterpretation) {
-            setOverallInterpretation(response.data.overallInterpretation);
-          }
-          if (response.data.userInfo) {
-            setUserInfo(response.data.userInfo);
-            console.log("User Info:", response.data.userInfo);
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching user-specific ratings:", error.message);
-    }
-  };
+  }, [selectedEvent, selectedUser]);
 
   // Prepare data for the behavioral ratings bar chart (for UI display)
   const aggregatedRatingsLabels = aggregatedRatings.map(rating => rating.trait);
@@ -416,7 +426,7 @@ const ViewReports = () => {
             <label htmlFor="userDropdown" style={{ fontWeight: 'bold', marginRight: '10px' }}>Select User:</label>
             <select
               id="userDropdown"
-              value={selectedUser || ''}
+              value={selectedUser}
               onChange={(e) => setSelectedUser(e.target.value)}
               style={{ padding: '5px', borderRadius: '5px', border: '1px solid #ccc' }}
             >
