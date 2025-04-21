@@ -144,33 +144,53 @@ const AdminViewReports = () => {
     }
   }, [allUsersOverallInterpretation, sentimentCounts, allUsersAggregatedRatings]);
 
-  // Fetch sentiment counts and details for the event
-  const fetchSentimentData = async (eventId) => {
-    try {
-      setLoading(true);
-      // Fetch sentiment counts (positive, negative, neutral)
-      const sentimentResponse = await axios.get(`${apiUrl}ratings/${eventId}?type=counts`);
-      setSentimentCounts(sentimentResponse.data);
+// Fetch sentiment counts and details for the currently selected event
+const fetchSentimentData = async () => {
+  const eventId = localStorage.getItem('selectedEventId');
+  if (!eventId) {
+    console.error('No selectedEventId in localStorage');
+    return;
+  }
 
-      // Fetch sentiment details for the data table
-      const sentimentsResponse = await axios.get(`${apiUrl}ratings/${eventId}?type=details`);
-      if (sentimentsResponse.data && sentimentsResponse.data.length > 0) {
-        const sentimentsWithNames = sentimentsResponse.data.map(item => ({
-          ...item,
-          userName: item.user ? item.user.name : 'Unknown',
-          userSentiment: item.sentiment || 'No Sentiment'
-        }));
-        setEventSentiments(sentimentsWithNames);
-      } else {
-        setEventSentiments([]);
-      }
-      setSelectedUser("All Users");
-    } catch (error) {
-      console.error("Error fetching sentiment data", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+
+    // 1) Counts endpoint stays the same
+    const { data: counts } = await axios.get(
+      `${apiUrl}ratings/${eventId}?type=counts`
+    );
+    setSentimentCounts(counts);
+
+    // 2) Details endpoint now returns { user, sentiment, feedback, score }
+    const { data: details } = await axios.get(
+      `${apiUrl}ratings/event/${eventId}/sentiments`
+    );
+
+    // 3) Just ensure it’s an array and set it directly
+    setEventSentiments(Array.isArray(details) ? details : []);
+
+    // 4) Reset the dropdown
+    setSelectedUser("All Users");
+
+  } catch (error) {
+    console.error("Error fetching sentiment data", error);
+    setEventSentiments([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Call it on mount
+useEffect(() => {
+  fetchSentimentData();
+}, []);
+
+
+// …and then call it once on mount:
+useEffect(() => {
+  fetchSentimentData();
+}, []);
+
 
   // Fetch aggregated ratings and overall interpretation for all users
   const fetchAggregatedData = async () => {
@@ -458,7 +478,7 @@ const AdminViewReports = () => {
               <tbody>
                 {eventSentiments.map((sentiment, index) => (
                   <tr key={index}>
-                    <td style={{ padding: '8px', border: '1px solid #ddd' }}>{sentiment.userName}</td>
+                    <td style={{ padding: '8px', border: '1px solid #ddd' }}>{sentiment.user}</td>
                     <td style={{ padding: '8px', border: '1px solid #ddd' }}>{sentiment.sentiment}</td>
                     <td style={{ padding: '8px', border: '1px solid #ddd' }}>{sentiment.feedback}</td>
                     <td style={{ padding: '8px', border: '1px solid #ddd' }}>{sentiment.score}</td>
