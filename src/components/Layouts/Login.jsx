@@ -1,17 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import OrgLoginModal from "./OrgLoginModal"; // Import the modal component
 import logo from "../../assets/website/aboutvoys.png";
 import Loader from "../Layouts/Loader.jsx";
+import { AuthContext } from "./AuthContext";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const { login } = useContext(AuthContext);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      navigate("/dashboard"); 
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,11 +36,11 @@ const Login = () => {
 
       if (!response.ok) throw new Error("Invalid credentials");
 
-      const data = await response.json();
+      if (!response.ok) throw new Error("Invalid credentials");
 
-      // Save token and ALL user data to localStorage
+      const data = await response.json();
+      login(data.user); 
       localStorage.setItem("authToken", data.token);
-      localStorage.setItem("userData", JSON.stringify(data.user));
 
       // Check if the user is an Admin
       if (data.user.isAdmin) {
@@ -49,7 +59,6 @@ const Login = () => {
           setLoggedInUser(data.user);
           setShowModal(true);
         } 
-        // If the user only has officer role, save the organization info and navigate to the officer dashboard
         else if (hasOfficer) {
           const officerMembership = organizations.find(
             (membership) => membership.role.toLowerCase() === "officer"
@@ -75,11 +84,9 @@ const Login = () => {
           }
           navigate("/dashboard");
         } 
-        // If the user only has user role (or no organization), navigate to the user home page
         else if (hasUser) {
           navigate("/");
         } else {
-          // Fallback navigation if no role is detected
           navigate("/");
         }
       }
@@ -90,7 +97,6 @@ const Login = () => {
     }
   };
 
-  // A helper to close the modal
   const closeModal = () => {
     setShowModal(false);
   };
@@ -154,12 +160,6 @@ const Login = () => {
             </button>
           </form>
           <Link
-            to="/forgot-password"
-            className="mt-4 text-center text-[#3a1078] hover:underline"
-          >
-            Forgot Password?
-          </Link>
-          <Link
             to="/register"
             className="mt-4 text-center text-[#3a1078] hover:underline"
           >
@@ -168,7 +168,6 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Overlay OrgLoginModal if needed */}
       {showModal && loggedInUser && (
         <OrgLoginModal user={loggedInUser} closeModal={closeModal} />
       )}
