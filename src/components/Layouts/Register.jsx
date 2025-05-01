@@ -29,6 +29,8 @@ const Register = () => {
   // State to hold the full list of organizations
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Add a state to track submission
+
   const navigate = useNavigate();
 
   // Fetch organizations from the API
@@ -141,6 +143,12 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Prevent multiple submissions
+    if (isSubmitting) return;
+
+    setIsSubmitting(true); // Disable the button
+    setLoading(true);
+
     // Check that at most one organization is selected as Officer
     const officerCount = orgSelections.filter((sel) => sel.role === "Officer").length;
     if (officerCount > 1) {
@@ -148,10 +156,11 @@ const Register = () => {
         position: "bottom-right",
         autoClose: 3000,
       });
+      setIsSubmitting(false); // Re-enable the button
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
     const formDataToSend = new FormData();
     // Append simple form fields
     Object.keys(formData).forEach((key) => {
@@ -194,6 +203,7 @@ const Register = () => {
         autoClose: 3000,
       });
     } finally {
+      setIsSubmitting(false); // Re-enable the button after submission
       setLoading(false);
     }
   };
@@ -206,8 +216,8 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#3a1078] p-4">
-      <div className="bg-[#f7f7f8] h-64 md:h-[70vh] sm:h-[120vh] flex flex-col md:flex-row rounded-3xl shadow-2xl overflow-hidden w-full max-w-7xl">
-        <div className="w-full md:w-1/2 h-56 md:h-auto flex items-center justify-center bg-[#f7f7f8] p-4">
+      <div className="bg-[#f7f7f8] h-64 lg:h-[80vh] md:h-[70vh] sm:h-[120vh] flex flex-col md:flex-row rounded-3xl shadow-2xl overflow-hidden w-full max-w-7xl">
+        <div className="w-full md:w-1/2 h-[70vh] md:h-auto flex items-center justify-center bg-[#f7f7f8]">
           <img
             src={logo}
             alt="Logo"
@@ -226,10 +236,30 @@ const Register = () => {
               {[
                 { id: "name", label: "Name", type: "text", value: formData.name },
                 { id: "surname", label: "Surname", type: "text", value: formData.surname },
-                { id: "email", label: "Email", type: "email", value: formData.email },
+                { id: "email", label: "Email ", type: "email", value: formData.email, placeholder: "Auto-filled", disabled: true },
                 { id: "password", label: "Password", type: "password", value: formData.password },
-                { id: "course", label: "Course", type: "text", value: formData.course },
-                { id: "section", label: "Section", type: "text", value: formData.section },
+                {
+                  id: "course",
+                  label: "Course",
+                  type: "text",
+                  value: formData.course,
+                  onChange: (e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      course: e.target.value.toUpperCase(),
+                    })),
+                },
+                {
+                  id: "section",
+                  label: "Section",
+                  type: "text",
+                  value: formData.section,
+                  onChange: (e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      section: e.target.value.toUpperCase(), // Convert to uppercase
+                    })),
+                },
               ].map((field) => (
                 <div key={field.id} className="flex flex-col">
                   <label htmlFor={field.id} className="text-lg text-[#3a1078] font-medium">
@@ -240,32 +270,32 @@ const Register = () => {
                     name={field.id}
                     type={field.type}
                     value={field.value}
-                    onChange={handleChange}
-                    placeholder={`Enter your ${field.label.toLowerCase()}`}
+                    onChange={field.onChange || handleChange} // Use specific onChange if provided
+                    placeholder={field.placeholder || `Enter your ${field.label.toLowerCase()}`}
                     required
-                    className="mt-2 px-4 py-2 text-base border-2 bg-[#d6e4f0] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    disabled={field.disabled || false} // Apply the disabled attribute if specified
+                    className={`mt-2 px-4 py-2 text-base border-2 ${field.value ? "bg-white" : "bg-[#d6e4f0]"
+                      } border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 ${field.disabled ? "cursor-not-allowed" : ""
+                      }`}
                   />
                 </div>
               ))}
 
               {/* Dynamic Organization Selections */}
               <div>
-                <h3 className="text-xl font-semibold text-[#3a1078] mb-2">
-                  Organization Memberships
-                </h3>
+                <h3 className="text-xl font-semibold text-[#3a1078] mb-2">Organization Memberships</h3>
                 {orgSelections.map((entry, index) => (
                   <div key={index} className="border p-4 mb-4 rounded-lg">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="flex flex-col">
-                        <label className="text-lg text-[#3a1078] font-medium">
-                          Organization
-                        </label>
+                        <label className="text-lg text-[#3a1078] font-medium">Organization</label>
                         <select
                           name="organization"
                           value={entry.organization}
                           onChange={(e) => handleOrgChange(index, e)}
                           required
-                          className="mt-2 px-4 py-2 bg-[#d6e4f0] border-2 border-gray-300 rounded-lg"
+                          className={`mt-2 px-4 py-2 text-base border-2 ${entry.organization ? "bg-white" : "bg-[#d6e4f0]"
+                            } border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500`}
                         >
                           <option value="" disabled>
                             Select organization
@@ -278,15 +308,14 @@ const Register = () => {
                         </select>
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-lg text-[#3a1078] font-medium">
-                          Role
-                        </label>
+                        <label className="text-lg text-[#3a1078] font-medium">Role</label>
                         <select
                           name="role"
                           value={entry.role}
                           onChange={(e) => handleOrgChange(index, e)}
                           required
-                          className="mt-2 px-4 py-2 bg-[#d6e4f0] border-2 border-gray-300 rounded-lg"
+                          className={`mt-2 px-4 py-2 text-base border-2 ${entry.role ? "bg-white" : "bg-[#d6e4f0]"
+                            } border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500`}
                         >
                           <option value="" disabled>
                             Select role
@@ -296,9 +325,7 @@ const Register = () => {
                         </select>
                       </div>
                       <div className="flex flex-col">
-                        <label className="text-lg text-[#3a1078] font-medium">
-                          Department
-                        </label>
+                        <label className="text-lg text-[#3a1078] font-medium">Department</label>
                         <input
                           name="department"
                           type="text"
@@ -306,7 +333,8 @@ const Register = () => {
                           onChange={(e) => handleOrgChange(index, e)}
                           placeholder="Department"
                           required
-                          className="mt-2 px-4 py-2 bg-[#d6e4f0] border-2 border-gray-300 rounded-lg"
+                          disabled
+                          className="mt-2 px-4 py-2 bg-[#d6e4f0] border-2 border-gray-300 rounded-lg text-gray-500"
                         />
                       </div>
                     </div>
@@ -331,21 +359,39 @@ const Register = () => {
               </div>
 
               <div className="flex flex-col">
-                <label className="text-lg text-[#3a1078] font-medium">
-                  Upload Image
-                </label>
+                <label className="text-lg text-[#3a1078] font-medium">Upload Image</label>
                 <input
                   type="file"
                   name="image"
-                  onChange={handleImageChange}
+                  onChange={(e) => {
+                    handleImageChange(e);
+                    const file = e.target.files[0];
+                    if (file) {
+                      setFormData((prev) => ({
+                        ...prev,
+                        previewImage: URL.createObjectURL(file), // Generate a preview URL
+                      }));
+                    }
+                  }}
                   accept="image/*"
                   className="mt-2 px-4 py-2 bg-[#d6e4f0] border-2 border-gray-300 rounded-lg"
                 />
+                {formData.previewImage && (
+                  <div className="mt-4">
+                    <img
+                      src={formData.previewImage}
+                      alt="Preview"
+                      className="w-32 h-32 object-cover rounded-lg border border-gray-300"
+                    />
+                  </div>
+                )}
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 font-bold bg-[#3a1078] text-white rounded-lg hover:bg-[#4e31aa] transition duration-300 uppercase"
+                disabled={isSubmitting} // Disable the button when submitting
+                className={`w-full py-3 font-bold bg-[#3a1078] text-white rounded-lg hover:bg-[#4e31aa] transition duration-300 uppercase ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
               >
                 Register
               </button>

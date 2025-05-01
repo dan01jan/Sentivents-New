@@ -6,11 +6,12 @@ import "./Header.css";
 import "../../index.css";
 
 function Header({ isOfficer, user }) {
-  const {  logout } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation(); // Get the current route
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -45,8 +46,8 @@ function Header({ isOfficer, user }) {
               </span>
               <div
                 className={`absolute left-0 bottom-0 w-full h-1 top-11 ${isActive("/home")
-                    ? "bg-[#3795bd]"
-                    : "opacity-0 group-hover:opacity-100"
+                  ? "bg-[#3795bd]"
+                  : "opacity-0 group-hover:opacity-100"
                   } transition-opacity`}
               ></div>
             </div>
@@ -64,8 +65,8 @@ function Header({ isOfficer, user }) {
               </span>
               <div
                 className={`absolute left-0 bottom-0 w-full h-1 top-11 ${isActive("/events")
-                    ? "bg-[#3795bd]"
-                    : "opacity-0 group-hover:opacity-100"
+                  ? "bg-[#3795bd]"
+                  : "opacity-0 group-hover:opacity-100"
                   } transition-opacity`}
               ></div>
             </div>
@@ -73,8 +74,8 @@ function Header({ isOfficer, user }) {
             <div
               onClick={() => navigate("/organization")}
               className={`p-2 rounded-lg cursor-pointer relative group ${isActive("/organization")
-                  ? "bg-[#3a1078]"
-                  : "hover:bg-[#4e31aa]"
+                ? "bg-[#3a1078]"
+                : "hover:bg-[#4e31aa]"
                 }`}
             >
               <span
@@ -85,8 +86,8 @@ function Header({ isOfficer, user }) {
               </span>
               <div
                 className={`absolute left-0 bottom-0 w-full h-1 top-11 ${isActive("/organization")
-                    ? "bg-[#3795bd]"
-                    : "opacity-0 group-hover:opacity-100"
+                  ? "bg-[#3795bd]"
+                  : "opacity-0 group-hover:opacity-100"
                   } transition-opacity`}
               ></div>
             </div>
@@ -104,8 +105,8 @@ function Header({ isOfficer, user }) {
               </span>
               <div
                 className={`absolute left-0 bottom-0 w-full h-1 top-11 ${isActive("/about")
-                    ? "bg-[#3795bd]"
-                    : "opacity-0 group-hover:opacity-100"
+                  ? "bg-[#3795bd]"
+                  : "opacity-0 group-hover:opacity-100"
                   } transition-opacity`}
               ></div>
             </div>
@@ -248,6 +249,12 @@ function Header({ isOfficer, user }) {
               SIGN IN
             </button>
           )}
+        </div>
+      )}
+
+      {isLoggingOut && (
+        <div>
+          <Loader />
         </div>
       )}
     </header>
