@@ -78,7 +78,7 @@ function OrgDetails() {
             </h2>
             <p className="text-black text-base md:text-lg">{orgDetails.description}</p>
           </div>
-          <div className="flex justify-center md:justify-end">
+          <div className="flex justify-center md:justiy-end">
             <img
               className="w-full max-w-xs sm:max-w-[30vh] md:max-w-[20vh] lg:max-w-[40vh] object-cover rounded-full"
               src={orgDetails.image || orgimg}
