@@ -369,7 +369,7 @@ const Register = () => {
                     if (file) {
                       setFormData((prev) => ({
                         ...prev,
-                        previewImage: URL.createObjectURL(file), // Generate a preview URL
+                        previewImage: URL.createObjectURL(file), 
                       }));
                     }
                   }}

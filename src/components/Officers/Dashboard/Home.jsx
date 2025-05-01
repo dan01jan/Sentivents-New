@@ -280,9 +280,8 @@ function Home() {
 
   return (
     <>
-      {/* Header / Title Bar */}
       <div className="h-[10vh] w-full bg-[#f7f7f9] rounded-full flex items-center justify-between shadow-md px-5 md:px-10">
-        <p className="text-[#3a1078] text-[5vh] md:text-[5vh] sm:text-[3vh] xs:text-[2vh] font-bold tracking-[.15em] uppercase font-tungsten">
+        <p className="text-[#3a1078] text-[1vh] lg:text-[3vh] md:text-[2vh] sm:text-[2vh] xs:text-[1vh] font-bold tracking-[.1em] uppercase font-semibold">
           {userOrganizationName
             ? `${userOrganizationName} `
             : "Organization Dashboard"}
@@ -299,7 +298,7 @@ function Home() {
       </div>
 
       {/* Main Dashboard Heading */}
-      <h1 className="font-tungsten text-[5vh] md:text-[6vh] sm:text-[5vh] text-[#3a1078] px-5 flex items-center gap-4">
+      <h1 className="font-semibold   text-[5vh] md:text-[6vh] sm:text-[5vh] text-[#3a1078] px-5 flex items-center gap-4">
         <span className="flex-1 h-1 bg-[#3a1078]"></span>
         Dashboard
         <span className="flex-1 h-1 bg-[#3a1078]"></span>
@@ -311,7 +310,7 @@ function Home() {
           {userData && (
             <div className="bg-[#f7f7f9] h-[25vh] md:h-[30vh] p-4 md:p-6 rounded-3xl shadow-lg flex flex-col md:flex-row justify-between items-center hover:shadow-xl transition-shadow duration-300 fade-in-left">
               <div className="mx-5 md:mx-10">
-                <h1 className="text-[6vh] md:text-[6vh] sm:text-[5vh] font-bold text-[#3a1078] font-tungsten">
+                <h1 className="text-[6vh] md:text-[6vh] sm:text-[5vh] font-bold text-[#3a1078] font-semibold">
                   Hi, {userData.name} {userData.surname}! 👋
                 </h1>
               </div>
@@ -328,10 +327,10 @@ function Home() {
 
           <div className="bg-[#f7f7f8] rounded-3xl shadow-lg p-4 md:p-6 fade-in-left hover:shadow-xl transition-shadow duration-300">
             <div className="grid grid-cols-1 md:grid-cols-[40%_2px_60%] gap-3 md:gap-5 text-[#3a1078] text-[20px] md:text-[30px] font-bold tracking-wide uppercase mb-3 md:mb-5">
-              <h1 className="font-tungsten text-[4vh] md:text-[6vh] sm:text-[4vh] col-span-1">
+              <h1 className="font-semibold text-[4vh] md:text-[3vh] sm:text-[4vh] col-span-1">
                 Calendar of Events
               </h1>
-              <h2 className="font-tungsten text-[4vh] md:text-[6vh] sm:text-[4vh] col-span-2">
+              <h2 className="font-semibold text-[4vh] md:text-[3vh] sm:text-[4vh] col-span-2">
                 Events on {selectedDate.toDateString()}:
               </h2>
             </div>

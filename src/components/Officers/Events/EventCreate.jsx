@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom"; 
-import Loader from "../../Layouts/Loader"; 
+import { useNavigate } from "react-router-dom";
+import Loader from "../../Layouts/Loader";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -25,7 +25,7 @@ const EventCreate = () => {
   const [eventTypes, setEventTypes] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEventTypes = async () => {
@@ -165,10 +165,10 @@ const EventCreate = () => {
       <ToastContainer position="bottom-right" autoClose={3000} />
       {loading && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <Loader /> 
+          <Loader />
         </div>
       )}
-      <h2 className="text-[5vh] font-tungsten text-[#3a1078] mb-6 text-center">
+      <h2 className="text-[4vh] font-semibold text-[#3a1078] mb-6 text-center">
         Create Your Event
       </h2>
       <form
@@ -343,9 +343,28 @@ const EventCreate = () => {
             type="file"
             name="images"
             multiple
-            onChange={handleImageChange}
+            onChange={(e) => {
+              handleImageChange(e);
+              const file = e.target.files[0];
+              if (file) {
+                setFormData((prev) => ({
+                  ...prev,
+                  previewImage: URL.createObjectURL(file),
+                }));
+              }
+            }}
+            accept="image/*"
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
           />
+          {formData.previewImage && (
+            <div className="mt-4">
+              <img
+                src={formData.previewImage}
+                alt="Preview"
+                className="w-32 h-32 object-cover rounded-lg border border-gray-300"
+              />
+            </div>
+          )}
         </div>
 
         <button

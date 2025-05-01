@@ -17,7 +17,7 @@ import "../../Layouts/Header.css";
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   // A single size for all main icons so they look consistent
   const mainIconSize = 28;

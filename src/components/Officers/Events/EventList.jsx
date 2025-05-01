@@ -297,7 +297,7 @@ const EventList = () => {
         </div>
       )}
       <div className="flex flex-col md:flex-row justify-between items-center w-full gap-4 fade-in-left">
-        <h2 className="text-[8vh] font-semibold text-[#3a1078] font-tungsten">
+        <h2 className="text-[6vh] font-semibold text-[#3a1078] font-semibold">
           EVENTS
         </h2>
         <button
@@ -356,7 +356,7 @@ const EventList = () => {
 
       {Object.entries(groupedEvents).map(([type, events]) => (
         <div key={type} className="mb-6 fade-in-up">
-          <h3 className="text-2xl font-semibold text-teal-600">{type}</h3>
+          <h3 className="text-2xl font-semibold text-[#3a1078]">{type}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
             {events.map((event) => (
               <div
