@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import orgimg from "../../assets/website/org/Association of Civil Engineering Students of TUP Taguig Campus(ACES).jpg";
 import eventBG from "../../assets/website/eventBG.png";
+import Loader from "../Layouts/Loader.jsx";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -14,36 +15,36 @@ function OrgDetails() {
     const fetchOrganization = async () => {
       try {
         const organizationId = localStorage.getItem("selectedOrgId");
-    
+
         if (!organizationId) {
           throw new Error("Organization ID not found in local storage.");
         }
-    
+
         console.log("Fetching organization with ID:", organizationId);
-        
+
         setOrgId(organizationId);
-    
+
         // Get token from local storage or cookie
-        const token = localStorage.getItem("authToken");  // Replace with your actual method for getting the token
-    
+        const token = localStorage.getItem("authToken"); // Replace with your actual method for getting the token
+
         const response = await fetch(`${apiUrl}organizations/${organizationId}`, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${token}`, // Include the token here
-            "Content-Type": "application/json"
-          }
+            Authorization: `Bearer ${token}`, // Include the token here
+            "Content-Type": "application/json",
+          },
         });
-    
+
         console.log("Response status:", response.status);
-    
+
         if (!response.ok) {
           const errorResponse = await response.json();
           throw new Error(errorResponse.message || "Failed to fetch organization details");
         }
-    
+
         const data = await response.json();
         console.log("Fetched organization data:", data);
-    
+
         setOrgDetails(data);
       } catch (error) {
         console.error("Error fetching organization:", error);
@@ -52,15 +53,12 @@ function OrgDetails() {
         setLoading(false);
       }
     };
-    
 
     fetchOrganization();
   }, []);
-  
-  
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   if (error) {
@@ -73,14 +71,12 @@ function OrgDetails() {
         className="w-full h-[70vh] flex justify-center items-center bg-cover bg-center"
         style={{ backgroundImage: `url(${eventBG})` }}
       >
-        <div className="max-w-[150vh] w-full px-6 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div className="max-w-[190vh] w-full px-6 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div className="flex flex-col gap-4 text-center md:text-left">
-            <h2 className="text-[10vh] sm:text-[8vh] md:text-[6vh] lg:text-[8vh] font-tungsten text-[#3a1078] leading-none uppercase">
+            <h2 className="text-[8vh] sm:text-[4vh] md:text-[6vh] lg:text-[6vh] xl:text-[8vh] font-semibold text-[#3a1078] leading-none uppercase">
               {orgDetails.name}
             </h2>
-            <p className="text-black text-base md:text-lg">
-              {orgDetails.description}
-            </p>
+            <p className="text-black text-base md:text-lg">{orgDetails.description}</p>
           </div>
           <div className="flex justify-center md:justify-end">
             <img
@@ -92,8 +88,8 @@ function OrgDetails() {
         </div>
       </section>
       <section className="w-full h-auto flex flex-col items-center bg-[#f7f7f8] py-16">
-        <div className="max-w-[150vh] w-full px-6 md:px-10">
-          <h2 className="text-[19vw] sm:text-[8vw] md:text-[6vw] lg:text-[5vw] font-tungsten text-[#3a1078] leading-none uppercase text-center md:text-left mb-8">
+        <div className="max-w-[190vh] w-full px-6 md:px-10">
+          <h2 className="text-[6vh] sm:text-[6vh] md:text-[4vh] lg:text-[6vh] font-medium text-[#3a1078] leading-none uppercase text-center md:text-left mb-8">
             Events
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
@@ -110,8 +106,8 @@ function OrgDetails() {
         </div>
       </section>
       <section className="w-full h-auto flex flex-col items-center bg-[#f7f7f8] py-16">
-        <div className="max-w-[150vh] w-full px-6 md:px-10">
-          <h2 className="text-[19vw] sm:text-[8vw] md:text-[6vw] lg:text-[5vw] font-tungsten text-[#3a1078] leading-none uppercase text-center md:text-left mb-8">
+        <div className="max-w-[190vh] w-full px-6 md:px-10">
+          <h2 className="text-[6vh] sm:text-[6vh] md:text-[4vh] lg:text-[6vh] font-medium text-[#3a1078] leading-none uppercase text-center md:text-left mb-8">
             Officers
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">

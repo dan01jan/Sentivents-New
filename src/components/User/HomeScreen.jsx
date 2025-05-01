@@ -89,14 +89,14 @@ function HomeScreen() {
         />
         <div className="absolute inset-0 sm:bg-gradient-to-r sm:from-black/95 sm:to-black/25"></div>
         <div className="absolute inset-0 flex flex-col items-start justify-center h-full z-10 text-left pl-10">
-          <h1 className="text-[12vh] font-bold text-white tracking-wide font-tungsten leading-none px-5 fade-in-left">
+          <h1 className="text-[8vh] font-bold text-white tracking-wide leading-none px-5 fade-in-left">
             Voice Out
             <strong className="block font-extrabold text-red-500">
               Your Sentiments
             </strong>
           </h1>
           <div className="flex flex-col items-start gap-5 mt-5 pl-5 pt-4 fade-in-left">
-            <p className="text-2xl text-white font-roboto">
+            <p className="text-[2vh] text-white ">
               An Event Management System with Sentiment Analysis
             </p>
             <div className="p-1 border-2 border-white">
@@ -144,7 +144,7 @@ function HomeScreen() {
       {/* Upcoming Events Section */}
       <section className="w-full h-[80vh] bg-[#f7f7f8] py-16 px-10">
         <div className="flex flex-col md:flex-row justify-between items-center py-10 px-10">
-          <h2 className="text-[6vh] font-tungsten text-[#3a1078] leading-tight uppercase">
+          <h2 className="text-[4vh] font-bold text-[#3a1078] leading-tight uppercase">
             UPCOMING EVENTS
           </h2>
           <Link
@@ -227,7 +227,7 @@ function HomeScreen() {
         </div>
         <div className="text-center md:text-left max-w-[700px] mx-auto md:mx-0">
           <div className="flex justify-between items-center">
-            <h2 className="text-[6vh] font-tungsten text-[#3a1078] leading-tight uppercase">
+            <h2 className="text-[4vh] font-semibold text-[#3a1078] leading-tight uppercase">
               About Us
             </h2>
             <Link
@@ -242,7 +242,7 @@ function HomeScreen() {
             conversations, and drives positive change through innovative and
             inclusive event management.
           </p>
-          <h3 className="text-[6vh] font-tungsten text-[#3a1078] leading-tight uppercase mt-8">
+          <h3 className="text-[4vh] font-semibold text-[#3a1078] leading-tight uppercase mt-8">
             Our Team
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
