@@ -19,7 +19,11 @@ function HomeScreen() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); // <-- State to track modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -48,6 +52,31 @@ function HomeScreen() {
 
     fetchEvents();
   }, []);
+
+  useEffect(() => {
+    const fetchComments = async (eventId) => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await fetch(`${apiUrl}events//${eventId}/comments`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch comments.");
+        }
+        const data = await response.json();
+        setComments(data);
+      } catch (error) {
+        console.error("Error fetching comments: ", error);
+      }
+    };
+  
+    if (selectedEvent) {
+      fetchComments(selectedEvent.id);
+    }
+  }, [selectedEvent]);
+  
 
   const settings = {
     dots: false,
@@ -164,57 +193,98 @@ function HomeScreen() {
           </h2>
         ) : (
           <Slider {...settings}>
-            {events.map((event) => (
-              <div
-                key={event.id}
-                className="overflow-hidden transition-transform transform hover:scale-105 flex flex-col px-10"
-              >
-                <div className="w-full h-[300px] flex items-center justify-center overflow-hidden">
-                  {event.images && event.images.length > 0 ? (
-                    <img
-                      src={event.images[0]}
-                      alt={event.title || "Event Image"}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-500">No Image Available</span>
-                    </div>
-                  )}
-                </div>
-                <div className="flex-grow">
-                  <h3 className="text-2xl font-bold mb-4">{event.title}</h3>
-                  <div className="flex items-center">
-                    {event.type && event.type.eventType ? (
-                      <strong className="uppercase text-red-400 text-sm">
-                        {event.type.eventType}
-                      </strong>
-                    ) : (
-                      <strong className="uppercase text-red-600">
-                        Unknown
-                      </strong>
-                    )}
-                    <span className="mx-2 opacity-50">|</span>
-                    <span className="text-gray-500 text-sm">
-                      {event.dateStart
-                        ? new Date(event.dateStart).toLocaleDateString()
-                        : "No Date"}
-                    </span>
+          {events.map((event) => (
+            <div
+              key={event.id}
+              className="overflow-hidden transition-transform transform hover:scale-105 flex flex-col px-10"
+              onClick={() => {
+                setSelectedEvent(event); // Set the selected event
+                setShowModal(true); // Open the modal
+              }}
+            >
+              {/* Your event display */}
+              <div className="w-full h-[300px] flex items-center justify-center overflow-hidden">
+                {event.images && event.images.length > 0 ? (
+                  <img
+                    src={event.images[0]}
+                    alt={event.title || "Event Image"}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-500">No Image Available</span>
                   </div>
-                  <p className="text-gray-700 text-xl leading-relaxed py-2">
-                    <strong>{event.name || "No Name"}</strong>
-                  </p>
-                  <p className="text-gray-700 text-sm leading-relaxed ">
-                    {event.description.length > 100
-                      ? `${event.description.substring(0, 100)}...`
-                      : event.description}
-                  </p>
-                </div>
+                )}
               </div>
-            ))}
-          </Slider>
+              <div className="flex-grow">
+                <h3 className="text-2xl font-bold mb-4">{event.title}</h3>
+                <div className="flex items-center">
+                  {event.type && event.type.eventType ? (
+                    <strong className="uppercase text-red-400 text-sm">
+                      {event.type.eventType}
+                    </strong>
+                  ) : (
+                    <strong className="uppercase text-red-600">
+                      Unknown
+                    </strong>
+                  )}
+                  <span className="mx-2 opacity-50">|</span>
+                  <span className="text-gray-500 text-sm">
+                    {event.dateStart
+                      ? new Date(event.dateStart).toLocaleDateString()
+                      : "No Date"}
+                  </span>
+                </div>
+                <p className="text-gray-700 text-xl leading-relaxed py-2">
+                  <strong>{event.name || "No Name"}</strong>
+                </p>
+                <p className="text-gray-700 text-sm leading-relaxed ">
+                  {event.description.length > 100
+                    ? `${event.description.substring(0, 100)}...`
+                    : event.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </Slider>
         )}
       </section>
+
+      {showModal && selectedEvent && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg max-w-lg w-full relative">
+              <button
+                onClick={() => setShowModal(false)}
+                className="absolute top-2 right-2 text-gray-500 hover:text-black"
+              >
+                ✖
+              </button>
+              <h2 className="text-xl font-bold mb-2">{selectedEvent.title}</h2>
+              <p className="text-gray-600 mb-2">{selectedEvent.description || "No description available."}</p>
+              <p className="text-sm text-gray-500">
+                {new Date(selectedEvent.dateStart).toLocaleString()} -{" "}
+                {new Date(selectedEvent.dateEnd).toLocaleString()}
+              </p>
+
+              <h3 className="mt-4 font-semibold">Comments</h3>
+              {comments.length > 0 ? (
+                <ul className="mt-2 max-h-40 overflow-y-auto text-sm text-gray-700">
+                  {comments.map((comment) => (
+                    <li key={comment._id} className="border-b py-1">
+                      {comment.user.name} : {comment.text}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-gray-500 mt-2">No comments yet.</p>
+              )}
+              <p className="text-m text-red-400 italic mt-4">
+              Download the app to comment.
+            </p>
+            </div>
+          </div>
+        )}
+
 
       {/* About Us & Our Team Section */}
       <section className="w-full min-h-[80vh] bg-[#ffffff] py-16 px-10 grid grid-cols-1 md:grid-cols-2 items-center">

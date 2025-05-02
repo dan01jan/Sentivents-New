@@ -356,7 +356,7 @@ function Home() {
             { label: "Members", count: 1500 }, // Example static
             { label: "Events", count: eventCount },
             { label: "Officers", count: officerCount },
-            { label: "Registered Members", count: userCount },
+            // { label: "Registered Members", count: userCount },
           ].map((item) => (
             <div
               key={item.label}

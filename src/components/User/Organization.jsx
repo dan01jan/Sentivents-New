@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import bgplain1 from "../../assets/website/bg_plain.png";
 import logo from "../../assets/website/V_DarkerLogo.png";
 import TUPLogo from "../../assets/website/TUP LOGO.png";
-import Loader from "../Layouts/Loader.jsx"
+import Loader from "../Layouts/Loader.jsx";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 function Organization() {
-  const [organizations, setOrganizations] = useState([]);
+  const [orgsWithEvents, setOrgsWithEvents] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,10 +15,11 @@ function Organization() {
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     setIsLoggedIn(!!token);
-    
-    const fetchOrganizations = async () => {
+
+    const fetchOrganizationsAndEvents = async () => {
       if (!token) return;
       try {
+        // Fetch all organizations first
         const response = await fetch(`${apiUrl}organizations/`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -27,17 +28,39 @@ function Organization() {
         if (!response.ok) {
           throw new Error("There are no organizations available at the moment.");
         }
-        const data = await response.json();
-        console.log("Fetched organizations data:", data);   
-        setOrganizations(data);
+        const organizations = await response.json();
+
+        // Fetch events for each organization
+        const organizationsWithEvents = await Promise.all(
+          organizations.map(async (org) => {
+            try {
+              const res = await fetch(`${apiUrl}organizations/${org._id}/events`, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+              if (!res.ok) {
+                // If fetch fails, just return org with empty events
+                return { ...org, events: [] };
+              }
+              const data = await res.json();
+              return { ...org, events: data.events };
+            } catch {
+              return { ...org, events: [] };
+            }
+          })
+        );
+
+        setOrgsWithEvents(organizationsWithEvents);
       } catch (error) {
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
-    fetchOrganizations();
-    const intervalId = setInterval(fetchOrganizations, 2000);
+
+    fetchOrganizationsAndEvents();
+    const intervalId = setInterval(fetchOrganizationsAndEvents, 5000); // refresh every 5s
 
     return () => clearInterval(intervalId);
   }, []);
@@ -62,7 +85,7 @@ function Organization() {
   }
 
   if (loading) {
-    return <Loader />
+    return <Loader />;
   }
 
   if (error) {
@@ -82,38 +105,55 @@ function Organization() {
           Organizations inside TUP
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 w-full max-w-[150vh] px-5 pb-10">
-        {organizations.map((org) => (
-            <Link
-              to={`/organization/${org._id}`}
-              key={org._id}
-              className="max-w-sm w-full shadow-lg"
-              onClick={() => localStorage.setItem("selectedOrgId", org._id)}
-            >
-              <div className="relative bg-white shadow-md rounded-lg overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-[150vh] px-5 pb-10">
+          {orgsWithEvents.map((org) => (
+            <div key={org._id} className="bg-white shadow-lg rounded-lg overflow-hidden">
+              <Link
+                to={`/organization/${org._id}`}
+                className="block"
+                onClick={() => localStorage.setItem("selectedOrgId", org._id)}
+              >
                 <img
                   src={org.image || "default-image-path"}
-                  alt={org.name || "Organization Image"}
-                  className="w-full h-[300px] object-cover"
+                  alt={org.name}
+                  className="w-full h-[200px] object-cover"
                 />
-              </div>
-              <div className="p-4">
-                <h2 className="text-2xl font-bold text-gray-800">{org.name}</h2>
-                <p className="mt-2 text-gray-600">{org.description}</p>
-              </div>
-            </Link>
-          ))}
+                <div className="p-4">
+                  <h2 className="text-2xl font-bold text-gray-800">{org.name}</h2>
+                  <p className="mt-2 text-gray-600">{org.description}</p>
+                </div>
+              </Link>
 
+              {/* Events list */}
+              <div className="p-4 border-t">
+                <h3 className="text-lg font-semibold text-[#3a1078] mb-2">Events</h3>
+                {org.events.length > 0 ? (
+                  <ul className="space-y-2">
+                    {org.events.map((event) => (
+                      <li key={event._id} className="text-sm text-gray-700">
+                        📅 {event.name} <br />
+                        <span className="text-xs text-gray-500">
+                          {new Date(event.dateStart).toLocaleDateString()} — {new Date(event.dateEnd).toLocaleDateString()}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-gray-500 italic">No events available</p>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
+
       <footer className="w-full bg-[#ffffff] py-10 px-10 text-center text-gray-800 flex flex-col items-center gap-4">
         <div className="flex justify-center items-center gap-4">
           <img src={logo} alt="VOYS Logo" className="h-12 w-auto" />
           <img src={TUPLogo} alt="TUP Logo" className="h-12 w-auto" />
         </div>
         <p className="text-sm">
-          &copy; 2024-2025. Empowering Events, Amplifying Voices — VOYS Event
-          Management System
+          &copy; 2024-2025. Empowering Events, Amplifying Voices — VOYS Event Management System
         </p>
       </footer>
     </>

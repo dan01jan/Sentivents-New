@@ -34,6 +34,10 @@ function Events() {
   const [error, setError] = useState(null);
   const [visibleEvents, setVisibleEvents] = useState(6); // Number of events to display initially
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [comments, setComments] = useState([]);
+
 
   // The order in which you want to display categories
   const categoriesInOrder = [
@@ -82,6 +86,27 @@ function Events() {
   const handleShowMore = () => {
     setVisibleEvents((prevVisibleEvents) => prevVisibleEvents + 6);
   };
+
+  const handleEventClick = async (event) => {
+    setSelectedEvent(event);
+    setShowModal(true);
+    const token = localStorage.getItem("authToken");
+  
+    try {
+      const res = await fetch(`${apiUrl}events/${event._id}/comments`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error("Failed to fetch comments");
+      const data = await res.json();
+      setComments(data);
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+      setComments([]);
+    }
+  };
+  
 
   // Determine the category for an event based on its organization name
   const getEventCategory = (orgName) => {
@@ -157,9 +182,10 @@ function Events() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     {catEvents.slice(0, visibleEvents).map((event) => (
                       <div
-                        key={event._id}
-                        className="relative w-full h-auto flex flex-col overflow-hidden group"
-                      >
+                      key={event._id}
+                      className="relative w-full h-auto flex flex-col overflow-hidden group cursor-pointer"
+                      onClick={() => handleEventClick(event)}
+                    >                    
                         <div className="w-full bg-gray-200 flex items-center justify-center">
                           {event.images && event.images.length > 0 ? (
                             <img
@@ -208,6 +234,45 @@ function Events() {
           </div>
         )}
       </section>
+
+      {showModal && selectedEvent && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div className="bg-white p-6 rounded-lg max-w-lg w-full relative">
+          <button
+            onClick={() => setShowModal(false)}
+            className="absolute top-2 right-2 text-gray-500 hover:text-black"
+          >
+            ✖
+          </button>
+          <h2 className="text-xl font-bold mb-2">{selectedEvent.name}</h2>
+          <p className="text-gray-600 mb-2">
+            {selectedEvent.description || "No description available."}
+          </p>
+          <p className="text-sm text-gray-500">
+            {new Date(selectedEvent.dateStart).toLocaleString()} -{" "}
+            {new Date(selectedEvent.dateEnd).toLocaleString()}
+          </p>
+
+          <h3 className="mt-4 font-semibold">Comments</h3>
+          {comments.length > 0 ? (
+            <ul className="mt-2 max-h-40 overflow-y-auto text-sm text-gray-700">
+              {comments.slice(0, 3).map((comment) => (
+                <li key={comment._id} className="border-b py-1">
+                  {comment.user.name} : {comment.text}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-gray-500 mt-2">No comments yet.</p>
+          )}
+
+          {/* Add this line below the comments */}
+          <p className="text-m text-center text-red-400 mt-4 italic">
+            Download the app to comment.
+          </p>
+        </div>
+      </div>
+    )}
 
       <footer className="w-full bg-[#ffffff] py-10 px-10 text-center text-gray-800 flex flex-col items-center gap-4">
         <div className="flex justify-center items-center gap-4">

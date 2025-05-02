@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate,useLocation, Link } from "react-router-dom";
 import OrgLoginModal from "./OrgLoginModal"; // Import the modal component
 import logo from "../../assets/website/aboutvoys.png";
 import Loader from "../Layouts/Loader.jsx";
@@ -7,7 +7,11 @@ import Loader from "../Layouts/Loader.jsx";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const location = useLocation();
+  const [credentials, setCredentials] = useState({
+    email: location.state?.email || "", 
+    password: "",
+  });
   const [loading, setLoading] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [showModal, setShowModal] = useState(false);

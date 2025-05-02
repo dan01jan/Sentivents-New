@@ -9,56 +9,53 @@ function OrgDetails() {
   const [orgDetails, setOrgDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   useEffect(() => {
     const fetchOrganization = async () => {
       try {
         const organizationId = localStorage.getItem("selectedOrgId");
+        if (!organizationId) throw new Error("Organization ID not found in local storage.");
     
-        if (!organizationId) {
-          throw new Error("Organization ID not found in local storage.");
-        }
+        const token = localStorage.getItem("authToken");
     
-        console.log("Fetching organization with ID:", organizationId);
-        
-        setOrgId(organizationId);
-    
-        // Get token from local storage or cookie
-        const token = localStorage.getItem("authToken");  // Replace with your actual method for getting the token
-    
+        // Fetch organization details
         const response = await fetch(`${apiUrl}organizations/${organizationId}`, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`, // Include the token here
-            "Content-Type": "application/json"
-          }
+          headers: { Authorization: `Bearer ${token}` },
         });
-    
-        console.log("Response status:", response.status);
-    
-        if (!response.ok) {
-          const errorResponse = await response.json();
-          throw new Error(errorResponse.message || "Failed to fetch organization details");
-        }
-    
+        if (!response.ok) throw new Error("Failed to fetch organization details");
         const data = await response.json();
-        console.log("Fetched organization data:", data);
     
-        setOrgDetails(data);
+        // Fetch events separately
+        const eventsRes = await fetch(`${apiUrl}organizations/${organizationId}/events`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const eventsData = await eventsRes.json();
+    
+        // Combine both
+        setOrgDetails({ ...data, events: eventsData.events });
       } catch (error) {
-        console.error("Error fetching organization:", error);
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
     
-
+  
     fetchOrganization();
   }, []);
-  
-  
 
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedEvent(null);
+  };
+  
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -96,15 +93,17 @@ function OrgDetails() {
           <h2 className="text-[19vw] sm:text-[8vw] md:text-[6vw] lg:text-[5vw] font-tungsten text-[#3a1078] leading-none uppercase text-center md:text-left mb-8">
             Events
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
             {orgDetails.events &&
               orgDetails.events.map((event, index) => (
-                <img
-                  key={index}
-                  className="w-full h-auto object-cover rounded-lg"
-                  src={event.image || orgimg}
-                  alt="Event Image"
-                />
+                <div key={index} className="flex flex-col items-center" onClick={() => handleEventClick(event)}>
+                  <img
+                    className="w-[30vh] h-auto object-cover rounded-lg" // 4rem is equivalent to 16px
+                    src={event.images || orgimg}
+                    alt="Event Image"
+                  />
+                  <h3 className="text-lg font-semibold text-[#3a1078] mt-4">{event.name}</h3>
+                </div>
               ))}
           </div>
         </div>
@@ -117,16 +116,34 @@ function OrgDetails() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {orgDetails.officers &&
               orgDetails.officers.map((officer, index) => (
-                <img
-                  key={index}
-                  className="w-[30vh] h-auto object-cover rounded-lg"
-                  src={officer.image || orgimg}
-                  alt="Officer Image"
-                />
+                <div key={index} className="flex flex-col items-center">
+                  <img
+                    className="w-[30vh] h-auto object-cover rounded-lg"
+                    src={officer.image || orgimg}
+                    alt="Officer Image"
+                  />
+                  <h3 className="text-lg font-semibold text-[#3a1078] mt-4">{officer.name}</h3>
+                  <p className="text-lg font-semibold text-[#3a1078] mt-4">{officer.position}</p>
+                </div>
               ))}
           </div>
         </div>
       </section>
+
+      {modalVisible && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-2xl font-semibold mb-4">{selectedEvent.name}</h2>
+            <p className="text-gray-700 mb-4">{selectedEvent.description}</p>
+            <p className="text-gray-700 mb-4">
+              {new Date(selectedEvent.dateStart).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })} to {new Date(selectedEvent.dateEnd).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true })} @ {selectedEvent.location}
+            </p>
+            <button className="bg-[#3a1078] text-white px-4 py-2 rounded" onClick={closeModal}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
