@@ -119,13 +119,12 @@ function Events() {
   const getCategoryLabel = (category) => {
     return (
       <span
-        className={`text-[7vh] sm:text-[5vh] md:text[1vh]] lg:text-[75px] font-tungsten text-[#3a1078] leading-tight uppercase ${
-          category === "Unknown"
-        }`}
+        className={`text-[7vh] sm:text-[5vh] md:text[1vh]] lg:text-[5vh]  text-[#3a1078] leading-tight uppercase ${category === "Unknown"
+          }`}
       >
         {category === "Unknown" ? "Overall Organization" : category}
       </span>
-      
+
     );
   };
 
@@ -137,7 +136,7 @@ function Events() {
       >
         <div className="max-w-screen-xl w-full px-4 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div className="flex flex-col gap-4">
-            <h2 className="text-[12vh] sm:text-[10vh] md:text-[100px] lg:text-[150px] font-tungsten text-[#3a1078] leading-tight uppercase">
+            <h2 className="text-[8vh] sm:text-[4vh] md:text-[6vh] lg:text-[6vh] xl:text-[8vh]  font-semibold max-[1600px]:text-[8vh] max-[1800px]:text-[9vh] max-[2000px]:text-[10vh] font-tungsten text-[#3a1078] leading-none uppercase text-center">
               EVENTS
             </h2>
           </div>

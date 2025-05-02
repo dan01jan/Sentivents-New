@@ -64,6 +64,7 @@ import AdminViewQuestionnaire from "./components/Admin/Events/AdminViewQuestionn
 import AdminViewReports from "./components/Admin/Events/AdminViewReports";
 import AdminAttendanceChart from "./components/Admin/Dashboard/AdminAttendanceChart";
 import AdminEventRegister from "./components/Admin/Events/AdminEventRegister";
+import { AuthProvider } from "./components/Layouts/AuthContext";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -81,9 +82,11 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      {loading ? <Loader /> : <AppContent loading={loading} user={user} />}
-    </Router>
+    <AuthProvider>
+      <Router>
+        {loading ? <Loader /> : <AppContent loading={loading} user={user} />}
+      </Router>
+    </AuthProvider>
   );
 }
 
@@ -108,9 +111,9 @@ function AppContent({ loading, user }) {
           <div
             className={
               !isOfficerRoute &&
-              !isLoginRoute &&
-              !isRegisterRoute &&
-              !isAdminRoute
+                !isLoginRoute &&
+                !isRegisterRoute &&
+                !isAdminRoute
                 ? "mt-20"
                 : ""
             }

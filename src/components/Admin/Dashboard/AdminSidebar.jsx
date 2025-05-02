@@ -15,7 +15,7 @@ import logo from "../../../assets/website/V_DarkerLogo.png";
 
 const AdminSideBar = () => {
   const navigate = useNavigate();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [userData, setUserData] = useState(null);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 

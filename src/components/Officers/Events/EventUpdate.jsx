@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Loader from "../../Layouts/Loader"; // Adjust the import path based on your project structure
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -162,13 +163,13 @@ const EventUpdate = () => {
     }
   };
 
-  if (loading) return <p>Loading event details...</p>;
+  if (loading) return <Loader />;
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
       <ToastContainer position="bottom-right" autoClose={3000} />
-      <h2 className="text-[5vh] font-tungsten text-[#3a1078] mb-6 text-center">
+      <h2 className="text-[4vh] font-semibold text-[#3a1078] mb-6 text-center">
         Update Your Event
       </h2>
       <form onSubmit={handleSubmit}>
@@ -312,9 +313,28 @@ const EventUpdate = () => {
             type="file"
             name="images"
             multiple
-            onChange={handleImageChange}
+            onChange={(e) => {
+              handleImageChange(e);
+              const file = e.target.files[0];
+              if (file) {
+                setFormData((prev) => ({
+                  ...prev,
+                  previewImage: URL.createObjectURL(file),
+                }));
+              }
+            }}
+            accept="image/*"
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
           />
+          {formData.previewImage && (
+            <div className="mt-4">
+              <img
+                src={formData.previewImage}
+                alt="Preview"
+                className="w-32 h-32 object-cover rounded-lg border border-gray-300"
+              />
+            </div>
+          )}
         </div>
 
         <button

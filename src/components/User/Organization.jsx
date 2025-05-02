@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import bgplain1 from "../../assets/website/bg_plain.png";
 import logo from "../../assets/website/V_DarkerLogo.png";
 import TUPLogo from "../../assets/website/TUP LOGO.png";
 import Loader from "../Layouts/Loader.jsx";
+
 const apiUrl = import.meta.env.VITE_API_URL;
 
 function Organization() {
   const [orgsWithEvents, setOrgsWithEvents] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isOrgLoading, setIsOrgLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -19,18 +22,18 @@ function Organization() {
     const fetchOrganizationsAndEvents = async () => {
       if (!token) return;
       try {
-        // Fetch all organizations first
         const response = await fetch(`${apiUrl}organizations/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
+
         if (!response.ok) {
           throw new Error("There are no organizations available at the moment.");
         }
+
         const organizations = await response.json();
 
-        // Fetch events for each organization
         const organizationsWithEvents = await Promise.all(
           organizations.map(async (org) => {
             try {
@@ -40,7 +43,6 @@ function Organization() {
                 },
               });
               if (!res.ok) {
-                // If fetch fails, just return org with empty events
                 return { ...org, events: [] };
               }
               const data = await res.json();
@@ -60,10 +62,18 @@ function Organization() {
     };
 
     fetchOrganizationsAndEvents();
-    const intervalId = setInterval(fetchOrganizationsAndEvents, 5000); // refresh every 5s
+    const intervalId = setInterval(fetchOrganizationsAndEvents, 5000);
 
     return () => clearInterval(intervalId);
   }, []);
+
+  const handleOrgClick = (orgId) => {
+    setIsOrgLoading(true);
+    localStorage.setItem("selectedOrgId", orgId);
+    setTimeout(() => {
+      navigate(`/organization/${orgId}`);
+    }, 500);
+  };
 
   if (!isLoggedIn) {
     return (
@@ -89,7 +99,7 @@ function Organization() {
   }
 
   if (error) {
-    return <p>Error: {error}</p>;
+    return <p className="text-center text-red-500">{error}</p>;
   }
 
   return (
@@ -101,28 +111,26 @@ function Organization() {
           backgroundRepeat: "no-repeat",
         }}
       >
-        <h2 className="text-[6vh] font-tungsten text-[#3a1078] leading-tight uppercase mb-10">
+        <h2 className="text-[8vh] sm:text-[4vh] md:text-[6vh] lg:text-[6vh] xl:text-[8vh] font-semibold text-[#3a1078] leading-tight uppercase mb-10 text-center px-4">
           Organizations inside TUP
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-[150vh] px-5 pb-10">
           {orgsWithEvents.map((org) => (
-            <div key={org._id} className="bg-white shadow-lg rounded-lg overflow-hidden">
-              <Link
-                to={`/organization/${org._id}`}
-                className="block"
-                onClick={() => localStorage.setItem("selectedOrgId", org._id)}
-              >
-                <img
-                  src={org.image || "default-image-path"}
-                  alt={org.name}
-                  className="w-full h-[200px] object-cover"
-                />
-                <div className="p-4">
-                  <h2 className="text-2xl font-bold text-gray-800">{org.name}</h2>
-                  <p className="mt-2 text-gray-600">{org.description}</p>
-                </div>
-              </Link>
+            <div
+              key={org._id}
+              className="bg-white shadow-lg rounded-lg overflow-hidden cursor-pointer"
+              onClick={() => handleOrgClick(org._id)}
+            >
+              <img
+                src={org.image || "default-image-path"}
+                alt={org.name || "Organization Image"}
+                className="w-full h-[200px] object-cover"
+              />
+              <div className="p-4">
+                <h2 className="text-2xl font-bold text-gray-800">{org.name}</h2>
+                <p className="mt-2 text-gray-600">{org.description}</p>
+              </div>
 
               {/* Events list */}
               <div className="p-4 border-t">
@@ -133,7 +141,8 @@ function Organization() {
                       <li key={event._id} className="text-sm text-gray-700">
                         📅 {event.name} <br />
                         <span className="text-xs text-gray-500">
-                          {new Date(event.dateStart).toLocaleDateString()} — {new Date(event.dateEnd).toLocaleDateString()}
+                          {new Date(event.dateStart).toLocaleDateString()} —{" "}
+                          {new Date(event.dateEnd).toLocaleDateString()}
                         </span>
                       </li>
                     ))}
@@ -146,6 +155,8 @@ function Organization() {
           ))}
         </div>
       </div>
+
+      {isOrgLoading && <Loader />}
 
       <footer className="w-full bg-[#ffffff] py-10 px-10 text-center text-gray-800 flex flex-col items-center gap-4">
         <div className="flex justify-center items-center gap-4">

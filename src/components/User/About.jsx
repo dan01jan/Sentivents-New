@@ -20,7 +20,7 @@ function About() {
             />
           </div>
           <div className="w-full text-center md:text-left">
-            <h5 className="text-[12vw] sm:text-[10vw] md:text-[8vw] lg:text-[100px] xl:text-[160px] font-tungsten text-[#3a1078] leading-tight uppercase">
+            <h5 className="text-[8vh] sm:text-[4vh] md:text-[6vh] lg:text-[6vh] xl:text-[8vh]  font-semibold text-[#3a1078] leading-tight uppercase">
               about voys
             </h5>
             <p className="text-black text-base md:text-lg">
@@ -33,7 +33,7 @@ function About() {
       {/* 🔹 Mission Section */}
       <section className="w-full flex flex-col justify-center items-center bg-[#f7f7f8] py-16 px-6">
         <div className="max-w-screen-lg w-full text-center">
-          <h2 className="text-[8vw] sm:text-[6vw] md:text-[4vw] lg:text-[5vw] font-tungsten text-[#3a1078] leading-tight uppercase mb-6">
+          <h2 className="text-[8vh] sm:text-[4vh] md:text-[6vh] lg:text-[6vh] xl:text-[8vh] font-semibold text-[#3a1078] leading-tight uppercase mb-6">
             Mission
           </h2>
           <p className="text-black text-base md:text-lg">

@@ -1,18 +1,20 @@
-import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
+import React, { useState, useContext } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { AuthContext } from "./AuthContext";
 import logo from "../../assets/website/V_LightLogo.png";
 import "./Header.css";
 import "../../index.css";
 
 function Header({ isOfficer, user }) {
+  const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation(); // Get the current route
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userData");
-    window.location.reload();
+    logout();
+    navigate("/login");
   };
 
   const toggleMobileMenu = () => {
@@ -33,91 +35,79 @@ function Header({ isOfficer, user }) {
           <div className="hidden md:flex space-x-8 items-center mb-2">
             <div
               onClick={() => navigate("/home")}
-              className={`p-2 rounded-lg cursor-pointer relative group ${
-                isActive("/home") ? "bg-[#3a1078]" : "hover:bg-[#4e31aa]"
-              }`}
+              className={`p-2 rounded-lg cursor-pointer relative group ${isActive("/home") ? "bg-[#3a1078]" : "hover:bg-[#4e31aa]"
+                }`}
             >
               <span
-                className={`text-sm font-medium ${
-                  isActive("/home") ? "text-white" : "text-white"
-                }`}
+                className={`text-sm font-medium ${isActive("/home") ? "text-white" : "text-white"
+                  }`}
               >
                 HOME
               </span>
               <div
-                className={`absolute left-0 bottom-0 w-full h-1 top-11 ${
-                  isActive("/home")
-                    ? "bg-[#3795bd]"
-                    : "opacity-0 group-hover:opacity-100"
-                } transition-opacity`}
+                className={`absolute left-0 bottom-0 w-full h-1 top-11 ${isActive("/home")
+                  ? "bg-[#3795bd]"
+                  : "opacity-0 group-hover:opacity-100"
+                  } transition-opacity`}
               ></div>
             </div>
 
             <div
               onClick={() => navigate("/events")}
-              className={`p-2 rounded-lg cursor-pointer relative group ${
-                isActive("/events") ? "bg-[#3a1078]" : "hover:bg-[#4e31aa]"
-              }`}
+              className={`p-2 rounded-lg cursor-pointer relative group ${isActive("/events") ? "bg-[#3a1078]" : "hover:bg-[#4e31aa]"
+                }`}
             >
               <span
-                className={`text-sm font-medium ${
-                  isActive("/events") ? "text-white" : "text-white"
-                }`}
+                className={`text-sm font-medium ${isActive("/events") ? "text-white" : "text-white"
+                  }`}
               >
                 EVENTS
               </span>
               <div
-                className={`absolute left-0 bottom-0 w-full h-1 top-11 ${
-                  isActive("/events")
-                    ? "bg-[#3795bd]"
-                    : "opacity-0 group-hover:opacity-100"
-                } transition-opacity`}
+                className={`absolute left-0 bottom-0 w-full h-1 top-11 ${isActive("/events")
+                  ? "bg-[#3795bd]"
+                  : "opacity-0 group-hover:opacity-100"
+                  } transition-opacity`}
               ></div>
             </div>
 
             <div
               onClick={() => navigate("/organization")}
-              className={`p-2 rounded-lg cursor-pointer relative group ${
-                isActive("/organization")
-                  ? "bg-[#3a1078]"
-                  : "hover:bg-[#4e31aa]"
-              }`}
+              className={`p-2 rounded-lg cursor-pointer relative group ${isActive("/organization")
+                ? "bg-[#3a1078]"
+                : "hover:bg-[#4e31aa]"
+                }`}
             >
               <span
-                className={`text-sm font-medium ${
-                  isActive("/organization") ? "text-white" : "text-white"
-                }`}
+                className={`text-sm font-medium ${isActive("/organization") ? "text-white" : "text-white"
+                  }`}
               >
                 ORGANIZATION
               </span>
               <div
-                className={`absolute left-0 bottom-0 w-full h-1 top-11 ${
-                  isActive("/organization")
-                    ? "bg-[#3795bd]"
-                    : "opacity-0 group-hover:opacity-100"
-                } transition-opacity`}
+                className={`absolute left-0 bottom-0 w-full h-1 top-11 ${isActive("/organization")
+                  ? "bg-[#3795bd]"
+                  : "opacity-0 group-hover:opacity-100"
+                  } transition-opacity`}
               ></div>
             </div>
 
             <div
               onClick={() => navigate("/about")}
-              className={`p-2 rounded-lg cursor-pointer relative group ${
-                isActive("/about") ? "bg-[#3a1078]" : "hover:bg-[#4e31aa]"
-              }`}
+              className={`p-2 rounded-lg cursor-pointer relative group ${isActive("/about") ? "bg-[#3a1078]" : "hover:bg-[#4e31aa]"
+                }`}
             >
               <span
-                className={`text-sm font-medium ${
-                  isActive("/about") ? "text-white" : "text-white"
-                }`}
+                className={`text-sm font-medium ${isActive("/about") ? "text-white" : "text-white"
+                  }`}
               >
                 ABOUT
               </span>
               <div
-                className={`absolute left-0 bottom-0 w-full h-1 top-11 ${
-                  isActive("/about")
-                    ? "bg-[#3795bd]"
-                    : "opacity-0 group-hover:opacity-100"
-                } transition-opacity`}
+                className={`absolute left-0 bottom-0 w-full h-1 top-11 ${isActive("/about")
+                  ? "bg-[#3795bd]"
+                  : "opacity-0 group-hover:opacity-100"
+                  } transition-opacity`}
               ></div>
             </div>
           </div>
@@ -178,14 +168,12 @@ function Header({ isOfficer, user }) {
               navigate("/home");
               toggleMobileMenu();
             }}
-            className={`p-2 rounded-lg cursor-pointer ${
-              isActive("/home") ? "bg-[#4e31aa]" : "hover:bg-[#4e31aa]"
-            }`}
+            className={`p-2 rounded-lg cursor-pointer ${isActive("/home") ? "bg-[#4e31aa]" : "hover:bg-[#4e31aa]"
+              }`}
           >
             <span
-              className={`text-sm font-medium ${
-                isActive("/home") ? "text-[#3795bd]" : "text-white"
-              }`}
+              className={`text-sm font-medium ${isActive("/home") ? "text-[#3795bd]" : "text-white"
+                }`}
             >
               HOME
             </span>
@@ -195,14 +183,12 @@ function Header({ isOfficer, user }) {
               navigate("/events");
               toggleMobileMenu();
             }}
-            className={`p-2 rounded-lg cursor-pointer ${
-              isActive("/events") ? "bg-[#4e31aa]" : "hover:bg-[#4e31aa]"
-            }`}
+            className={`p-2 rounded-lg cursor-pointer ${isActive("/events") ? "bg-[#4e31aa]" : "hover:bg-[#4e31aa]"
+              }`}
           >
             <span
-              className={`text-sm font-medium ${
-                isActive("/events") ? "text-[#3795bd]" : "text-white"
-              }`}
+              className={`text-sm font-medium ${isActive("/events") ? "text-[#3795bd]" : "text-white"
+                }`}
             >
               EVENTS
             </span>
@@ -212,14 +198,12 @@ function Header({ isOfficer, user }) {
               navigate("/organization");
               toggleMobileMenu();
             }}
-            className={`p-2 rounded-lg cursor-pointer ${
-              isActive("/organization") ? "bg-[#4e31aa]" : "hover:bg-[#4e31aa]"
-            }`}
+            className={`p-2 rounded-lg cursor-pointer ${isActive("/organization") ? "bg-[#4e31aa]" : "hover:bg-[#4e31aa]"
+              }`}
           >
             <span
-              className={`text-sm font-medium ${
-                isActive("/organization") ? "text-[#3795bd]" : "text-white"
-              }`}
+              className={`text-sm font-medium ${isActive("/organization") ? "text-[#3795bd]" : "text-white"
+                }`}
             >
               ORGANIZATION
             </span>
@@ -229,14 +213,12 @@ function Header({ isOfficer, user }) {
               navigate("/about");
               toggleMobileMenu();
             }}
-            className={`p-2 rounded-lg cursor-pointer ${
-              isActive("/about") ? "bg-[#4e31aa]" : "hover:bg-[#4e31aa]"
-            }`}
+            className={`p-2 rounded-lg cursor-pointer ${isActive("/about") ? "bg-[#4e31aa]" : "hover:bg-[#4e31aa]"
+              }`}
           >
             <span
-              className={`text-sm font-medium ${
-                isActive("/about") ? "text-[#3795bd]" : "text-white"
-              }`}
+              className={`text-sm font-medium ${isActive("/about") ? "text-[#3795bd]" : "text-white"
+                }`}
             >
               ABOUT
             </span>
@@ -267,6 +249,12 @@ function Header({ isOfficer, user }) {
               SIGN IN
             </button>
           )}
+        </div>
+      )}
+
+      {isLoggingOut && (
+        <div>
+          <Loader />
         </div>
       )}
     </header>
