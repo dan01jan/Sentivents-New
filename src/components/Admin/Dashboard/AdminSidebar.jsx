@@ -9,7 +9,7 @@ import {
   FaArrowRight,
   FaChevronDown,
 } from "react-icons/fa";
-import { RiTeamFill, RiAdminFill } from "react-icons/ri";
+import { RiTeamFill, RiAdminFill, RiQuestionFill } from "react-icons/ri";
 import { IoMdAnalytics } from "react-icons/io";
 import logo from "../../../assets/website/V_DarkerLogo.png";
 
@@ -96,6 +96,16 @@ const AdminSideBar = () => {
                 {isExpanded && <span>Officers Approval</span>}
               </Link>
             </li>
+            <li>
+            <Link
+              to="/admin/adminquestions"
+              className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
+            >
+              <RiQuestionFill size={40} />
+              {isExpanded && <span>Questions</span>}
+            </Link>
+          </li>
+
           </ul>
         </nav>
         <button

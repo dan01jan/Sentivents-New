@@ -1,7 +1,5 @@
-import React, { useState } from "react";
 import { useNavigate,useLocation, Link } from "react-router-dom";
-import React, { useState, useEffect, useContext } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
 import OrgLoginModal from "./OrgLoginModal"; // Import the modal component
 import logo from "../../assets/website/aboutvoys.png";
 import Loader from "../Layouts/Loader.jsx";

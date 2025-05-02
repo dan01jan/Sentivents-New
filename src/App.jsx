@@ -64,6 +64,7 @@ import AdminViewQuestionnaire from "./components/Admin/Events/AdminViewQuestionn
 import AdminViewReports from "./components/Admin/Events/AdminViewReports";
 import AdminAttendanceChart from "./components/Admin/Dashboard/AdminAttendanceChart";
 import AdminEventRegister from "./components/Admin/Events/AdminEventRegister";
+import AdminQuestions from "./components/Admin/Dashboard/AdminQuestions";
 import { AuthProvider } from "./components/Layouts/AuthContext";
 
 function App() {
@@ -342,6 +343,14 @@ function AppContent({ loading, user }) {
                   element={
                     <ProtectedAdminRoute>
                       <AdminViewQuestionnaire />
+                    </ProtectedAdminRoute>
+                  }
+                />
+                <Route
+                  path="adminquestions"
+                  element={
+                    <ProtectedAdminRoute>
+                      <AdminQuestions />
                     </ProtectedAdminRoute>
                   }
                 />

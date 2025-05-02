@@ -62,10 +62,19 @@ const EventModal = ({ selectedEvent, modalIsOpen, handleModalClose }) => {
               <strong>Type:</strong>{" "}
               {selectedEvent.type?.eventType || "Unknown"}
             </p>
-            <p>
-              <strong>Date:</strong>{" "}
-              {new Date(selectedEvent.dateStart).toLocaleDateString()}
+            <p className="text-xs text-gray-600 mb-2">
+              <span className="font-semibold">Start:</span>{" "}
+              {selectedEvent.dateStart
+                ? `${new Date(selectedEvent.dateStart).toLocaleDateString()} ${new Date(selectedEvent.dateStart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                : "No Start Date"}
             </p>
+            <p className="text-xs text-gray-600 mb-2">
+              <span className="font-semibold">End:</span>{" "}
+              {selectedEvent.dateEnd
+                ? `${new Date(selectedEvent.dateEnd).toLocaleDateString()} ${new Date(selectedEvent.dateEnd).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                : "No End Date"}
+            </p>
+
           </div>
 
           {hasQuestionnaire === null ? (

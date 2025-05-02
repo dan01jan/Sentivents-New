@@ -385,11 +385,18 @@ const EventList = () => {
                     {event.description || "No Description"}
                   </p>
                   <p className="text-xs text-gray-600 mb-2">
-                    <span className="font-semibold">Date:</span>{" "}
+                    <span className="font-semibold">Start:</span>{" "}
                     {event.dateStart
-                      ? new Date(event.dateStart).toLocaleDateString()
-                      : "No Date"}
+                      ? `${new Date(event.dateStart).toLocaleDateString()} ${new Date(event.dateStart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                      : "No Start Date"}
                   </p>
+                  <p className="text-xs text-gray-600 mb-2">
+                    <span className="font-semibold">End:</span>{" "}
+                    {event.dateEnd
+                      ? `${new Date(event.dateEnd).toLocaleDateString()} ${new Date(event.dateEnd).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                      : "No End Date"}
+                  </p>
+
                   <p className="text-xs text-gray-600 truncate mb-2">
                     <span className="font-semibold">Location:</span>{" "}
                     {event.location || "No Location"}

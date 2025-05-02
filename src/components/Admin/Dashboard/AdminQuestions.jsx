@@ -2,16 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {
-  FaArrowDown,
-  FaArrowRight,
-  FaArrowAltCircleDown,
-} from "react-icons/fa";
-import Loader from "../../Layouts/Loader"; // Import the Loader component
+import { FaArrowRight, FaArrowAltCircleDown } from "react-icons/fa";
+import Loader from "../../Layouts/Loader";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-const ListQuestion = () => {
+const AdminQuestions = () => {
   const [traits, setTraits] = useState([]);
   const [types, setTypes] = useState([]);
   const [selectedTrait, setSelectedTrait] = useState("");
@@ -348,4 +344,5 @@ const ListQuestion = () => {
     </div>
   );
 };
-export default ListQuestion;
+
+export default AdminQuestions;
