@@ -34,10 +34,21 @@ function Events() {
   const [error, setError] = useState(null);
   const [visibleEvents, setVisibleEvents] = useState(6); // Number of events to display initially
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("All");
   const [showModal, setShowModal] = useState(false);
   const [comments, setComments] = useState([]);
 
+  // Convert fancy/unicode text to plain ASCII letters
+  const normalizeText = (text) => {
+    if (!text) return "";
+    return text
+      .normalize("NFKD") // Normalize Unicode variants
+      .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
+      .replace(/[^a-zA-Z0-9 ]/g, "") // Remove non-ASCII (fancy fonts etc.)
+      .toLowerCase();
+  };
 
   // The order in which you want to display categories
   const categoriesInOrder = [
@@ -128,6 +139,45 @@ function Events() {
     );
   };
 
+  // Get initials from event name (e.g., "Boodle Fight" -> "BF")
+  const getInitials = (name) => {
+    if (!name) return "";
+    return name
+      .split(" ")
+      .map((word) => word[0]?.toUpperCase())
+      .join("");
+  };
+  
+
+  // Check if event matches search (either start of name or initials)
+  const matchesSearch = (event, term) => {
+    if (!term) return true;
+  
+    const normalizedTerm = normalizeText(term);
+    const name = event.name || "";
+    const normalizedName = normalizeText(name);
+    const initials = getInitials(normalizedName);
+  
+    return (
+      normalizedName.startsWith(normalizedTerm) ||
+      initials.startsWith(normalizedTerm)
+    );
+  };
+
+  const getEventStatus = (event) => {
+    const now = new Date();
+    const start = new Date(event.dateStart);
+    const end = new Date(event.dateEnd);
+  
+    if (start <= now && now <= end) {
+      return "Ongoing";
+    } else if (now < start) {
+      return "Upcoming";
+    } else {
+      return "Done";
+    }
+  };
+
   return (
     <>
       <div
@@ -166,10 +216,45 @@ function Events() {
           <p className="text-center text-red-500">{error}</p>
         ) : (
           <div className="max-w-screen-xl w-full px-4 md:px-10">
+            <div className="mb-6 flex justify-center">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search Events"
+              className="px-4 py-2 w-full max-w-md border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#3a1078]"
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-2 justify-center mb-6">
+            {["All", "Ongoing", "Upcoming", "Done"].map((status) => (
+              <button
+                key={status}
+                onClick={() => setStatusFilter(status)}
+                className={`px-4 py-2 rounded ${
+                  statusFilter === status
+                    ? "bg-[#3a1078] text-white"
+                    : "bg-gray-200 text-gray-700"
+                } hover:bg-[#2a0858] hover:text-white transition`}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
+
+
             {categoriesInOrder.map((cat) => {
-              const catEvents = events.filter(
-                (ev) => getEventCategory(ev.organization) === cat
-              );
+              const catEvents = events.filter((ev) => {
+                const eventCategory = getEventCategory(ev.organization);
+                const eventStatus = getEventStatus(ev);
+              
+                const statusMatches =
+                  statusFilter === "All" || eventStatus === statusFilter;
+              
+                return eventCategory === cat && statusMatches && matchesSearch(ev, searchTerm);
+              });
+              
+              
 
               if (catEvents.length === 0) return null;
 

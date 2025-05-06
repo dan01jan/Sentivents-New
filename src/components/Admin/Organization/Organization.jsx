@@ -19,6 +19,9 @@ function Organization() {
   const [selectedOrg, setSelectedOrg] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [officers, setOfficers] = useState([]);
+  const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null); // null or org id
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -49,28 +52,43 @@ function Organization() {
     return () => clearInterval(intervalId);
   }, []);
 
-  const handleDelete = async (id) => {
+  const askDelete = (id) => {
+    setConfirmDeleteId(id); // Opens confirm modal
+  };
+  
+  const confirmDelete = async () => {
     const token = localStorage.getItem("authToken");
-    if (!id || !token) return;
-    if (!window.confirm("Are you sure you want to delete this organization?")) return;
-
+    if (!confirmDeleteId || !token) return;
+  
     try {
-      const response = await fetch(`${apiUrl}organizations/${id}`, {
+      const response = await fetch(`${apiUrl}organizations/${confirmDeleteId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-
+  
       if (!response.ok) {
         const result = await response.json();
         throw new Error(result.message || "Failed to delete organization");
       }
-
-      setOrganizations((prev) => prev.filter((org) => org.id !== id && org._id !== id));
+  
+      setOrganizations((prev) =>
+        prev.filter((org) => org.id !== confirmDeleteId && org._id !== confirmDeleteId)
+      );
+      showToastMessage("Organization deleted successfully!");
     } catch (error) {
       console.error("Error deleting organization:", error);
+    } finally {
+      setConfirmDeleteId(null); // Close confirm modal
     }
   };
+  
 
+  const showToastMessage = (message) => {
+    setToastMessage(message);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+  
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -183,11 +201,12 @@ function Organization() {
                   Update
                 </button>
                 <button
-                  onClick={() => handleDelete(org.id || org._id)}
+                  onClick={() => askDelete(org.id || org._id)}
                   className="bg-red-600 text-white text-sm font-semibold uppercase px-6 py-2 rounded-full hover:bg-red-700 transition"
                 >
                   Delete
                 </button>
+
               </div>
             </div>
           </div>
@@ -258,6 +277,37 @@ function Organization() {
     </div>
   </div>
 )}
+    {/* 🟣 Confirm Delete Modal */}
+    {confirmDeleteId && (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="bg-white p-6 rounded-lg shadow-xl text-center max-w-sm w-full">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Confirm Delete</h2>
+          <p className="mb-6 text-gray-700">Are you sure you want to delete this organization?</p>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={confirmDelete}
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            >
+              Yes, Delete
+            </button>
+            <button
+              onClick={() => setConfirmDeleteId(null)}
+              className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* 🟢 Toast */}
+    {showToast && (
+      <div className="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg transition-opacity duration-300 z-50">
+        {toastMessage}
+      </div>
+    )}
+
     </div>
   );
 }

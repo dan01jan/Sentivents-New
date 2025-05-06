@@ -78,7 +78,7 @@ const AdminQuestions = () => {
       setTempQuestions([]);
       toast.success("Questions created successfully!");
       setTimeout(() => {
-        window.location.href = "/dashboard/questions";
+        window.location.href = "/admin/adminquestions";
       }, 2000);
     } catch (error) {
       toast.error("Error creating questions");

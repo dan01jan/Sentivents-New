@@ -52,47 +52,35 @@ const Login = () => {
       } else {
         const organizations = data.user.organizations || [];
         // Normalize roles to lowercase for comparison
-        const roles = organizations.map((membership) =>
-          membership.role.toLowerCase()
+        const approvedOfficerMemberships = organizations.filter(membership =>
+          membership.role.toLowerCase() === "officer" && membership.isOfficer === true
         );
-        const hasOfficer = roles.includes("officer");
-        const hasUser = roles.includes("user");
+        const hasApprovedOfficer = approvedOfficerMemberships.length > 0;
+        const hasUser = organizations.some(membership =>
+          membership.role.toLowerCase() === "user"
+        );
 
-        // If the user has both roles, show the OrgLoginModal overlay
-        if (hasOfficer && hasUser) {
+        // If the user has both approved Officer & User role, show modal
+        if (hasApprovedOfficer && hasUser) {
           setLoggedInUser(data.user);
           setShowModal(true);
         } 
-        else if (hasOfficer) {
-          const officerMembership = organizations.find(
-            (membership) => membership.role.toLowerCase() === "officer"
-          );
-          if (
-            officerMembership &&
-            officerMembership.organization &&
-            officerMembership.organization.name &&
-            officerMembership.organization._id
-          ) {
-            localStorage.setItem(
-              "officerOrgName",
-              officerMembership.organization.name
-            );
-            localStorage.setItem(
-              "officerOrgId",
-              officerMembership.organization._id
-            );
-            localStorage.setItem(
-              "officerDepartment",
-              officerMembership.department
-            );
+        else if (hasApprovedOfficer) {
+          const officerMembership = approvedOfficerMemberships[0];
+          if (officerMembership && officerMembership.organization) {
+            localStorage.setItem('officerOrgName', officerMembership.organization.name);
+            localStorage.setItem('officerOrgId', officerMembership.organization._id);
+            localStorage.setItem('officerDepartment', officerMembership.department);
           }
           navigate("/dashboard");
         } 
         else if (hasUser) {
           navigate("/");
-        } else {
+        } 
+        else {
           navigate("/");
         }
+
       }
     } catch (error) {
       alert(error.message || "Something went wrong");

@@ -27,6 +27,7 @@ const Register = () => {
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
 
   const navigate = useNavigate();
 
@@ -44,29 +45,39 @@ const Register = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
+  
     setFormData((prev) => {
       let updatedValue = value;
-
+  
       if (name === "email") {
         updatedValue = value.toLowerCase();
       }
-
+  
       const updatedData = {
         ...prev,
         [name]: updatedValue,
       };
-
-      const nameTrimmed = (name === "name" ? updatedValue : updatedData.name).trim().toLowerCase();
-      const surnameTrimmed = (name === "surname" ? updatedValue : updatedData.surname).trim().toLowerCase();
-
-      if (nameTrimmed && surnameTrimmed) {
-        updatedData.email = `${nameTrimmed}.${surnameTrimmed}@tup.edu.ph`;
+  
+      // Helper: remove spaces + lowercase
+      const cleanName = (str) =>
+        str.trim().toLowerCase().replace(/\s+/g, ''); // remove all spaces
+  
+      const cleanText = (str) =>
+        str.trim().toLowerCase(); // just trim + lowercase (no space removal)
+  
+      const nameProcessed = (name === "name" ? updatedValue : updatedData.name);
+      const surnameProcessed = (name === "surname" ? updatedValue : updatedData.surname);
+  
+      if (nameProcessed && surnameProcessed) {
+        const namePart = cleanName(nameProcessed);
+        const surnamePart = cleanText(surnameProcessed);
+        updatedData.email = `${namePart}.${surnamePart}@tup.edu.ph`;
       }
-
+  
       return updatedData;
     });
   };
+  
 
   const handleOrgChange = (index, e) => {
     const { name, value } = e.target;
@@ -199,9 +210,16 @@ const Register = () => {
     }
   };
 
-  const filteredOrganizations = organizations.filter(
-    (org) => org.category === "Non Academic" || org.category === "Multi-Faith"
+  const excludedCategories = ["Non Academic", "Multi-Faith"];
+
+  const allowedOrganizations = organizations.filter(
+    (org) => !excludedCategories.includes(org.category)
   );
+  
+  const filteredOrganizations = organizations.filter(
+    (org) => excludedCategories.includes(org.category)
+  );
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#3a1078] p-4">
@@ -274,9 +292,10 @@ const Register = () => {
                           className={`mt-2 px-4 py-2 text-base border-2 ${entry.organization ? "bg-white" : "bg-[#d6e4f0]"} border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500`}
                         >
                           <option value="" disabled>Select organization</option>
-                          {(index === 0 ? organizations : filteredOrganizations).map((org) => (
+                          {(index === 0 ? allowedOrganizations : filteredOrganizations).map((org) => (
                             <option key={org._id} value={org._id}>{org.name}</option>
                           ))}
+
                         </select>
                       </div>
 

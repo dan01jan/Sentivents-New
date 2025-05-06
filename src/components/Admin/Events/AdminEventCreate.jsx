@@ -93,12 +93,31 @@ const AdminEventCreate = () => {
     const files = Array.from(e.target.files).filter((file) =>
       file.type.startsWith("image/")
     );
+  
+    // Create previews (object URLs)
+    const previews = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+  
     setFormData((prevData) => ({
       ...prevData,
-      images: files,
+      images: [...prevData.images, ...previews],
     }));
   };
 
+  const handleRemoveImage = (index) => {
+    setFormData((prevData) => {
+      // Revoke the object URL to free memory
+      URL.revokeObjectURL(prevData.images[index].preview);
+  
+      const updatedImages = [...prevData.images];
+      updatedImages.splice(index, 1);
+  
+      return { ...prevData, images: updatedImages };
+    });
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -125,7 +144,8 @@ const AdminEventCreate = () => {
 
     form.append("dateStart", startDateTime.toISOString());
     form.append("dateEnd", endDateTime.toISOString());
-    formData.images.forEach((file) => form.append("images", file));
+    formData.images.forEach((imgObj) => form.append("images", imgObj.file));
+
 
     // Add 'type' field correctly as ObjectId
     if (formData.type) {
@@ -334,6 +354,27 @@ const AdminEventCreate = () => {
             onChange={handleImageChange}
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
           />
+          {formData.images.length > 0 && (
+            <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {formData.images.map((imgObj, index) => (
+                <div key={index} className="relative group">
+                  <img
+                    src={imgObj.preview}
+                    alt={`preview-${index}`}
+                    className="w-full h-32 object-cover rounded-lg shadow-md"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 hover:bg-red-800 transition group-hover:opacity-100 opacity-75"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
         </div>
 
         <button

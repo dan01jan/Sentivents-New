@@ -1,8 +1,9 @@
+// 🟢 Add to your existing imports (no new files needed)
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
-import AdminEventModal from "./AdminEventModal"; // Import the modal component
+import AdminEventModal from "./AdminEventModal";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -15,6 +16,12 @@ const AdminEventList = () => {
   const [selectedType, setSelectedType] = useState("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
+
+  // 🟠 New states for delete modal
+  const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
+  const [eventIdToDelete, setEventIdToDelete] = useState(null);
 
   const navigate = useNavigate();
 
@@ -52,16 +59,15 @@ const AdminEventList = () => {
     navigate("/admin/eventcreate");
   };
 
-  // Redirect to /admin/eventupdate with event data
   const handleUpdate = (event) => {
     navigate(`/admin/eventupdate/${event._id}`, { state: { event } });
   };
 
   const handleRegister = (event) => {
+    localStorage.setItem("selectedEventId", event._id);
     navigate(`/admin/eventregister/${event._id}`, { state: { event } });
   };
 
-  // Instead of navigating, open the modal for viewing and save the event ID in localStorage
   const handleModalOpen = (event) => {
     localStorage.setItem("selectedEventId", event._id);
     setSelectedEvent(event);
@@ -73,33 +79,51 @@ const AdminEventList = () => {
     setSelectedEvent(null);
   };
 
-  // Delete an event by sending a DELETE request to the API.
-  const openDeleteModal = async (eventId) => {
-    if (window.confirm("Are you sure you want to delete this event?")) {
-      try {
-        const token = localStorage.getItem("authToken");
-        const response = await fetch(`${apiUrl}events/${eventId}`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.ok) {
-          alert("Event deleted successfully!");
-          // Update local state by removing the deleted event
-          setEvents((prevEvents) =>
-            prevEvents.filter((event) => event._id !== eventId)
-          );
-        } else {
-          const data = await response.json();
-          alert("Failed to delete event: " + data.message);
-        }
-      } catch (error) {
-        console.error("Error deleting event:", error);
-        alert("Error deleting event. Please try again.");
+  // 🟠 Replace window.confirm with this delete modal logic
+  const openDeleteModal = (eventId) => {
+    setEventIdToDelete(eventId);
+    setDeleteModalIsOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalIsOpen(false);
+    setEventIdToDelete(null);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${apiUrl}events/${eventIdToDelete}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        showToastMessage("Event deleted successfully!");
+        setEvents((prevEvents) =>
+          prevEvents.filter((event) => event._id !== eventIdToDelete)
+        );
       }
+       else {
+        const data = await response.json();
+        alert("Failed to delete event: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      alert("Error deleting event. Please try again.");
+    } finally {
+      closeDeleteModal();
     }
+  };
+
+  const showToastMessage = (message) => {
+    setToastMessage(message);
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000); // Toast disappears after 3 sec
   };
 
   return (
@@ -171,7 +195,6 @@ const AdminEventList = () => {
                     : "Unknown"}
                 </p>
               </div>
-              {/* Only render buttons if the event's organization is "League of Student Organization" */}
               {event.organization === "League of Student Organization" && (
                 <div className="px-4 py-2 flex justify-center items-center border-t border-gray-200">
                   <div className="flex space-x-3">
@@ -214,12 +237,48 @@ const AdminEventList = () => {
         <FaPlus size={24} />
       </button>
 
-      {/* Render the modal */}
+      {/* Existing event view modal */}
       <AdminEventModal
         selectedEvent={selectedEvent}
         modalIsOpen={modalIsOpen}
         handleModalClose={handleModalClose}
       />
+
+      {/* 🟠 Inline Delete Confirm Modal */}
+      {deleteModalIsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full text-center"
+          >
+            <h2 className="text-xl font-semibold text-[#3a1078] mb-4">Confirm Deletion</h2>
+            <p className="text-gray-600 mb-6">Are you sure you want to delete this event? This action cannot be undone.</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={confirmDelete}
+                className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition"
+              >
+                Yes, Delete
+              </button>
+              <button
+                onClick={closeDeleteModal}
+                className="bg-gray-200 text-gray-800 px-4 py-2 rounded-full hover:bg-gray-300 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+      {/* 🟣 Toast Notification */}
+{showToast && (
+  <div className="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg transition-opacity duration-300 z-50">
+    {toastMessage}
+  </div>
+)}
+
     </div>
   );
 };

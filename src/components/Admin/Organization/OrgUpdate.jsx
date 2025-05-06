@@ -11,6 +11,17 @@ const OrgUpdate = ({ isOpen, onClose, organization }) => {
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(organization.image);
 
+  // Sync prop -> local state when modal opens or org changes
+React.useEffect(() => {
+  if (organization) {
+    setName(organization.name || "");
+    setDescription(organization.description || "");
+    setPreview(organization.image || null);
+    setImage(null); // reset uploaded image
+  }
+}, [organization]);
+
+
   const handleUpdate = async () => {
     const token = localStorage.getItem("authToken");
     const formData = new FormData();
