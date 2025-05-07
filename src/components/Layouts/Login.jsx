@@ -1,6 +1,6 @@
-import { useNavigate,useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
-import OrgLoginModal from "./OrgLoginModal"; // Import the modal component
+import OrgLoginModal from "./OrgLoginModal";
 import logo from "../../assets/website/aboutvoys.png";
 import Loader from "../Layouts/Loader.jsx";
 import { AuthContext } from "./AuthContext";
@@ -10,7 +10,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 const Login = () => {
   const location = useLocation();
   const [credentials, setCredentials] = useState({
-    email: location.state?.email || "", 
+    email: location.state?.email || "",
     password: "",
   });
   const [loading, setLoading] = useState(false);
@@ -19,11 +19,17 @@ const Login = () => {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
+  // Helper function to navigate and refresh
+  const navigateAndRefresh = (path) => {
+    navigate(path);
+    window.location.reload();
+  };
+
   // Redirect if already logged in
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (token) {
-      navigate("/dashboard"); 
+      navigateAndRefresh("/dashboard");
     }
   }, [navigate]);
 
@@ -40,18 +46,14 @@ const Login = () => {
 
       if (!response.ok) throw new Error("Invalid credentials");
 
-      if (!response.ok) throw new Error("Invalid credentials");
-
       const data = await response.json();
-      login(data.user); 
+      login(data.user);
       localStorage.setItem("authToken", data.token);
 
-      // Check if the user is an Admin
       if (data.user.isAdmin) {
-        navigate("/admin/admindashboard");
+        navigateAndRefresh("/admin/admindashboard");
       } else {
         const organizations = data.user.organizations || [];
-        // Normalize roles to lowercase for comparison
         const approvedOfficerMemberships = organizations.filter(membership =>
           membership.role.toLowerCase() === "officer" && membership.isOfficer === true
         );
@@ -60,27 +62,22 @@ const Login = () => {
           membership.role.toLowerCase() === "user"
         );
 
-        // If the user has both approved Officer & User role, show modal
         if (hasApprovedOfficer && hasUser) {
           setLoggedInUser(data.user);
           setShowModal(true);
-        } 
-        else if (hasApprovedOfficer) {
+        } else if (hasApprovedOfficer) {
           const officerMembership = approvedOfficerMemberships[0];
           if (officerMembership && officerMembership.organization) {
             localStorage.setItem('officerOrgName', officerMembership.organization.name);
             localStorage.setItem('officerOrgId', officerMembership.organization._id);
             localStorage.setItem('officerDepartment', officerMembership.department);
           }
-          navigate("/dashboard");
-        } 
-        else if (hasUser) {
-          navigate("/");
-        } 
-        else {
-          navigate("/");
+          navigateAndRefresh("/dashboard");
+        } else if (hasUser) {
+          navigateAndRefresh("/");
+        } else {
+          navigateAndRefresh("/");
         }
-
       }
     } catch (error) {
       alert(error.message || "Something went wrong");

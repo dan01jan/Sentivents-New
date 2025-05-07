@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   FaHome,
   FaCalendarAlt,
@@ -18,6 +18,9 @@ const AdminSideBar = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [userData, setUserData] = useState(null);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const location = useLocation();
+  const isActive = (path) => location.pathname === path;
+
 
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
@@ -63,7 +66,8 @@ const AdminSideBar = () => {
             <li>
               <Link
                 to="/admin/admindashboard"
-                className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out"
+                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out
+                  ${isActive("/admin/admindashboard") ? "text-pink-500" : "text-[#3a1078] hover:text-pink-500"}`}
               >
                 <FaHome size={40} />
                 {isExpanded && <span>Dashboard</span>}
@@ -72,7 +76,8 @@ const AdminSideBar = () => {
             <li>
               <Link
                 to="/admin/eventlist"
-                className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
+                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out mt-8
+                  ${isActive("/admin/eventlist") ? "text-pink-500" : "text-[#3a1078] hover:text-pink-500"}`}
               >
                 <FaCalendarAlt size={40} />
                 {isExpanded && <span>Events</span>}
@@ -81,7 +86,8 @@ const AdminSideBar = () => {
             <li>
               <Link
                 to="/admin/organization"
-                className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
+                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out mt-8
+                  ${isActive("/admin/organization") ? "text-pink-500" : "text-[#3a1078] hover:text-pink-500"}`}
               >
                 <RiTeamFill size={40} />
                 {isExpanded && <span>Organization</span>}
@@ -90,24 +96,26 @@ const AdminSideBar = () => {
             <li>
               <Link
                 to="/admin/approval"
-                className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
+                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out mt-8
+                  ${isActive("/admin/approval") ? "text-pink-500" : "text-[#3a1078] hover:text-pink-500"}`}
               >
                 <RiAdminFill size={40} />
                 {isExpanded && <span>Officers Approval</span>}
               </Link>
             </li>
             <li>
-            <Link
-              to="/admin/adminquestions"
-              className="flex items-center space-x-3 text-xl text-[#3a1078] font-bold hover:text-pink-500 transition duration-200 ease-in-out mt-8"
-            >
-              <RiQuestionFill size={40} />
-              {isExpanded && <span>Questions</span>}
-            </Link>
-          </li>
-
+              <Link
+                to="/admin/adminquestions"
+                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out mt-8
+                  ${isActive("/admin/adminquestions") ? "text-pink-500" : "text-[#3a1078] hover:text-pink-500"}`}
+              >
+                <RiQuestionFill size={40} />
+                {isExpanded && <span>Questions</span>}
+              </Link>
+            </li>
           </ul>
         </nav>
+
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className="absolute top-1/2 -translate-y-1/2 right-0 transform translate-x-1/2 bg-white p-2 rounded-full shadow-md border border-gray-300 transition-all duration-300 ease-in-out"

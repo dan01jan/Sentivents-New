@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowAltCircleDown } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -36,7 +38,6 @@ const AdminCreateQuestionnaire = () => {
         const data = await response.json();
 
         if (response.ok) {
-          // Group questions by trait
           const grouped = data.reduce((acc, question) => {
             const trait = question.traitId?.trait || "Unknown Trait";
             if (!acc[trait]) {
@@ -94,26 +95,25 @@ const AdminCreateQuestionnaire = () => {
 
       const result = await response.json();
       if (response.ok) {
-        console.log("Questionnaire created successfully:", result);
-        navigate("/admin/eventlist");
+        toast.success("Questionnaire created successfully!");
+        setTimeout(() => navigate("/admin/eventlist"), 1500); // Navigate after short delay
       } else {
         console.error("Error creating questionnaire:", result.message);
+        toast.error(`Error: ${result.message}`);
       }
     } catch (error) {
       console.error("Error:", error);
+      toast.error(`Error: ${error.message}`);
     }
   };
 
-  // Randomize selection and create questionnaire in one step
   const handleRandomizeQuestions = async () => {
     if (!selectedEventId) {
       alert("Please select an event first.");
       return;
     }
 
-    // Randomly select up to 5 questions per trait
     const randomizedSelection = {};
-
     Object.keys(groupedQuestions).forEach((trait) => {
       const questionsArray = groupedQuestions[trait];
       const shuffled = [...questionsArray].sort(() => Math.random() - 0.5);
@@ -123,10 +123,8 @@ const AdminCreateQuestionnaire = () => {
       });
     });
 
-    // Update the state (optional, for UI feedback)
     setSelectedQuestions(randomizedSelection);
 
-    // Prepare the selected question IDs from the randomized selection
     const selectedQuestionIds = Object.keys(randomizedSelection).filter(
       (id) => randomizedSelection[id]
     );
@@ -149,13 +147,15 @@ const AdminCreateQuestionnaire = () => {
 
       const result = await response.json();
       if (response.ok) {
-        console.log("Randomized questionnaire created successfully:", result);
-        navigate("/admin/eventlist");
+        toast.success("Randomized questionnaire created successfully!");
+        setTimeout(() => navigate("/admin/eventlist"), 1500);
       } else {
         console.error("Error creating randomized questionnaire:", result.message);
+        toast.error(`Error: ${result.message}`);
       }
     } catch (error) {
       console.error("Error:", error);
+      toast.error(`Error: ${error.message}`);
     }
   };
 
@@ -168,6 +168,7 @@ const AdminCreateQuestionnaire = () => {
 
   return (
     <div className="p-4 max-w-full mx-auto">
+      <ToastContainer /> {/* Toast container added here */}
       <h1 className="text-[8vh] font-semibold text-[#3a1078] font-tungsten">
         Create Event Questionnaire
       </h1>

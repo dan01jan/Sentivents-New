@@ -312,7 +312,7 @@ const AdminQuestions = () => {
                       <th className="border p-2">Question</th>
                       <th className="border p-2">Translated</th>
                       <th className="border p-2">Type</th>
-                      <th className="border p-2">Actions</th>
+                      {/* <th className="border p-2">Actions</th> */}
                     </tr>
                   </thead>
                   <tbody>
@@ -322,14 +322,14 @@ const AdminQuestions = () => {
                         <td className="border p-2">{q.question}</td>
                         <td className="border p-2">{q.translated}</td>
                         <td className="border p-2">{q.typeId?.eventType || "N/A"}</td>
-                        <td className="border p-2 text-center">
+                        {/* <td className="border p-2 text-center">
                           <button className="text-blue-600 hover:underline" onClick={() => handleEditQuestion(q)}>
                             Edit
                           </button>
                           <button className="text-red-600 ml-4 hover:underline" onClick={() => handleDeleteQuestion(q._id)}>
                             Delete
                           </button>
-                        </td>
+                        </td> */}
                       </tr>
                     ))}
                   </tbody>

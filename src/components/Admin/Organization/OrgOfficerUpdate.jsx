@@ -8,6 +8,9 @@ const apiUrl = import.meta.env.VITE_API_URL;
 const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
   const [officers, setOfficers] = useState([]);
 
+  const orgId = organization?._id || organization?.id;
+
+  // Fetch eligible officers only when modal is open + org is valid
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (organization && organization._id) {
@@ -19,7 +22,11 @@ const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
         .then((response) => response.json())
         .then((data) => {
           if (data) {
-            setOfficers(data);
+            // Assuming data contains the officers, each with userId
+            setOfficers(data.map((officer) => ({
+              ...officer,
+              userId: officer.userId || officer._id, // Ensure userId is set
+            })));
           }
         })
         .catch((error) => {
@@ -28,6 +35,14 @@ const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
         });
     }
   }, [organization]);
+  
+
+  // Reset officers list when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setOfficers([]);
+    }
+  }, [isOpen]);
 
   const handleOfficerChange = (index, field, value) => {
     const newOfficers = [...officers];
@@ -35,65 +50,49 @@ const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
       ...newOfficers[index],
       [field]: value,
     };
+  
+    // If the image is a file, handle it separately
+    if (field === "image" && value instanceof File) {
+      newOfficers[index].image = value;
+    }
+  
     setOfficers(newOfficers);
   };
+  
 
   const handleAddOfficer = () => {
     setOfficers([...officers, { name: "", image: "", position: "" }]);
     toast.info("New officer added");
   };
 
-  const handleRemoveOfficer = async (index) => {
-    const officerToRemove = officers[index];
+  const handleRemoveOfficer = (index) => {
     const newOfficers = officers.filter((_, i) => i !== index);
     setOfficers(newOfficers);
-
-    if (officerToRemove._id) {
-      const token = localStorage.getItem("authToken");
-      try {
-        const response = await fetch(
-          `${apiUrl}organizations/${organization._id}/officers`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ officers: newOfficers }),
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Failed to update officers after removal");
-        }
-        toast.success("Officer removed successfully");
-      } catch (error) {
-        console.error("Error updating officers after removal:", error);
-        toast.error("Failed to remove officer");
-      }
-    } else {
-      toast.info("Officer removed locally");
-    }
+    toast.info("Officer removed locally");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("authToken");
-
+  
     const formData = new FormData();
+  
+    // Add userId and other fields
     const officersForSubmission = officers.map((officer) => {
       if (officer.image instanceof File) {
-        return { ...officer, image: "" };
+        return { ...officer, image: "" }; // Remove image for file uploads to be handled separately
       }
       return officer;
     });
+  
     formData.append("officers", JSON.stringify(officersForSubmission));
-
+  
     officers.forEach((officer, index) => {
       if (officer.image instanceof File) {
         formData.append(`image_${index}`, officer.image);
       }
     });
-
+  
     try {
       const response = await fetch(
         `${apiUrl}organizations/${organization._id}/officers`,
@@ -175,18 +174,20 @@ const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
                       className="w-full border p-2 rounded"
                       accept="image/*"
                     />
-                    {officer.image && !(officer.image instanceof File) && (
-                      <img
-                        src={officer.image}
-                        alt={`Officer ${index + 1}`}
-                        className="mt-2 h-20"
-                      />
-                    )}
-                    {officer.image && officer.image instanceof File && (
-                      <p className="mt-2 text-sm text-gray-600">
-                        {officer.image.name}
-                      </p>
-                    )}
+                    {officer.image &&
+                      (officer.image instanceof File ? (
+                        <img
+                          src={URL.createObjectURL(officer.image)}
+                          alt={`Officer ${index + 1}`}
+                          className="mt-2 h-20 object-cover rounded"
+                        />
+                      ) : (
+                        <img
+                          src={officer.image}
+                          alt={`Officer ${index + 1}`}
+                          className="mt-2 h-20 object-cover rounded"
+                        />
+                      ))}
                   </div>
                   <div className="mb-4">
                     <label className="block text-gray-700">Position</label>

@@ -267,7 +267,7 @@ function Organization() {
                 {officer.name} {officer.surname}
               </p>
               <p className="text-[#3a1078]">{officer.position}</p>
-              <p className="text-[#3a1078]">{officer.email}</p>
+              {/* <p className="text-[#3a1078]">{officer.email}</p> */}
             </div>
           ))}
         </div>

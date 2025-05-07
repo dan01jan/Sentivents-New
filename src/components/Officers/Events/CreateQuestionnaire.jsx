@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowAltCircleDown } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -14,7 +16,6 @@ const CreateQuestionnaire = () => {
   const [ratings, setRatings] = useState({});
   const [expandedTraits, setExpandedTraits] = useState({});
 
-  // Retrieve eventId from localStorage
   useEffect(() => {
     const storedEventId = localStorage.getItem("selectedEventId");
     if (storedEventId) {
@@ -24,20 +25,15 @@ const CreateQuestionnaire = () => {
     }
   }, []);
 
-  // Fetch questions for the event and group them by trait
   useEffect(() => {
     const fetchQuestionsByEvent = async () => {
       if (!selectedEventId) return;
       setLoading(true);
       try {
-        console.log("Selected Event ID:", selectedEventId);
-        const response = await fetch(
-          `${apiUrl}questions/event-type/${selectedEventId}`
-        );
+        const response = await fetch(`${apiUrl}questions/event-type/${selectedEventId}`);
         const data = await response.json();
 
         if (response.ok) {
-          // Group questions by trait (using traitId.trait or fallback)
           const grouped = data.reduce((acc, question) => {
             const trait = question.traitId?.trait || "Unknown Trait";
             if (!acc[trait]) {
@@ -62,19 +58,16 @@ const CreateQuestionnaire = () => {
     fetchQuestionsByEvent();
   }, [selectedEventId]);
 
-  // Trigger questionnaire creation using currently selected questions
   const handleCreateQuestionnaire = async () => {
     if (!selectedEventId) {
       console.error("Event ID is missing");
       return;
     }
 
-    const selectedQuestionIds = Object.keys(selectedQuestions).filter(
-      (id) => selectedQuestions[id]
-    );
+    const selectedQuestionIds = Object.keys(selectedQuestions).filter(id => selectedQuestions[id]);
 
     if (selectedQuestionIds.length === 0) {
-      alert("Please select at least one question.");
+      toast.error("Please select at least one question.");
       return;
     }
 
@@ -96,50 +89,42 @@ const CreateQuestionnaire = () => {
 
       const result = await response.json();
       if (response.ok) {
-        console.log("Questionnaire created successfully:", result);
-        navigate("/dashboard/events");
+        toast.success("Questionnaire created successfully!");
+        setTimeout(() => navigate("/dashboard/events"), 2000); // Navigate after toast
       } else {
-        console.error("Error creating questionnaire:", result.message);
+        toast.error(`Error: ${result.message}`);
       }
     } catch (error) {
       console.error("Error:", error);
+      toast.error(`Error: ${error.message}`);
     }
   };
 
-  // Randomize selection for each trait and trigger questionnaire creation
   const handleRandomizeQuestions = async () => {
     if (!selectedEventId) {
-      alert("Please select an event first.");
+      toast.error("Please select an event first.");
       return;
     }
 
-    // Create a randomized selection object
     const randomizedSelection = {};
     Object.keys(groupedQuestions).forEach((trait) => {
       const questionsArray = groupedQuestions[trait];
-      // Shuffle the questions array using a simple random sort
       const shuffled = [...questionsArray].sort(() => Math.random() - 0.5);
-      // Select up to 5 questions (or all if less than 5)
       const selected = shuffled.slice(0, Math.min(5, shuffled.length));
       selected.forEach((q) => {
         randomizedSelection[q._id] = true;
       });
     });
 
-    // Update state (optional, for UI feedback)
     setSelectedQuestions(randomizedSelection);
 
-    // Extract selected question IDs
-    const selectedQuestionIds = Object.keys(randomizedSelection).filter(
-      (id) => randomizedSelection[id]
-    );
+    const selectedQuestionIds = Object.keys(randomizedSelection).filter(id => randomizedSelection[id]);
 
     if (selectedQuestionIds.length === 0) {
-      alert("No questions were randomized.");
+      toast.error("No questions were randomized.");
       return;
     }
 
-    // Now trigger the POST request to create the questionnaire
     const token = localStorage.getItem("authToken");
 
     try {
@@ -158,15 +143,14 @@ const CreateQuestionnaire = () => {
 
       const result = await response.json();
       if (response.ok) {
-        console.log("Randomized questionnaire created successfully:", result);
-        alert("Randomized questionnaire created successfully!");
-        navigate("/dashboard/events");
+        toast.success("Randomized questionnaire created successfully!");
+        setTimeout(() => navigate("/dashboard/events"), 2000);
       } else {
-        console.error("Error creating questionnaire:", result.message);
+        toast.error(`Error: ${result.message}`);
       }
     } catch (error) {
       console.error("Error:", error);
-      alert(error.message);
+      toast.error(`Error: ${error.message}`);
     }
   };
 
@@ -179,6 +163,7 @@ const CreateQuestionnaire = () => {
 
   return (
     <div className="p-4 max-w-full mx-auto">
+      <ToastContainer />
       <h1 className="text-[8vh] font-semibold text-[#3a1078] font-tungsten">
         Create Event Questionnaire
       </h1>
