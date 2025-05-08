@@ -53,7 +53,7 @@ const AdminAttendanceChart = () => {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '40px', gap: '40px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', padding: '40px', gap: '40px' }}>
       <div style={chartContainerStyle}>
         <h3 style={headingStyle}>Event Attendance</h3>
         <Bar data={chartData} />
@@ -63,27 +63,23 @@ const AdminAttendanceChart = () => {
       </div>
     </div>
   );
+  
 };
 
 const AttendanceTable = () => {
   const [usersAttendance, setUsersAttendance] = useState([]);
 
   useEffect(() => {
-    // Retrieve selected event ID from local storage
     const selectedEvent = localStorage.getItem('selectedEventId');
-    
     if (!selectedEvent) {
       console.error('No event ID found in local storage');
       return;
     }
 
-    // Fetch users attendance data from the server
     const fetchUsersAttendance = async () => {
       try {
         const response = await fetch(`${apiUrl}attendance/getUsersByEvent/${selectedEvent}`);
         const data = await response.json();
-        
-        // Update state with the fetched user attendance data
         setUsersAttendance(data);
       } catch (error) {
         console.error('Error fetching users attendance data:', error);
@@ -96,56 +92,66 @@ const AttendanceTable = () => {
   return (
     <div>
       <h3 style={headingStyle}>Event User Attendance</h3>
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            <th>User Name</th>
-            <th>Registered</th>
-            <th>Attended</th>
-            <th>Absent</th>
-          </tr>
-        </thead>
-        <tbody>
-          {usersAttendance.map((user) => (
-            <tr key={user.userId}>
-              <td>{user.firstName} {user.lastName}</td>
-              <td>
-                <input type="checkbox" checked={user.hasAttended} disabled />
-              </td>
-              <td>
-                <input type="checkbox" checked={user.hasAttended} disabled />
-              </td>
-              <td>
-                <input type="checkbox" checked={!user.hasAttended} disabled />
-              </td>
+      <div style={scrollableTableWrapperStyle}>
+        <table style={tableStyle}>
+          <thead>
+            <tr>
+              <th>User Name</th>
+              <th>Registered</th>
+              <th>Attended</th>
+              <th>Absent</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {usersAttendance.map((user) => (
+              <tr key={user.userId}>
+                <td>{user.firstName} {user.lastName}</td>
+                <td>
+                  <input type="checkbox" checked={user.hasAttended} disabled />
+                </td>
+                <td>
+                  <input type="checkbox" checked={user.hasAttended} disabled />
+                </td>
+                <td>
+                  <input type="checkbox" checked={!user.hasAttended} disabled />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
 
+// Add this style below your other styles:
+const scrollableTableWrapperStyle = {
+  maxHeight: '40vh',
+  overflowY: 'auto',
+  borderRadius: '10px',
+  border: '1px solid #ddd',
+};
+
+
 const chartContainerStyle = {
-    flex: 1,
-    backgroundColor: 'transparent',  // Set background to clear
-    borderRadius: '15px',
-    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-    padding: '40px',
-    textAlign: 'center',
-    width: '50vw',  // Set width to half of the screen width
-    height: '50vh',  // Set height to half of the screen height
-  };
-  
-  const tableContainerStyle = {
-    flex: 1,
-    backgroundColor: 'transparent',  // Set background to clear
-    borderRadius: '15px',
-    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-    padding: '40px',
-    width: '50vw',  // Set width to half of the screen width
-    height: '50vh',  // Set height to half of the screen height
-  };
+  backgroundColor: 'transparent',
+  borderRadius: '15px',
+  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+  padding: '40px',
+  textAlign: 'center',
+  width: '100%',
+  height: '50vh',
+};
+
+const tableContainerStyle = {
+  backgroundColor: 'transparent',
+  borderRadius: '15px',
+  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+  padding: '40px',
+  width: '100%',
+  height: '50vh',
+};
+
   
   const headingStyle = {
     fontFamily: 'Arial, sans-serif',

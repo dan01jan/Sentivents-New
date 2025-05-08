@@ -69,21 +69,16 @@ const AttendanceTable = () => {
   const [usersAttendance, setUsersAttendance] = useState([]);
 
   useEffect(() => {
-    // Retrieve selected event ID from local storage
     const selectedEvent = localStorage.getItem('selectedEventId');
-    
     if (!selectedEvent) {
       console.error('No event ID found in local storage');
       return;
     }
 
-    // Fetch users attendance data from the server
     const fetchUsersAttendance = async () => {
       try {
         const response = await fetch(`${apiUrl}attendance/getUsersByEvent/${selectedEvent}`);
         const data = await response.json();
-        
-        // Update state with the fetched user attendance data
         setUsersAttendance(data);
       } catch (error) {
         console.error('Error fetching users attendance data:', error);
@@ -94,36 +89,51 @@ const AttendanceTable = () => {
   }, []);
 
   return (
-    <div>
+    <div style={attendanceTableContainerStyle}>
       <h3 style={headingStyle}>Event User Attendance</h3>
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            <th>User Name</th>
-            <th>Registered</th>
-            <th>Attended</th>
-            <th>Absent</th>
-          </tr>
-        </thead>
-        <tbody>
-          {usersAttendance.map((user) => (
-            <tr key={user.userId}>
-              <td>{user.firstName} {user.lastName}</td>
-              <td>
-                <input type="checkbox" checked={user.hasAttended} disabled />
-              </td>
-              <td>
-                <input type="checkbox" checked={user.hasAttended} disabled />
-              </td>
-              <td>
-                <input type="checkbox" checked={!user.hasAttended} disabled />
-              </td>
+      <div style={scrollableTableWrapperStyle}>
+        <table style={tableStyle}>
+          <thead>
+            <tr>
+              <th>User Name</th>
+              <th>Registered</th>
+              <th>Attended</th>
+              <th>Absent</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {usersAttendance.map((user) => (
+              <tr key={user.userId}>
+                <td>{user.firstName} {user.lastName}</td>
+                <td>
+                  <input type="checkbox" checked={user.hasAttended} disabled />
+                </td>
+                <td>
+                  <input type="checkbox" checked={user.hasAttended} disabled />
+                </td>
+                <td>
+                  <input type="checkbox" checked={!user.hasAttended} disabled />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
+};
+
+const attendanceTableContainerStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',  // fill parent container (tableContainerStyle)
+};
+
+const scrollableTableWrapperStyle = {
+  flex: 1, // take up remaining space after heading
+  overflowY: 'auto',
+  borderRadius: '10px',
+  border: '1px solid #ddd',
 };
 
 const chartContainerStyle = {
