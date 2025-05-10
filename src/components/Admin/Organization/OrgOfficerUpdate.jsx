@@ -64,82 +64,84 @@ const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
     toast.info("Officer removed locally");
   };
 
-  const handleSaveOfficer = async (index) => {
-    const officer = officers[index];
-    const token = localStorage.getItem("authToken");
+// helpers/officers.js (or inside your component)
 
-    const formData = new FormData();
-    formData.append("name", officer.name);
-    formData.append("position", officer.position);
-    if (officer.image instanceof File) {
-      formData.append("image", officer.image);
-    }
+// Save (PATCH) officer
+const handleSaveOfficer = async (index) => {
+  const officer = officers[index];
+  const token = localStorage.getItem("authToken");
 
-    try {
-      const response = await fetch(
-        `${apiUrl}organizations/${orgId}/officers/${officer.userId}`,
-        {
-          method: "PATCH",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        }
-      );
+  const officerId = officer.userId || officer._id;
 
-      if (!response.ok) {
-        throw new Error("Failed to update officer");
+  if (!officerId) {
+    toast.error("Cannot update unsaved officer. Please save first.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("name", officer.name);
+  formData.append("position", officer.position);
+  if (officer.image instanceof File) {
+    formData.append("image", officer.image);
+  }
+
+  try {
+    const response = await fetch(
+      `${apiUrl}organizations/${orgId}/officers/${officerId}`,
+      {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
       }
-
-      const result = await response.json();
-      toast.success(`Officer ${officer.name} updated`);
-
-      const updatedOfficers = [...officers];
-      updatedOfficers[index] = {
-        ...officer,
-        ...result.officer,
-      };
-      setOfficers(updatedOfficers);
-    } catch (error) {
-      console.error("Error updating officer:", error);
-      toast.error("Failed to update officer");
-    }
-  };
-
-  const handleDeleteOfficer = async (index) => {
-    const officer = officers[index];
-
-    // If it's a new (unsaved) officer, just remove locally
-    if (officer.userId.startsWith("new_")) {
-      handleRemoveOfficer(index);
-      return;
-    }
-
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete officer "${officer.name}"?`
     );
-    if (!confirmDelete) return;
 
-    const token = localStorage.getItem("authToken");
+    if (!response.ok) throw new Error("Failed to update officer");
 
-    try {
-      const response = await fetch(
-        `${apiUrl}organizations/${orgId}/officers/${officer.userId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+    const result = await response.json();
+    toast.success(`Officer ${officer.name} updated`);
 
-      if (!response.ok) {
-        throw new Error("Failed to delete officer");
+    const updatedOfficers = [...officers];
+    updatedOfficers[index] = {
+      ...officer,
+      ...result.officer,
+    };
+    setOfficers(updatedOfficers);
+  } catch (error) {
+    console.error("Error updating officer:", error);
+    toast.error("Failed to update officer");
+  }
+};
+
+
+// Delete officer
+const handleDeleteOfficer = async (index) => {
+  const officer = officers[index];
+  const token = localStorage.getItem("authToken");
+
+  const officerId = officer.userId || officer._id;
+
+  if (!window.confirm(`Delete ${officer.name}?`)) return;
+
+  try {
+    const response = await fetch(
+      `${apiUrl}organizations/${orgId}/officers/${officerId}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
       }
+    );
 
-      toast.success(`Officer ${officer.name} deleted`);
-      handleRemoveOfficer(index);
-    } catch (error) {
-      console.error("Error deleting officer:", error);
-      toast.error("Failed to delete officer");
-    }
-  };
+    if (!response.ok) throw new Error("Failed to delete officer");
+
+    toast.success(`Officer ${officer.name} deleted`);
+    const updatedOfficers = officers.filter((_, i) => i !== index);
+    setOfficers(updatedOfficers);
+  } catch (error) {
+    console.error("Error deleting officer:", error);
+    toast.error("Failed to delete officer");
+  }
+};
+
 
   return (
     <AnimatePresence>
