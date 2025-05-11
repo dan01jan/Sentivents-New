@@ -120,7 +120,7 @@ const Attendance = () => {
 
   return (
     <div className="p-4 max-w-full mx-auto">
-      <h1 className="text-[4vh] md:text-[6vh] font-bold mb-4 font-semibold text-[#3a1078] text-center">
+      <h1 className="text-[4vh] md:text-[6vh] font-bold mb-4 font-semibold text-[#3a1078]">
         Registration Approval
       </h1>
       <div className="flex flex-col md:flex-row gap-6">
