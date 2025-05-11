@@ -127,7 +127,7 @@ const Wordtag = () => {
 
   return (
     <div className="p-4 max-w-full mx-auto">
-      <h1 className="text-[8vh] font-semibold text-[#3a1078] font-tungsten">
+      <h1 className="text-[6vh] font-semibold text-[#3a1078] font-semibold">
         Comment Cloud & Sentiment Analysis
       </h1>
       <div className="mb-4 flex gap-4">
@@ -165,7 +165,7 @@ const Wordtag = () => {
 
         {/* Sentiment Bar Graph */}
         <div className="w-1/2 min-w-[300px] h-[300px]">
-          <h2 className="text-xl font-bold text-gray-700 mb-2">
+          <h2 className="text-xl font-bold text-[#3a1078] mb-2">
             Sentiment Analysis
           </h2>
           {sentimentData.length > 0 ? (
