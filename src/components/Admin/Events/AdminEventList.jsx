@@ -128,7 +128,7 @@ const AdminEventList = () => {
 
   return (
     <div className="p-4 max-w-full mx-auto">
-      <h1 className="text-[8vh] font-bold mb-4 font-tungsten text-[#3a1078]">
+      <h1 className="text-[6vh] font-bold mb-4 font-semibold text-[#3a1078]">
         Admin Event List
       </h1>
 

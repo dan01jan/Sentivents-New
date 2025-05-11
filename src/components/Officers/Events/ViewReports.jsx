@@ -377,8 +377,7 @@ const ViewReports = () => {
 
   return (
     <div className="font-sans text-gray-800 p-4">
-      {/* Header & PDF Download Button */}
-      <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
+      <div className="flex flex-row items-center justify-between mb-6 gap-4">
         <h2 className="font-semibold text-2xl sm:text-3xl text-[#3a1078]">Event Reports</h2>
         <button
           onClick={handleDownloadPDF}
@@ -388,7 +387,6 @@ const ViewReports = () => {
           <FaDownload />
         </button>
       </div>
-
       {/* Top Charts Section */}
       <div className="flex flex-col lg:flex-row gap-6 mt-6">
         {/* Sentiment Chart */}
@@ -509,7 +507,7 @@ const ViewReports = () => {
         <div className="flex-1 p-4 border border-gray-300 rounded-lg max-h-[850px] overflow-y-auto">
           {aggregatedRatings.length > 0 && (
             <div>
-              <h3 className="text-lg text-[#2c3e50] mb-2">OCEAN Breakdown Ratings</h3>
+              <h3 className="text-lg text-[#3a1078] mb-2 font-semibold">OCEAN Breakdown Ratings</h3>
               <ul className="list-none pl-0 text-sm">
                 {aggregatedRatings.map((rating) => (
                   <li key={rating.trait} className="py-1">
@@ -535,7 +533,7 @@ const ViewReports = () => {
       <div className="mt-6 border border-gray-300 rounded-lg p-4" ref={uniqueInterpretationRef}>
         {generatedInterpretation && (
           <div>
-            <h3 className="text-lg text-[#2c3e50] mb-1">Event's Overall Interpretation</h3>
+            <h3 className="text-lg text-[#3a1078] mb-1 font-semibold">Event's Overall Interpretation</h3>
             <p className="text-sm">{generatedInterpretation}</p>
           </div>
         )}

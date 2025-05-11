@@ -250,7 +250,7 @@ function AdminDashboard() {
           {userData && (
             <div className="bg-[#f7f7f9] h-auto lg:h-[30vh] p-6 rounded-3xl shadow-lg mb-10 flex flex-col lg:flex-row justify-between items-center hover:shadow-xl transition-shadow duration-300">
               <div className="mx-10 text-center lg:text-left">
-                <h1 className="text-[5vh] lg:text-[8vh] font-bold text-[#3a1078] font-tungsten">
+                <h1 className="text-[5vh] lg:text-[6vh] font-bold text-[#3a1078] font-tungsten">
                   Hi, {userData.name} {userData.surname}! 👋
                 </h1>
               </div>
