@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
 ChartJS.register(CategoryScale, BarElement, Title, Tooltip, Legend);
 
@@ -10,25 +17,20 @@ const AttendanceChart = () => {
   const [attendanceData, setAttendanceData] = useState({ present: 0, absent: 0, registered: 0 });
 
   useEffect(() => {
-    // Retrieve selected event ID from local storage
     const selectedEvent = localStorage.getItem('selectedEventId');
-    
     if (!selectedEvent) {
       console.error('No event ID found in local storage');
       return;
     }
 
-    // Fetch attendance data from your server
     const fetchAttendanceData = async () => {
       try {
         const response = await fetch(`${apiUrl}attendance/hasAttendedCounts/${selectedEvent}`);
         const data = await response.json();
-        
-        // Update state with the fetched data
         setAttendanceData({
           present: data.Present || 0,
           absent: data.Absent || 0,
-          registered: data.Present + data.Absent || 0
+          registered: (data.Present || 0) + (data.Absent || 0),
         });
       } catch (error) {
         console.error('Error fetching attendance data:', error);
@@ -38,14 +40,13 @@ const AttendanceChart = () => {
     fetchAttendanceData();
   }, []);
 
-  // Data for the bar chart
   const chartData = {
     labels: ['Registered', 'Attended', 'Absent'],
     datasets: [
       {
         label: 'User Attendance',
         data: [attendanceData.registered, attendanceData.present, attendanceData.absent],
-        backgroundColor: ['#FFCC00', '#00FF00', '#FF0000'], // Colors for each bar
+        backgroundColor: ['#FFCC00', '#00FF00', '#FF0000'],
         borderColor: ['#FF9900', '#00CC00', '#CC0000'],
         borderWidth: 1,
       },
@@ -53,12 +54,12 @@ const AttendanceChart = () => {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '40px', gap: '40px' }}>
-      <div style={chartContainerStyle}>
-        <h3 style={headingStyle}>Event Attendance</h3>
+    <div className="flex justify-between items-start p-10 gap-10 flex-wrap">
+      <div className="flex-1 bg-transparent rounded-2xl shadow-md p-10 text-center w-full lg:w-1/2 h-[50vh]">
+        <h3 className="font-semibold text-[#3a1078] text-2xl mb-5">Event Attendance</h3>
         <Bar data={chartData} />
       </div>
-      <div style={tableContainerStyle}>
+      <div className="flex-1 bg-transparent rounded-2xl shadow-md p-10 w-full lg:w-1/2 h-[50vh] overflow-auto">
         <AttendanceTable />
       </div>
     </div>
@@ -69,21 +70,16 @@ const AttendanceTable = () => {
   const [usersAttendance, setUsersAttendance] = useState([]);
 
   useEffect(() => {
-    // Retrieve selected event ID from local storage
     const selectedEvent = localStorage.getItem('selectedEventId');
-    
     if (!selectedEvent) {
       console.error('No event ID found in local storage');
       return;
     }
 
-    // Fetch users attendance data from the server
     const fetchUsersAttendance = async () => {
       try {
         const response = await fetch(`${apiUrl}attendance/getUsersByEvent/${selectedEvent}`);
         const data = await response.json();
-        
-        // Update state with the fetched user attendance data
         setUsersAttendance(data);
       } catch (error) {
         console.error('Error fetching users attendance data:', error);
@@ -95,27 +91,27 @@ const AttendanceTable = () => {
 
   return (
     <div>
-      <h3 style={headingStyle}>Event User Attendance</h3>
-      <table style={tableStyle}>
-        <thead>
+      <h3 className="font-semibold text-[#3a1078] text-2xl mb-5">Event User Attendance</h3>
+      <table className="w-full text-left border-collapse text-base">
+        <thead className="border-b-2 border-gray-300">
           <tr>
-            <th>User Name</th>
-            <th>Registered</th>
-            <th>Attended</th>
-            <th>Absent</th>
+            <th className="py-2 px-4">User Name</th>
+            <th className="py-2 px-4">Registered</th>
+            <th className="py-2 px-4">Attended</th>
+            <th className="py-2 px-4">Absent</th>
           </tr>
         </thead>
         <tbody>
           {usersAttendance.map((user) => (
-            <tr key={user.userId}>
-              <td>{user.firstName} {user.lastName}</td>
-              <td>
+            <tr key={user.userId} className="hover:bg-gray-100">
+              <td className="py-2 px-4">{user.firstName} {user.lastName}</td>
+              <td className="py-2 px-4 text-center">
                 <input type="checkbox" checked={user.hasAttended} disabled />
               </td>
-              <td>
+              <td className="py-2 px-4 text-center">
                 <input type="checkbox" checked={user.hasAttended} disabled />
               </td>
-              <td>
+              <td className="py-2 px-4 text-center">
                 <input type="checkbox" checked={!user.hasAttended} disabled />
               </td>
             </tr>
@@ -126,46 +122,4 @@ const AttendanceTable = () => {
   );
 };
 
-const chartContainerStyle = {
-    flex: 1,
-    backgroundColor: 'transparent',  // Set background to clear
-    borderRadius: '15px',
-    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-    padding: '40px',
-    textAlign: 'center',
-    width: '50vw',  // Set width to half of the screen width
-    height: '50vh',  // Set height to half of the screen height
-  };
-  
-  const tableContainerStyle = {
-    flex: 1,
-    backgroundColor: 'transparent',  // Set background to clear
-    borderRadius: '15px',
-    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-    padding: '40px',
-    width: '50vw',  // Set width to half of the screen width
-    height: '50vh',  // Set height to half of the screen height
-  };
-  
-  const headingStyle = {
-    fontFamily: 'Arial, sans-serif',
-    color: '#333',
-    marginBottom: '20px',
-    fontSize: '24px', // Larger heading text
-  };
-  
-  const tableStyle = {
-    width: '100%',
-    borderCollapse: 'collapse',
-    backgroundColor: 'transparent',  // Set table background to transparent
-    borderRadius: '10px',
-    overflow: 'hidden',
-    fontSize: '16px',
-  };
-  
-  const tableRowHoverStyle = {
-    backgroundColor: '#f1f1f1',
-  };
-  
-  
 export default AttendanceChart;

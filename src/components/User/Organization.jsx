@@ -111,7 +111,7 @@ function Organization() {
           backgroundRepeat: "no-repeat",
         }}
       >
-        <h2 className="text-[8vh] sm:text-[4vh] md:text-[6vh] lg:text-[6vh] xl:text-[8vh] font-semibold text-[#3a1078] leading-tight uppercase mb-10 text-center px-4">
+        <h2 className="text-[8vh] sm:text-[4vh] md:text-[6vh] lg:text-[6vh] xl:text-[6vh] font-semibold text-[#3a1078] leading-tight uppercase mb-10 text-center px-4">
           Organizations inside TUP
         </h2>
 

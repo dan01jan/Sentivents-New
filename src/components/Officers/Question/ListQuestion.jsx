@@ -172,7 +172,7 @@ const ListQuestion = () => {
   return (
     <div className="p-4 max-w-full mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-center w-full gap-4">
-        <h1 className="text-[5vh] md:text-[8vh] sm:text-[10vh] font-semibold text-[#3a1078] font-tungsten text-center md:text-left">
+        <h1 className="text-[4vh] md:text-[6vh] font-bold mb-4 font-semibold text-[#3a1078] text-center md:text-left">
           Questionnaire Dashboard
         </h1>
         <button
@@ -198,7 +198,7 @@ const ListQuestion = () => {
             >
               ✕
             </button>
-            <h2 className="text-[5vh] font-bold mb-4 font-tungsten text-[#3a1078]">
+            <h2 className="text-[5vh] font-bold mb-4 font-semibold text-[#3a1078]">
               {editingQuestion ? "Edit Question" : "Create Questions"}
             </h2>
 
@@ -263,7 +263,7 @@ const ListQuestion = () => {
             <button onClick={() => setShowWarningModal(false)} className="absolute top-4 right-4 text-2xl">
               ✕
             </button>
-            <h2 className="text-[5vh] font-bold mb-4 font-tungsten text-[#3a1078]">⚠️ Important Notice</h2>
+            <h2 className="text-[5vh] font-bold mb-4 font-semibold text-[#3a1078]">⚠️ Important Notice</h2>
             <p className="mb-6 text-lg text-gray-700">
               Questionnaires should be approved by a registered psychometrician. Kindly coordinate with a psychometrician before creating a
               questionnaire.
@@ -289,7 +289,7 @@ const ListQuestion = () => {
       )}
 
       {/* QUESTIONS */}
-      <h1 className="font-tungsten text-[4vh] md:text-[5vh] text-[#3a1078] flex items-center gap-4 mt-8">
+      <h1 className="font-semibold text-[4vh] md:text-[5vh] text-[#3a1078] flex items-center gap-4 mt-8">
         <span className="flex-1 h-1 bg-[#3a1078]"></span>
         Created Questions
         <span className="flex-1 h-1 bg-[#3a1078]"></span>
@@ -297,7 +297,7 @@ const ListQuestion = () => {
 
       {Object.entries(groupedQuestions).map(([type, traits]) => (
         <div key={type} className="mb-8 border-b pb-4">
-          <button onClick={() => toggleVisibility(type)} className="w-full flex justify-between items-center text-[4vh] md:text-[5vh] font-bold text-[#3a1078] font-tungsten mb-4 focus:outline-none">
+          <button onClick={() => toggleVisibility(type)} className="w-full flex justify-between items-center text-[3vh] md:text-[4vh] font-bold text-[#3a1078] font-semibold mb-4 focus:outline-none">
             {type}
             <FaArrowAltCircleDown
               size={35}
@@ -308,7 +308,7 @@ const ListQuestion = () => {
           {visibleTypes[type] &&
             Object.entries(traits).map(([trait, questions]) => (
               <div key={trait} className="border border-gray-300 p-4 rounded-lg mb-4">
-                <h3 className="text-[3vh] md:text-[4vh] font-semibold font-tungsten text-[#3a1078] mb-3">{trait}</h3>
+                <h3 className="text-[2vh] md:text-[3vh] font-semibold font-semibold text-[#3a1078] mb-3">{trait}</h3>
                 <table className="w-full border-collapse border border-gray-300 text-sm md:text-base">
                   <thead>
                     <tr className="bg-gray-100">
