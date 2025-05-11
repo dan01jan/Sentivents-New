@@ -90,36 +90,93 @@ const AttendanceTable = () => {
   }, []);
 
   return (
-    <div>
-      <h3 className="font-semibold text-[#3a1078] text-2xl mb-5">Event User Attendance</h3>
-      <table className="w-full text-left border-collapse text-base">
-        <thead className="border-b-2 border-gray-300">
-          <tr>
-            <th className="py-2 px-4">User Name</th>
-            <th className="py-2 px-4">Registered</th>
-            <th className="py-2 px-4">Attended</th>
-            <th className="py-2 px-4">Absent</th>
-          </tr>
-        </thead>
-        <tbody>
-          {usersAttendance.map((user) => (
-            <tr key={user.userId} className="hover:bg-gray-100">
-              <td className="py-2 px-4">{user.firstName} {user.lastName}</td>
-              <td className="py-2 px-4 text-center">
-                <input type="checkbox" checked={user.hasAttended} disabled />
-              </td>
-              <td className="py-2 px-4 text-center">
-                <input type="checkbox" checked={user.hasAttended} disabled />
-              </td>
-              <td className="py-2 px-4 text-center">
-                <input type="checkbox" checked={!user.hasAttended} disabled />
-              </td>
+    <div style={attendanceTableContainerStyle}>
+      <h3 style={headingStyle}>Event User Attendance</h3>
+      <div style={scrollableTableWrapperStyle}>
+        <table style={tableStyle}>
+          <thead>
+            <tr>
+              <th>User Name</th>
+              <th>Registered</th>
+              <th>Attended</th>
+              <th>Absent</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {usersAttendance.map((user) => (
+              <tr key={user.userId}>
+                <td>{user.firstName} {user.lastName}</td>
+                <td>
+                  <input type="checkbox" checked={user.hasAttended} disabled />
+                </td>
+                <td>
+                  <input type="checkbox" checked={user.hasAttended} disabled />
+                </td>
+                <td>
+                  <input type="checkbox" checked={!user.hasAttended} disabled />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
 
+const attendanceTableContainerStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',  // fill parent container (tableContainerStyle)
+};
+
+const scrollableTableWrapperStyle = {
+  flex: 1, // take up remaining space after heading
+  overflowY: 'auto',
+  borderRadius: '10px',
+  border: '1px solid #ddd',
+};
+
+const chartContainerStyle = {
+    flex: 1,
+    backgroundColor: 'transparent',  // Set background to clear
+    borderRadius: '15px',
+    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+    padding: '40px',
+    textAlign: 'center',
+    width: '50vw',  // Set width to half of the screen width
+    height: '50vh',  // Set height to half of the screen height
+  };
+  
+  const tableContainerStyle = {
+    flex: 1,
+    backgroundColor: 'transparent',  // Set background to clear
+    borderRadius: '15px',
+    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+    padding: '40px',
+    width: '50vw',  // Set width to half of the screen width
+    height: '50vh',  // Set height to half of the screen height
+  };
+  
+  const headingStyle = {
+    fontFamily: 'Arial, sans-serif',
+    color: '#333',
+    marginBottom: '20px',
+    fontSize: '24px', // Larger heading text
+  };
+  
+  const tableStyle = {
+    width: '100%',
+    borderCollapse: 'collapse',
+    backgroundColor: 'transparent',  // Set table background to transparent
+    borderRadius: '10px',
+    overflow: 'hidden',
+    fontSize: '16px',
+  };
+  
+  const tableRowHoverStyle = {
+    backgroundColor: '#f1f1f1',
+  };
+  
+  
 export default AttendanceChart;
