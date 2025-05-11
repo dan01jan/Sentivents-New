@@ -54,12 +54,12 @@ const AttendanceChart = () => {
   };
 
   return (
-    <div className="flex justify-between items-start p-10 gap-10 flex-wrap">
-      <div className="flex-1 bg-transparent rounded-2xl shadow-md p-10 text-center w-full lg:w-1/2 h-[50vh]">
-        <h3 className="font-semibold text-[#3a1078] text-2xl mb-5">Event Attendance</h3>
+    <div className="flex flex-col lg:flex-row justify-between items-start p-5 gap-5 flex-wrap">
+      <div className="flex-1 bg-transparent rounded-2xl shadow-md p-5 text-center w-full lg:w-1/2 h-[50vh]">
+        <h3 className="font-semibold text-[#3a1078] text-xl md:text-2xl mb-5">Event Attendance</h3>
         <Bar data={chartData} />
       </div>
-      <div className="flex-1 bg-transparent rounded-2xl shadow-md p-10 w-full lg:w-1/2 h-[50vh] overflow-auto">
+      <div className="flex-1 bg-transparent rounded-2xl shadow-md p-5 w-full lg:w-1/2 h-[50vh] overflow-auto">
         <AttendanceTable />
       </div>
     </div>
@@ -90,29 +90,32 @@ const AttendanceTable = () => {
   }, []);
 
   return (
-    <div style={attendanceTableContainerStyle}>
-      <h3 style={headingStyle}>Event User Attendance</h3>
-      <div style={scrollableTableWrapperStyle}>
-        <table style={tableStyle}>
-          <thead>
+    <>
+      <h3 className="font-semibold text-[#3a1078] text-xl md:text-2xl mb-5">
+        Event User Attendance
+      </h3>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-auto border-collapse">
+          <thead className="bg-gray-100 text-gray-700">
             <tr>
-              <th>User Name</th>
-              <th>Registered</th>
-              <th>Attended</th>
-              <th>Absent</th>
+              <th className="p-3 text-left border-b">User Name</th>
+              <th className="p-3 text-center border-b">Registered</th>
+              <th className="p-3 text-center border-b">Attended</th>
+              <th className="p-3 text-center border-b">Absent</th>
             </tr>
           </thead>
           <tbody>
             {usersAttendance.map((user) => (
-              <tr key={user.userId}>
-                <td>{user.firstName} {user.lastName}</td>
-                <td>
+              <tr key={user.userId} className="hover:bg-gray-50">
+                <td className="p-3 border-b">{user.firstName} {user.lastName}</td>
+                <td className="p-3 text-center border-b">
                   <input type="checkbox" checked={user.hasAttended} disabled />
                 </td>
-                <td>
+                <td className="p-3 text-center border-b">
                   <input type="checkbox" checked={user.hasAttended} disabled />
                 </td>
-                <td>
+                <td className="p-3 text-center border-b">
                   <input type="checkbox" checked={!user.hasAttended} disabled />
                 </td>
               </tr>
@@ -120,63 +123,8 @@ const AttendanceTable = () => {
           </tbody>
         </table>
       </div>
-    </div>
+    </>
   );
 };
 
-const attendanceTableContainerStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%',  // fill parent container (tableContainerStyle)
-};
-
-const scrollableTableWrapperStyle = {
-  flex: 1, // take up remaining space after heading
-  overflowY: 'auto',
-  borderRadius: '10px',
-  border: '1px solid #ddd',
-};
-
-const chartContainerStyle = {
-    flex: 1,
-    backgroundColor: 'transparent',  // Set background to clear
-    borderRadius: '15px',
-    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-    padding: '40px',
-    textAlign: 'center',
-    width: '50vw',  // Set width to half of the screen width
-    height: '50vh',  // Set height to half of the screen height
-  };
-  
-  const tableContainerStyle = {
-    flex: 1,
-    backgroundColor: 'transparent',  // Set background to clear
-    borderRadius: '15px',
-    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-    padding: '40px',
-    width: '50vw',  // Set width to half of the screen width
-    height: '50vh',  // Set height to half of the screen height
-  };
-  
-  const headingStyle = {
-    fontFamily: 'Arial, sans-serif',
-    color: '#333',
-    marginBottom: '20px',
-    fontSize: '24px', // Larger heading text
-  };
-  
-  const tableStyle = {
-    width: '100%',
-    borderCollapse: 'collapse',
-    backgroundColor: 'transparent',  // Set table background to transparent
-    borderRadius: '10px',
-    overflow: 'hidden',
-    fontSize: '16px',
-  };
-  
-  const tableRowHoverStyle = {
-    backgroundColor: '#f1f1f1',
-  };
-  
-  
 export default AttendanceChart;
