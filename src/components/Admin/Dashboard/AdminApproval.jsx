@@ -24,47 +24,56 @@ const AdminApproval = () => {
         setLoading(false);
       }
     };
-  
+
     fetchOrganizations();
   }, []);
-  
-  
 
-  const handleApprove = async (officerId) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        `${apiUrl}users/organizations/officers/${officerId}/approve`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (!response.ok) throw new Error("Failed to approve officer.");
-      // Remove approved officer from the state
-      setOrgData((prevData) =>
-        prevData.map((org) => {
-          if (org._id === selectedOrgId) {
-            return {
-              ...org,
-              officers: org.officers.filter(
-                (officer) => officer._id !== officerId
-              ),
-            };
-          }
-          return org;
-        })
-      );
-      setSelectedOfficers((prev) =>
-        prev.filter((officer) => officer._id !== officerId)
-      );
-    } catch (error) {
-      console.error(error);
+const handleApprove = async (officerId) => {
+  try {
+    const token = localStorage.getItem("token");
+    const organizationId = localStorage.getItem("selectedOrgId");
+
+    const response = await fetch(
+      `${apiUrl}users/organizations/officers/${officerId}/approve`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ organizationId }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to approve officer.");
     }
-  };
+
+    const data = await response.json();
+    console.log("Officer approved:", data);
+
+    setOrgData((prevData) =>
+      prevData.map((org) => {
+        if (org._id === selectedOrgId) {
+          return {
+            ...org,
+            officers: org.officers.filter((officer) => officer._id !== officerId),
+          };
+        }
+        return org;
+      })
+    );
+
+    setSelectedOfficers((prev) =>
+      prev.filter((officer) => officer._id !== officerId)
+    );
+  } catch (error) {
+    console.error("Error in approving officer:", error);
+    alert(error.message);
+  }
+};
+
 
   const handleDecline = async (officerId) => {
     try {
@@ -82,9 +91,7 @@ const AdminApproval = () => {
       );
       if (!response.ok) throw new Error("Failed to decline officer.");
       const data = await response.json();
-      // Optionally show a message.
-      alert(data.message);
-      // Remove the declined officer from the state so that the name no longer shows.
+      alert(data.message); // Show success message
       setOrgData((prevData) =>
         prevData.map((org) => {
           if (org._id === selectedOrgId) {
@@ -103,15 +110,20 @@ const AdminApproval = () => {
       );
     } catch (error) {
       console.error(error);
+      alert("Failed to decline officer.");
     }
   };
 
-  // When opening the modal, store the organization's id and its pending officers.
-  // (The aggregate query already returns only pending officers.)
-  const openModal = (orgId, officers) => {
-    setSelectedOrgId(orgId);
-    setSelectedOfficers(officers);
-  };
+    const openModal = (orgId, officers, orgName) => {
+      console.log("Clicked organization:", orgId, orgName);
+      setSelectedOrgId(orgId);
+      setSelectedOfficers(officers);
+
+      // Save to localStorage
+      localStorage.setItem("selectedOrgId", orgId);
+      localStorage.setItem("selectedOrgName", orgName);
+    };
+
 
   if (loading)
     return (
@@ -136,7 +148,7 @@ const AdminApproval = () => {
             <div
               key={org._id || org.name}
               className="relative bg-white rounded-lg p-6 shadow-md hover:shadow-xl transition w-full max-w-xs h-40 flex justify-center items-center cursor-pointer"
-              onClick={() => openModal(org._id, pendingApprovals)}
+             onClick={() => openModal(org._id, pendingApprovals, org.name)}
             >
               <h2 className="text-center text-2xl text-[#4e31aa] font-semibold">
                 {org.name}

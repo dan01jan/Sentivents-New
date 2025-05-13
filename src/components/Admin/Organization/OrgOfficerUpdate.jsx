@@ -9,135 +9,189 @@ const OrgOfficerUpdate = ({ isOpen, onClose, organization }) => {
   const [officers, setOfficers] = useState([]);
   const orgId = organization?._id || organization?.id;
 
-  // Fetch eligible officers when modal is open + org is valid
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-    if (isOpen && organization && orgId) {
-      fetch(`${apiUrl}organizations/eligible-officers/${orgId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data) {
-            setOfficers(
-              data.map((officer) => ({
-                ...officer,
-                userId: officer.userId || officer._id,
-              }))
-            );
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching eligible officers:", error);
-          toast.error("Failed to fetch eligible officers");
-        });
-    }
-  }, [isOpen, organization, orgId]);
 
-  // Reset officers list when modal closes
+    const fetchOfficers = async () => {
+      try {
+        const response = await fetch(`${apiUrl}organizations/eligible-officers/${orgId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await response.json();
+
+        if (data) {
+          const normalize = (name) => name?.toLowerCase().trim();
+
+          const grouped = data.reduce((acc, officer) => {
+            const normName = normalize(officer.name);
+            if (!acc[normName]) acc[normName] = [];
+            acc[normName].push(officer);
+            return acc;
+          }, {});
+
+          const filtered = Object.values(grouped).flatMap((group) => {
+            const withImage = group.filter((o) => !!o.image);
+            return withImage.length > 0 ? withImage : [group[0]];
+          });
+
+          setOfficers(
+            filtered.map((officer) => ({
+              ...officer,
+              userId: officer.userId || officer._id,
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching officers:", error);
+        toast.error("Failed to fetch eligible officers");
+      }
+    };
+
+    if (isOpen && orgId) {
+      fetchOfficers();
+    }
+  }, [isOpen, orgId]);
+
   useEffect(() => {
     if (!isOpen) setOfficers([]);
   }, [isOpen]);
 
   const handleOfficerChange = (index, field, value) => {
-    const newOfficers = [...officers];
-    newOfficers[index] = { ...newOfficers[index], [field]: value };
-
+    const updated = [...officers];
+    updated[index] = { ...updated[index], [field]: value };
     if (field === "image" && value instanceof File) {
-      newOfficers[index].image = value;
+      updated[index].image = value;
     }
-
-    setOfficers(newOfficers);
+    setOfficers(updated);
   };
 
   const handleAddOfficer = () => {
-    setOfficers([
-      ...officers,
-      { name: "", image: "", position: "", userId: `new_${Date.now()}` },
-    ]);
+    setOfficers([...officers, { name: "", image: "", position: "" }]);
     toast.info("New officer added");
   };
 
-  const handleRemoveOfficer = (index) => {
-    const newOfficers = officers.filter((_, i) => i !== index);
-    setOfficers(newOfficers);
-    toast.info("Officer removed locally");
-  };
+  const handleCreateOfficer = async (index) => {
+    const officer = officers[index];
+    const token = localStorage.getItem("authToken");
 
-// helpers/officers.js (or inside your component)
-
-// Save (PATCH) officer
-const handleSaveOfficer = async (index) => {
-  const officer = officers[index];
-  const token = localStorage.getItem("authToken");
-
-  const officerId = officer.userId || officer._id;
-
-  if (!officerId) {
-    toast.error("Cannot update unsaved officer. Please save first.");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("name", officer.name);
-  formData.append("position", officer.position);
-  if (officer.image instanceof File) {
-    formData.append("image", officer.image);
-  }
-
-  try {
-    const response = await fetch(
-      `${apiUrl}organizations/${orgId}/officers/${officerId}`,
-      {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      }
+    const isDuplicate = officers.some(
+      (existing, i) =>
+        i !== index &&
+        existing.name.trim().toLowerCase() === officer.name.trim().toLowerCase()
     );
 
-    if (!response.ok) throw new Error("Failed to update officer");
+    if (isDuplicate) {
+      toast.error("An officer with this name already exists.");
+      return;
+    }
 
-    const result = await response.json();
-    toast.success(`Officer ${officer.name} updated`);
+    try {
+      const formData = new FormData();
+      formData.append("name", officer.name);
+      formData.append("position", officer.position);
+      if (officer.image) {
+        formData.append("image", officer.image);
+      }
 
-    const updatedOfficers = [...officers];
-    updatedOfficers[index] = {
-      ...officer,
-      ...result.officer,
-    };
-    setOfficers(updatedOfficers);
-  } catch (error) {
-    console.error("Error updating officer:", error);
-    toast.error("Failed to update officer");
-  }
-};
+      const response = await fetch(`${apiUrl}organizations/${orgId}/officers`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Failed to add officer: ${text}`);
+      }
 
-// Delete officer
+      const result = await response.json();
+      toast.success(`Officer ${officer.name} added successfully`);
+
+      const updated = [...officers];
+      updated[index] = {
+        ...result.officer,
+        userId: result.officer.userId || result.officer._id,
+      };
+      setOfficers(updated);
+    } catch (error) {
+      console.error("Create officer error:", error);
+      toast.error(`Error: ${error.message}`);
+    }
+  };
+
+  const handleSaveOfficer = async (index) => {
+    const officer = officers[index];
+    const token = localStorage.getItem("authToken");
+
+    const officerId = officer._id || officer.userId;
+
+    if (!officerId || !orgId) {
+      toast.error("Missing officer or organization ID");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${apiUrl}organizations/${orgId}/officers/${officerId}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json", // 👈 Add this
+          },
+          body: JSON.stringify({ position: officer.position }), // 👈 Send JSON
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to update officer");
+
+      const result = await response.json();
+      toast.success(`Updated officer ${officer.name}`);
+
+      const updated = [...officers];
+      updated[index] = { ...result.officer };
+      setOfficers(updated);
+    } catch (error) {
+      console.error("Update officer error:", error);
+      toast.error(`Error: ${error.message}`);
+    }
+  };
+
 const handleDeleteOfficer = async (index) => {
   const officer = officers[index];
   const token = localStorage.getItem("authToken");
-
   const officerId = officer.userId || officer._id;
 
-  if (!window.confirm(`Delete ${officer.name}?`)) return;
+  if (!orgId || !officerId) {
+    toast.error("Missing data");
+    return;
+  }
+
+  if (!window.confirm(`Are you sure you want to delete ${officer?.name}?`)) return;
 
   try {
     const response = await fetch(
       `${apiUrl}organizations/${orgId}/officers/${officerId}`,
       {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       }
     );
 
     if (!response.ok) throw new Error("Failed to delete officer");
 
-    toast.success(`Officer ${officer.name} deleted`);
-    const updatedOfficers = officers.filter((_, i) => i !== index);
-    setOfficers(updatedOfficers);
+    // Remove officer from the officers list in UI after successful deletion
+    const updated = officers.filter((_, i) => i !== index);
+    setOfficers(updated);
+
+    toast.success(`Officer ${officer?.name} deleted successfully`);
   } catch (error) {
-    console.error("Error deleting officer:", error);
+    console.error("Delete error:", error);
     toast.error("Failed to delete officer");
   }
 };
@@ -167,81 +221,77 @@ const handleDeleteOfficer = async (index) => {
               </button>
             </div>
 
-            {officers.map((officer, index) => (
-              <div key={officer.userId} className="mb-6 border p-4 rounded">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-semibold">Officer {index + 1}</h3>
-                  <div className="flex space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => handleSaveOfficer(index)}
-                      className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
-                    >
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteOfficer(index)}
-                      className="bg-red-600 text-white px-3 py-1 rounded text-sm"
-                    >
-                      Delete
-                    </button>
+            {officers.map((officer, index) => {
+              const isExisting = !!(officer._id || officer.userId);
+              const isReadOnly = isExisting;
+              return (
+                <div key={officer.userId || index} className="mb-6 border p-4 rounded">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold">Officer {index + 1}</h3>
+                    <div className="flex space-x-2">
+                      {isExisting ? (
+                        <button
+                          onClick={() => handleSaveOfficer(index)}
+                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                        >
+                          Save
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleCreateOfficer(index)}
+                          className="bg-green-600 text-white px-3 py-1 rounded text-sm"
+                        >
+                          Add
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDeleteOfficer(index)}
+                        className="bg-red-600 text-white px-3 py-1 rounded text-sm"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                </div>
 
-                <div className="mb-4">
-                  <label className="block text-gray-700">Name</label>
                   <input
                     type="text"
                     value={officer.name}
-                    onChange={(e) =>
-                      handleOfficerChange(index, "name", e.target.value)
-                    }
-                    className="w-full border p-2 rounded"
-                    required
+                    onChange={(e) => handleOfficerChange(index, "name", e.target.value)}
+                    disabled={isReadOnly}
+                    className={`w-full border p-2 rounded ${isReadOnly ? "bg-gray-100 cursor-not-allowed" : ""}`}
                   />
-                </div>
 
-                <div className="mb-4">
-                  <label className="block text-gray-700">Image</label>
-                  <input
-                    type="file"
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      handleOfficerChange(index, "image", file);
-                    }}
-                    className="w-full border p-2 rounded"
-                    accept="image/*"
-                  />
-                  {officer.image &&
-                    (officer.image instanceof File ? (
-                      <img
-                        src={URL.createObjectURL(officer.image)}
-                        alt={`Officer ${index + 1}`}
-                        className="mt-2 h-20 object-cover rounded"
-                      />
-                    ) : (
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Image</label>
+                    {officer.image && typeof officer.image === "string" && (
                       <img
                         src={officer.image}
                         alt={`Officer ${index + 1}`}
                         className="mt-2 h-20 object-cover rounded"
                       />
-                    ))}
-                </div>
+                    )}
+                    {!isReadOnly && (
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleOfficerChange(index, "image", e.target.files[0])}
+                        className="mt-2"
+                      />
+                    )}
+                  </div>
 
-                <div className="mb-4">
-                  <label className="block text-gray-700">Position</label>
-                  <input
-                    type="text"
-                    value={officer.position}
-                    onChange={(e) =>
-                      handleOfficerChange(index, "position", e.target.value)
-                    }
-                    className="w-full border p-2 rounded"
-                  />
+                  <div className="mb-4">
+                    <label className="block text-gray-700">Position</label>
+                    <input
+                      type="text"
+                      value={officer.position}
+                      onChange={(e) => handleOfficerChange(index, "position", e.target.value)}
+                      className="w-full border p-2 rounded"
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             <div className="mb-4">
               <button
