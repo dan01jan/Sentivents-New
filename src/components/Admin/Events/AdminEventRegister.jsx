@@ -13,10 +13,10 @@ const AdminEventRegister = () => {
   const [error, setError] = useState("");
   const [attendees, setAttendees] = useState([]);
   const [selectedAttendees, setSelectedAttendees] = useState([]);
-  
+  const [searchTerm, setSearchTerm] = useState("");
+
   const navigate = useNavigate();
 
-  // Get event ID from localStorage on component mount
   useEffect(() => {
     const storedEventId = localStorage.getItem("selectedEventId");
     if (storedEventId) {
@@ -26,7 +26,6 @@ const AdminEventRegister = () => {
     }
   }, []);
 
-  // Once eventId is set, fetch attendees and event details
   useEffect(() => {
     if (eventId) {
       fetchAttendees();
@@ -41,7 +40,6 @@ const AdminEventRegister = () => {
         `${apiUrl}attendance/getUsersByEvent/${eventId}`
       );
       const eventResponse = await axios.get(`${apiUrl}events/${eventId}`);
-
       setAttendees(attendeesResponse.data || []);
       setEventName(eventResponse.data.name);
     } catch (err) {
@@ -83,7 +81,6 @@ const AdminEventRegister = () => {
         draggable: true,
       });
 
-      // Update the local state for attendees
       setAttendees((prev) =>
         prev.map((att) =>
           selectedAttendees.includes(att.userId)
@@ -100,6 +97,12 @@ const AdminEventRegister = () => {
     }
   };
 
+  const filteredAttendees = attendees.filter((attendee) =>
+    `${attendee.firstName} ${attendee.lastName}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="p-4 max-w-full mx-auto">
       <h1 className="text-[6vh] font-bold mb-4 font-semibold text-[#3a1078]">
@@ -111,7 +114,16 @@ const AdminEventRegister = () => {
         <h2 className="font-medium text-[4vh] text-[#3a1078] md:text-[4vh] sm:text-[4vh]">
           {eventName ? `${eventName} - Attendees` : "Event Attendees"}
         </h2>
-        {attendees.length > 0 ? (
+
+        <input
+          type="text"
+          placeholder="Search by name"
+          className="w-full my-4 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3a1078]"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
+        {filteredAttendees.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse border border-gray-300">
               <thead>
@@ -122,7 +134,7 @@ const AdminEventRegister = () => {
                 </tr>
               </thead>
               <tbody>
-                {attendees.map((attendee) => (
+                {filteredAttendees.map((attendee) => (
                   <tr key={attendee.userId} className="text-center">
                     <td className="p-2 border border-gray-300">
                       <input

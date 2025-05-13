@@ -16,6 +16,7 @@ const Attendance = () => {
   const [selectedAttendees, setSelectedAttendees] = useState([]);
   const [fetchClicked, setFetchClicked] = useState(false);
   const [eventType, setEventType] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const navigate = useNavigate();
 
@@ -24,15 +25,13 @@ const Attendance = () => {
       try {
         const token = localStorage.getItem("authToken");
         const userData = JSON.parse(localStorage.getItem("userData"));
-        // Try to get organization name from local storage (for officer users)
         const officerOrgName = localStorage.getItem("officerOrgName");
         const organizationName = officerOrgName || (userData && userData.organizationName);
-        
+
         if (!organizationName) {
           throw new Error("Organization name not found in user data.");
         }
-  
-        // Append eventType as query param if provided
+
         const typeQuery = eventType ? `&type=${eventType}` : "";
         const response = await axios.get(
           `${apiUrl}events/adminevents?organization=${organizationName}${typeQuery}`,
@@ -155,52 +154,66 @@ const Attendance = () => {
             <p className="text-red-500 mt-4">No attendees found</p>
           )}
         </div>
-  
+
         <div className="bg-white shadow-lg rounded-2xl p-6 w-full md:w-2/3">
           <h2 className="font-semibold text-[3vh] md:text-[4vh] text-[#3a1078]">
             {eventName ? `${eventName} - Attendees` : "Event Attendees"}
           </h2>
-          {attendees.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-300">
-                <thead>
-                  <tr className="bg-gray-200">
-                    <th className="p-2 border border-gray-300">Select</th>
-                    <th className="p-2 border border-gray-300">Name</th>
-                    <th className="p-2 border border-gray-300">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {attendees.map((attendee) => (
-                    <tr key={attendee.userId} className="text-center">
-                      <td className="p-2 border border-gray-300">
-                        <input
-                          type="checkbox"
-                          disabled={attendee.hasRegistered}
-                          checked={selectedAttendees.includes(attendee.userId)}
-                          onChange={() => handleCheckboxChange(attendee.userId)}
-                        />
-                      </td>
-                      <td className="p-2 border border-gray-300">
-                        {attendee.firstName} {attendee.lastName}
-                      </td>
-                      <td className="p-2 border border-gray-300">
-                        {attendee.hasRegistered ? (
-                          <span className="text-green-600 font-bold">✔ Approved</span>
-                        ) : (
-                          "Pending"
-                        )}
-                      </td>
+
+          {attendees.length > 0 && (
+            <>
+              <input
+                type="text"
+                placeholder="Search by name..."
+                className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value.toLowerCase())}
+              />
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-gray-300">
+                  <thead>
+                    <tr className="bg-gray-200">
+                      <th className="p-2 border border-gray-300">Select</th>
+                      <th className="p-2 border border-gray-300">Name</th>
+                      <th className="p-2 border border-gray-300">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="text-gray-500">No attendees to display</p>
+                  </thead>
+                  <tbody>
+                    {attendees
+                      .filter((attendee) =>
+                        `${attendee.firstName} ${attendee.lastName}`
+                          .toLowerCase()
+                          .includes(searchQuery)
+                      )
+                      .map((attendee) => (
+                        <tr key={attendee.userId} className="text-center">
+                          <td className="p-2 border border-gray-300">
+                            <input
+                              type="checkbox"
+                              disabled={attendee.hasRegistered}
+                              checked={selectedAttendees.includes(attendee.userId)}
+                              onChange={() => handleCheckboxChange(attendee.userId)}
+                            />
+                          </td>
+                          <td className="p-2 border border-gray-300">
+                            {attendee.firstName} {attendee.lastName}
+                          </td>
+                          <td className="p-2 border border-gray-300">
+                            {attendee.hasRegistered ? (
+                              <span className="text-green-600 font-bold">✔ Approved</span>
+                            ) : (
+                              "Pending"
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
-  
-          {selectedAttendees.length > 0 && (
+
+          {attendees.length > 0 && selectedAttendees.length > 0 && (
             <button
               onClick={approveAttendance}
               className="w-full mt-4 py-2 bg-green-500 text-white rounded-lg"
