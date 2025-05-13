@@ -176,7 +176,7 @@ function Organization() {
             </div>
             <div className="flex-1 p-6 flex flex-col justify-between">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">{org.name}</h3>
+                <h3 className="text-2xl font-bold text-[#3a1078] mb-3">{org.name}</h3>
                 <p className="text-gray-700 text-base leading-relaxed line-clamp-3">
                   {org.description}
                 </p>
@@ -248,7 +248,7 @@ function Organization() {
       >
         &times;
       </button>
-      <h2 className="text-[5vh] font-bold mb-4 font-tungsten text-[#3a1078] text-center">
+      <h2 className="text-[5vh] font-bold mb-4 font-semibold text-[#3a1078] text-center">
         Officers
       </h2>
       {officers.length > 0 ? (

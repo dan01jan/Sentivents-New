@@ -144,52 +144,52 @@ const AdminViewReports = () => {
     }
   }, [allUsersOverallInterpretation, sentimentCounts, allUsersAggregatedRatings]);
 
-// Fetch sentiment counts and details for the currently selected event
-const fetchSentimentData = async () => {
-  const eventId = localStorage.getItem('selectedEventId');
-  if (!eventId) {
-    console.error('No selectedEventId in localStorage');
-    return;
-  }
+  // Fetch sentiment counts and details for the currently selected event
+  const fetchSentimentData = async () => {
+    const eventId = localStorage.getItem('selectedEventId');
+    if (!eventId) {
+      console.error('No selectedEventId in localStorage');
+      return;
+    }
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    // 1) Counts endpoint stays the same
-    const { data: counts } = await axios.get(
-      `${apiUrl}ratings/${eventId}?type=counts`
-    );
-    setSentimentCounts(counts);
+      // 1) Counts endpoint stays the same
+      const { data: counts } = await axios.get(
+        `${apiUrl}ratings/${eventId}?type=counts`
+      );
+      setSentimentCounts(counts);
 
-    // 2) Details endpoint now returns { user, sentiment, feedback, score }
-    const { data: details } = await axios.get(
-      `${apiUrl}ratings/event/${eventId}/sentiments`
-    );
+      // 2) Details endpoint now returns { user, sentiment, feedback, score }
+      const { data: details } = await axios.get(
+        `${apiUrl}ratings/event/${eventId}/sentiments`
+      );
 
-    // 3) Just ensure it’s an array and set it directly
-    setEventSentiments(Array.isArray(details) ? details : []);
+      // 3) Just ensure it’s an array and set it directly
+      setEventSentiments(Array.isArray(details) ? details : []);
 
-    // 4) Reset the dropdown
-    setSelectedUser("All Users");
+      // 4) Reset the dropdown
+      setSelectedUser("All Users");
 
-  } catch (error) {
-    console.error("Error fetching sentiment data", error);
-    setEventSentiments([]);
-  } finally {
-    setLoading(false);
-  }
-};
+    } catch (error) {
+      console.error("Error fetching sentiment data", error);
+      setEventSentiments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-// Call it on mount
-useEffect(() => {
-  fetchSentimentData();
-}, []);
+  // Call it on mount
+  useEffect(() => {
+    fetchSentimentData();
+  }, []);
 
 
-// …and then call it once on mount:
-useEffect(() => {
-  fetchSentimentData();
-}, []);
+  // …and then call it once on mount:
+  useEffect(() => {
+    fetchSentimentData();
+  }, []);
 
 
   // Fetch aggregated ratings and overall interpretation for all users
@@ -386,19 +386,13 @@ useEffect(() => {
   }
 
   return (
-    <div style={{ fontFamily: 'Arial, sans-serif', color: '#333', padding: '10px' }}>
+    <div className="font-sans text-gray-800 p-4">
       {/* Header & PDF Download Button */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
-        <h2 style={{ color: '#3b5998', fontSize: '1.5rem', marginRight: '10px' }}>Event Reports</h2>
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
+        <h2 className="font-semibold text-2xl sm:text-3xl text-[#3a1078]">Event Reports</h2>
         <button
           onClick={handleDownloadPDF}
-          style={{
-            backgroundColor: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '1.5rem',
-            color: '#3b5998',
-          }}
+          className="text-[#3b5998] text-2xl hover:text-[#2a4470] transition"
           title="Download PDF"
         >
           <FaDownload />
@@ -406,19 +400,20 @@ useEffect(() => {
       </div>
 
       {/* Top Charts Section */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', marginTop: '20px' }}>
-        {/* Sentiment Distribution Chart */}
-        <div
-          style={{ flex: 1, padding: '10px', border: '1px solid #ddd', borderRadius: '8px' }}
-          ref={sentimentChartRef}
-        >
-          <h3 style={{ fontSize: '1.25rem', color: '#2c3e50' }}>Sentiment Distribution</h3>
+      <div className="flex flex-col lg:flex-row gap-6 mt-6">
+        {/* Sentiment Chart */}
+        <div className="flex-1 p-4 border border-gray-300 rounded-lg" ref={sentimentChartRef}>
+          <h3 className="text-lg font-semibold text-[#3a1078] mb-3">Sentiment Distribution</h3>
           <Bar
             data={{
               labels: ['Positive', 'Negative', 'Neutral'],
               datasets: [
                 {
-                  data: [sentimentCounts.positive || 0, sentimentCounts.negative || 0, sentimentCounts.neutral || 0],
+                  data: [
+                    sentimentCounts.positive || 0,
+                    sentimentCounts.negative || 0,
+                    sentimentCounts.neutral || 0,
+                  ],
                   backgroundColor: ['#58d68d', '#e74c3c', '#f39c12'],
                   borderColor: ['#45b16d', '#e23d2f', '#d48e1e'],
                   borderWidth: 1,
@@ -429,16 +424,18 @@ useEffect(() => {
           />
         </div>
 
-        {/* Behavioral Ratings Chart with User Dropdown */}
-        <div style={{ flex: 1, padding: '20px', border: '1px solid #ddd', borderRadius: '8px' }}>
-          <h3 style={{ fontSize: '1.5rem', color: '#2c3e50' }}>Behavioral Ratings</h3>
-          <div style={{ marginBottom: '20px' }}>
-            <label htmlFor="userDropdown" style={{ fontWeight: 'bold', marginRight: '10px' }}>Select User:</label>
+        {/* Ratings Chart */}
+        <div className="flex-1 p-4 border border-gray-300 rounded-lg">
+          <h3 className="text-lg font-semibold text-[#3a1078] mb-3">Behavioral Ratings</h3>
+          <div className="mb-4">
+            <label htmlFor="userDropdown" className="text-sm font-medium mr-2 text-[#3a1078]">
+              Select User:
+            </label>
             <select
               id="userDropdown"
-              value={selectedUser || ''}
+              value={selectedUser}
               onChange={(e) => setSelectedUser(e.target.value)}
-              style={{ padding: '5px', borderRadius: '5px', border: '1px solid #ccc' }}
+              className="p-2 rounded border border-gray-300 w-full sm:w-auto"
             >
               <option value="All Users">All Users</option>
               {users.map((user) => (
@@ -452,87 +449,82 @@ useEffect(() => {
         </div>
       </div>
 
-      {/* Two Columns Container */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '20px',
-          marginTop: '20px'
-        }}
-        ref={tablesContainerRef}
-      >
-        {/* Left Column: Vertical Stack */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* User Sentiment Data Table */}
-          <div style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '8px', maxHeight: '400px', overflowY: 'auto' }}>
-            <h3 style={{ fontSize: '1.25rem', color: '#2c3e50' }}>User Sentiment Data</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ backgroundColor: '#f2f2f2' }}>
-                  <th style={{ padding: '8px', border: '1px solid #ddd' }}>User</th>
-                  <th style={{ padding: '8px', border: '1px solid #ddd' }}>Sentiment</th>
-                  <th style={{ padding: '8px', border: '1px solid #ddd' }}>Feedback</th>
-                  <th style={{ padding: '8px', border: '1px solid #ddd' }}>Score</th>
-                </tr>
-              </thead>
-              <tbody>
-                {eventSentiments.map((sentiment, index) => (
-                  <tr key={index}>
-                    <td style={{ padding: '8px', border: '1px solid #ddd' }}>{sentiment.user}</td>
-                    <td style={{ padding: '8px', border: '1px solid #ddd' }}>{sentiment.sentiment}</td>
-                    <td style={{ padding: '8px', border: '1px solid #ddd' }}>{sentiment.feedback}</td>
-                    <td style={{ padding: '8px', border: '1px solid #ddd' }}>{sentiment.score}</td>
+      {/* Two Columns Section */}
+      <div className="flex flex-col lg:flex-row gap-6 mt-6" ref={tablesContainerRef}>
+        {/* Left Column */}
+        <div className="flex-1 flex flex-col gap-6">
+          {/* Sentiment Table */}
+          <div className="p-4 border border-gray-300 rounded-lg max-h-[400px] overflow-y-auto">
+            <h3 className="text-lg font-semibold text-[#3a1078] mb-3">User Sentiment Data</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-100 text-sm">
+                    <th className="p-2 border">User</th>
+                    <th className="p-2 border">Sentiment</th>
+                    <th className="p-2 border">Feedback</th>
+                    <th className="p-2 border">Score</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {eventSentiments.map((sentiment, index) => (
+                    <tr key={index} className="text-sm">
+                      <td className="p-2 border">{sentiment.userName}</td>
+                      <td className="p-2 border">{sentiment.sentiment}</td>
+                      <td className="p-2 border">{sentiment.feedback}</td>
+                      <td className="p-2 border">{sentiment.score}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          {/* Behavioral Analysis Per User Table */}
-          <div style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '8px', maxHeight: '400px', overflowY: 'auto' }}>
-            <h3 style={{ fontSize: '1.25rem', color: '#2c3e50' }}>Behavioral Analysis Per User</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ backgroundColor: '#f2f2f2' }}>
-                  <th style={{ padding: '8px', border: '1px solid #ddd' }}>Name</th>
-                  <th style={{ padding: '8px', border: '1px solid #ddd' }}>OCEAN Breakdown Ratings</th>
-                  <th style={{ padding: '8px', border: '1px solid #ddd' }}>Overall Interpretations</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map(user => {
-                  const analysis = userAnalyses[user.userId];
-                  const ratingsSummary =
-                    analysis && analysis.aggregatedRatings
-                      ? analysis.aggregatedRatings.map(r => `${r.trait}: ${r.averageRating}`).join(', ')
-                      : 'N/A';
-                  const userOverallInterpretation =
-                    analysis && analysis.overallInterpretation
-                      ? analysis.overallInterpretation
-                      : 'N/A';
-                  return (
-                    <tr key={user.userId}>
-                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>{user.name}</td>
-                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>{ratingsSummary}</td>
-                      <td style={{ padding: '8px', border: '1px solid #ddd' }}>{userOverallInterpretation}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          {/* Behavioral Table */}
+          <div className="p-4 border border-gray-300 rounded-lg max-h-[400px] overflow-y-auto">
+            <h3 className="text-lg font-semibold text-[#3a1078] mb-3">Behavioral Analysis Per User</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-100 text-sm">
+                    <th className="p-2 border">Name</th>
+                    <th className="p-2 border">OCEAN Ratings</th>
+                    <th className="p-2 border">Interpretation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((user) => {
+                    const analysis = userAnalyses[user.userId];
+                    const ratingsSummary =
+                      analysis && analysis.aggregatedRatings
+                        ? analysis.aggregatedRatings.map((r) => `${r.trait}: ${r.averageRating}`).join(', ')
+                        : 'N/A';
+                    const userInterpretation =
+                      analysis && analysis.overallInterpretation ? analysis.overallInterpretation : 'N/A';
+                    return (
+                      <tr key={user.userId} className="text-sm">
+                        <td className="p-2 border">{user.name}</td>
+                        <td className="p-2 border">{ratingsSummary}</td>
+                        <td className="p-2 border">{userInterpretation}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
-        {/* Right Column: Aggregated Ratings and Overall Interpretations */}
-        <div style={{ flex: 1, padding: '10px', border: '1px solid #ddd', borderRadius: '8px', maxHeight: '850px', overflowY: 'auto' }}>
+        {/* Right Column */}
+        <div className="flex-1 p-4 border border-gray-300 rounded-lg max-h-[850px] overflow-y-auto">
           {aggregatedRatings.length > 0 && (
             <div>
-              <h3 style={{ fontSize: '1.25rem', color: '#2c3e50' }}>OCEAN Breakdown Ratings</h3>
-              <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
-                {aggregatedRatings.map(rating => (
-                  <li key={rating.trait} style={{ padding: '5px 0', fontSize: '1rem' }}>
-                    <span style={{ fontWeight: 'bold' }}>{rating.trait}:</span> {rating.averageRating}{' '}
-                    {selectedUser === "All Users" && ` (Total Responses: ${rating.totalResponses})`}
+              <h3 className="text-lg text-[#3a1078] mb-2 font-semibold">OCEAN Breakdown Ratings</h3>
+              <ul className="list-none pl-0 text-sm">
+                {aggregatedRatings.map((rating) => (
+                  <li key={rating.trait} className="py-1">
+                    <span className="font-bold">{rating.trait}:</span> {rating.averageRating}{' '}
+                    {selectedUser === 'All Users' && ` (Total Responses: ${rating.totalResponses})`}
                     <br />
                     <em>{rating.interpretation}</em>
                   </li>
@@ -540,30 +532,21 @@ useEffect(() => {
               </ul>
             </div>
           )}
-
           {overallInterpretation && (
-            <div style={{ marginTop: '20px', padding: '10px', background: '#f9f9f9', borderRadius: '8px' }}>
-              <h3 style={{ fontSize: '1.25rem', color: '#2c3e50' }}>Overall Interpretation</h3>
-              <p>{overallInterpretation}</p>
+            <div className="mt-5 p-4 bg-gray-100 rounded-lg">
+              <h3 className="text-lg text-[#2c3e50] mb-1">Overall Interpretation</h3>
+              <p className="text-sm">{overallInterpretation}</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Unique Overall Interpretation Section */}
-      <div
-        style={{
-          marginTop: '20px',
-          border: '1px solid #ddd',
-          borderRadius: '8px',
-          padding: '10px'
-        }}
-        ref={uniqueInterpretationRef}
-      >
+      {/* Final Interpretation */}
+      <div className="mt-6 border border-gray-300 rounded-lg p-4" ref={uniqueInterpretationRef}>
         {generatedInterpretation && (
           <div>
-            <h3 style={{ fontSize: '1.25rem', color: '#2c3e50' }}>Event's Overall Interpretation</h3>
-            <p>{generatedInterpretation}</p>
+            <h3 className="text-lg text-[#3a1078] mb-1 font-semibold">Event's Overall Interpretation</h3>
+            <p className="text-sm">{generatedInterpretation}</p>
           </div>
         )}
       </div>

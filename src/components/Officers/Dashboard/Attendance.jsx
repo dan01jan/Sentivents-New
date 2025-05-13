@@ -120,12 +120,12 @@ const Attendance = () => {
 
   return (
     <div className="p-4 max-w-full mx-auto">
-      <h1 className="text-[8vh] font-bold mb-4 font-tungsten text-[#3a1078]">
+      <h1 className="text-[4vh] md:text-[6vh] font-bold mb-4 font-semibold text-[#3a1078]">
         Registration Approval
       </h1>
-      <div className="flex gap-6">
-        <div className="bg-white shadow-lg rounded-2xl p-6 w-1/3">
-          <h2 className="font-tungsten text-[4vh] text-[#3a1078] md:text-[6vh] sm:text-[4vh]">
+      <div className="flex flex-col md:flex-row gap-6">
+        <div className="bg-white shadow-lg rounded-2xl p-6 w-full md:w-1/3">
+          <h2 className="font-semibold text-[2vh] md:text-[4vh] text-[#3a1078]">
             Select Event
           </h2>
           <select
@@ -155,9 +155,9 @@ const Attendance = () => {
             <p className="text-red-500 mt-4">No attendees found</p>
           )}
         </div>
-
-        <div className="bg-white shadow-lg rounded-2xl p-6 w-2/3">
-          <h2 className="font-tungsten text-[4vh] text-[#3a1078] md:text-[6vh] sm:text-[4vh]">
+  
+        <div className="bg-white shadow-lg rounded-2xl p-6 w-full md:w-2/3">
+          <h2 className="font-semibold text-[3vh] md:text-[4vh] text-[#3a1078]">
             {eventName ? `${eventName} - Attendees` : "Event Attendees"}
           </h2>
           {attendees.length > 0 ? (
@@ -199,7 +199,7 @@ const Attendance = () => {
           ) : (
             <p className="text-gray-500">No attendees to display</p>
           )}
-
+  
           {selectedAttendees.length > 0 && (
             <button
               onClick={approveAttendance}

@@ -156,7 +156,7 @@ const handleDeleteOfficer = async (index) => {
             className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto"
           >
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-[5vh] font-tungsten text-[#3a1078] mb-6">
+              <h2 className="text-[5vh] font-semibold text-[#3a1078] mb-6">
                 Update Officers
               </h2>
               <button

@@ -102,13 +102,13 @@ const AdminEventRegister = () => {
 
   return (
     <div className="p-4 max-w-full mx-auto">
-      <h1 className="text-[8vh] font-bold mb-4 font-tungsten text-[#3a1078]">
+      <h1 className="text-[6vh] font-bold mb-4 font-semibold text-[#3a1078]">
         Registration Approval
       </h1>
       {error && <p className="text-red-500">{error}</p>}
       {loading && <p>Loading...</p>}
       <div className="bg-white shadow-lg rounded-2xl p-6">
-        <h2 className="font-tungsten text-[4vh] text-[#3a1078] md:text-[6vh] sm:text-[4vh]">
+        <h2 className="font-medium text-[4vh] text-[#3a1078] md:text-[4vh] sm:text-[4vh]">
           {eventName ? `${eventName} - Attendees` : "Event Attendees"}
         </h2>
         {attendees.length > 0 ? (

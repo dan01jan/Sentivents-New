@@ -126,12 +126,11 @@ const AdminApproval = () => {
 
   return (
     <div className="p-4 max-w-full mx-auto">
-      <h1 className="text-[8vh] font-bold mb-4 font-tungsten text-[#3a1078]">
+      <h1 className="text-[6vh] font-bold mb-4 font-semibold text-[#3a1078]">
         Officer Approval Dashboard
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {orgData.map((org) => {
-          // The "officers" array here contains pending officers (isOfficer false and declined false).
           const pendingApprovals = org.officers;
           return (
             <div
@@ -139,7 +138,7 @@ const AdminApproval = () => {
               className="relative bg-white rounded-lg p-6 shadow-md hover:shadow-xl transition w-full max-w-xs h-40 flex justify-center items-center cursor-pointer"
               onClick={() => openModal(org._id, pendingApprovals)}
             >
-              <h2 className="text-center text-2xl text-[#3a1078] font-semibold">
+              <h2 className="text-center text-2xl text-[#4e31aa] font-semibold">
                 {org.name}
               </h2>
               {pendingApprovals.length > 0 && (
