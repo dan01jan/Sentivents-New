@@ -469,7 +469,7 @@ const AdminViewReports = () => {
                 <tbody>
                   {eventSentiments.map((sentiment, index) => (
                     <tr key={index} className="text-sm">
-                      <td className="p-2 border">{sentiment.userName}</td>
+                      <td className="p-2 border">{sentiment.user}</td>
                       <td className="p-2 border">{sentiment.sentiment}</td>
                       <td className="p-2 border">{sentiment.feedback}</td>
                       <td className="p-2 border">{sentiment.score}</td>
