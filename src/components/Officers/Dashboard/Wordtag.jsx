@@ -114,14 +114,28 @@ const Wordtag = () => {
     }
   };
 
-  const processComments = (comments) => {
-    const commentMap = {};
-    comments.forEach((comment) => {
-      const text = comment.text.trim().toLowerCase();
-      commentMap[text] = (commentMap[text] || 0) + 1;
+const processComments = (comments) => {
+  const wordFrequency = {};
+  const stopwords = new Set([
+    "ang", "at", "nung", "ng", "na", "si", "sa", "ni", "kay", "ay", "ko", "mo", "ikaw", "ako", "pero", "talaga", "so", "the"
+  ]);
+
+  comments.forEach((comment) => {
+    const text = comment.text.toLowerCase();
+    const words = text.split(/\s+/); // Split by whitespace
+
+    words.forEach((word) => {
+      // Remove punctuation
+      const cleanWord = word.replace(/[.,!?]/g, "");
+      if (cleanWord && !stopwords.has(cleanWord)) {
+        wordFrequency[cleanWord] = (wordFrequency[cleanWord] || 0) + 1;
+      }
     });
-    return Object.entries(commentMap).map(([text, value]) => ({ text, value }));
-  };
+  });
+
+  return Object.entries(wordFrequency).map(([text, value]) => ({ text, value }));
+};
+
 
   const words = processComments(comments);
 
