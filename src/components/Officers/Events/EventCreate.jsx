@@ -13,6 +13,7 @@ const EventCreate = () => {
     description: "",
     type: "",
     organization: "",
+    secondOrganization: "",
     department: "",
     dateStart: "",
     dateEnd: "",
@@ -26,9 +27,22 @@ const EventCreate = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showConflictModal, setShowConflictModal] = useState(false);
+  const [organizations, setOrganizations] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
+
+     const fetchOrganizations = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}organizations/`);
+      setOrganizations(response.data);
+    } catch (err) {
+      console.error("Error fetching organizations:", err);
+    }
+  };
+
+  fetchOrganizations();
+
     const fetchEventTypes = async () => {
       try {
         const response = await axios.get(`${apiUrl}types/`);
@@ -270,6 +284,27 @@ const EventCreate = () => {
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
           />
         </div>
+
+        <div>
+          <label htmlFor="secondOrganization" className="block text-lg font-medium mb-2">
+            In partnership with: (Optional)
+          </label>
+          <select
+            id="secondOrganization"
+            name="secondOrganization"
+            value={formData.secondOrganization}
+            onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+          >
+            <option value="">None</option>
+            {organizations.map((org) => (
+              <option key={org._id} value={org.name}>
+                {org.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>

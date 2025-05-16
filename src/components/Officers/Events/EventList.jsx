@@ -381,6 +381,9 @@ const EventList = () => {
                   <div className="font-bold text-lg mb-2 truncate">
                     {event.organization || "No Organization"}
                   </div>
+                   <p className="text-gray-700 text-sm mb-2 line-clamp-3">
+                    In partnership with {event.secondOrganization || "No Description"}
+                  </p>
                   <p className="text-gray-700 text-sm mb-2 line-clamp-3">
                     {event.description || "No Description"}
                   </p>
