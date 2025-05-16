@@ -182,6 +182,8 @@ const AdminEventList = () => {
                   <span className="font-semibold">Date:</span>{" "}
                   {event.dateStart
                     ? new Date(event.dateStart).toLocaleDateString()
+                    : "No Date"} to {event.dateEnd
+                    ? new Date(event.dateEnd).toLocaleDateString()
                     : "No Date"}
                 </p>
                 <p className="text-xs text-gray-600 truncate mb-2">

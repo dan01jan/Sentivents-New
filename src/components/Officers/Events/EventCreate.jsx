@@ -25,14 +25,13 @@ const EventCreate = () => {
   const [eventTypes, setEventTypes] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showConflictModal, setShowConflictModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEventTypes = async () => {
       try {
         const response = await axios.get(`${apiUrl}types/`);
-        console.log("Fetched event types:", response.data);
-
         if (Array.isArray(response.data)) {
           setEventTypes(response.data);
         } else {
@@ -46,7 +45,6 @@ const EventCreate = () => {
 
     fetchEventTypes();
 
-    // Pre-fill organization, department, and userId based on user data from localStorage
     const userData = JSON.parse(localStorage.getItem("userData"));
     const officerOrgName = localStorage.getItem("officerOrgName");
     const organizationName =
@@ -87,44 +85,57 @@ const EventCreate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Show loader when submission starts
+    setLoading(true);
 
     if (formData.images.length === 0) {
       toast.error("Please select at least one image.", {
         position: "bottom-right",
         autoClose: 3000,
       });
-      setLoading(false); // Hide loader if validation fails
+      setLoading(false);
       return;
     }
 
-    const startDateTime = new Date(
-      `${formData.dateStart}T${formData.timeStart}:00`
-    );
+    const startDateTime = new Date(`${formData.dateStart}T${formData.timeStart}:00`);
     const endDateTime = new Date(`${formData.dateEnd}T${formData.timeEnd}:00`);
-
-    const form = new FormData();
-    for (const [key, value] of Object.entries(formData)) {
-      if (
-        !["images", "dateStart", "dateEnd", "timeStart", "timeEnd"].includes(
-          key
-        )
-      ) {
-        form.append(key, value);
-      }
-    }
-
-    form.append("dateStart", startDateTime.toISOString());
-    form.append("dateEnd", endDateTime.toISOString());
-    formData.images.forEach((file) => form.append("images", file));
-
-    // Add 'type' field correctly as ObjectId
-    if (formData.type) {
-      form.append("type", formData.type);
-    }
 
     try {
       const token = localStorage.getItem("authToken");
+
+      const conflictResponse = await fetch(`${apiUrl}events/check-conflict`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          dateStart: startDateTime.toISOString(),
+          dateEnd: endDateTime.toISOString(),
+        }),
+      });
+
+      const conflictData = await conflictResponse.json();
+
+      if (conflictData.conflict) {
+        setShowConflictModal(true);
+        setLoading(false);
+        return;
+      }
+
+      const form = new FormData();
+      for (const [key, value] of Object.entries(formData)) {
+        if (!["images", "dateStart", "dateEnd", "timeStart", "timeEnd"].includes(key)) {
+          form.append(key, value);
+        }
+      }
+
+      form.append("dateStart", startDateTime.toISOString());
+      form.append("dateEnd", endDateTime.toISOString());
+      formData.images.forEach((file) => form.append("images", file));
+      if (formData.type) {
+        form.append("type", formData.type);
+      }
+
       const response = await fetch(`${apiUrl}events/create`, {
         method: "POST",
         headers: {
@@ -134,7 +145,6 @@ const EventCreate = () => {
       });
 
       const data = await response.json();
-      console.log("API Response:", data);
 
       if (response.ok) {
         toast.success("Event Created Successfully!", {
@@ -156,7 +166,7 @@ const EventCreate = () => {
         autoClose: 3000,
       });
     } finally {
-      setLoading(false); // Hide loader after submission completes
+      setLoading(false);
     }
   };
 
@@ -168,6 +178,29 @@ const EventCreate = () => {
           <Loader />
         </div>
       )}
+
+      {/* 🎀 Cute Conflict Modal */}
+      {showConflictModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full text-center animate-bounceIn">
+            <h3 className="text-2xl font-bold text-pink-600 mb-2">Oopsie! 😢</h3>
+            <p className="text-gray-700">
+              Your event overlaps with an existing one. Please pick another time!
+            </p>
+            <button
+              onClick={() => {
+                setShowConflictModal(false);
+                navigate("/dashboard/events");
+              }}
+              className="mt-4 px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white font-medium rounded-full transition duration-300"
+            >
+              Okay, Got it!
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ⬇️ Your Form starts here */}
       <h2 className="text-[4vh] font-semibold text-[#3a1078] mb-6 text-center">
         Create Your Event
       </h2>

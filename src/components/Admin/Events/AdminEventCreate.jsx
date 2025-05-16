@@ -23,6 +23,8 @@ const AdminEventCreate = () => {
 
   const [eventTypes, setEventTypes] = useState([]);
   const [error, setError] = useState("");
+  const [showConflictModal, setShowConflictModal] = useState(false);
+  const [conflictingEvents, setConflictingEvents] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -118,26 +120,39 @@ const AdminEventCreate = () => {
     });
   };
   
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (formData.images.length === 0) {
-      alert("Please select at least one image.");
-      return;
+  if (formData.images.length === 0) {
+    alert("Please select at least one image.");
+    return;
+  }
+
+  const startDateTime = new Date(`${formData.dateStart}T${formData.timeStart}:00`);
+  const endDateTime = new Date(`${formData.dateEnd}T${formData.timeEnd}:00`);
+
+  try {
+    const token = localStorage.getItem("authToken");
+
+    // Step 1: Conflict Check
+    const conflictCheck = await axios.post(`${apiUrl}events/check-conflict`, {
+      dateStart: startDateTime,
+      dateEnd: endDateTime
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (conflictCheck.data.conflict) {
+      // Step 2: Show modal and stop submission
+      setConflictingEvents([conflictCheck.data.conflictingEvent]);
+      setShowConflictModal(true);
+      return; // ✅ Stop event submission if conflict exists
     }
 
-    const startDateTime = new Date(
-      `${formData.dateStart}T${formData.timeStart}:00`
-    );
-    const endDateTime = new Date(`${formData.dateEnd}T${formData.timeEnd}:00`);
-
+    // Step 3: Submit Event if no conflict
     const form = new FormData();
     for (const [key, value] of Object.entries(formData)) {
-      if (
-        !["images", "dateStart", "dateEnd", "timeStart", "timeEnd"].includes(
-          key
-        )
-      ) {
+      if (!["images", "dateStart", "dateEnd", "timeStart", "timeEnd"].includes(key)) {
         form.append(key, value);
       }
     }
@@ -145,39 +160,27 @@ const AdminEventCreate = () => {
     form.append("dateStart", startDateTime.toISOString());
     form.append("dateEnd", endDateTime.toISOString());
     formData.images.forEach((imgObj) => form.append("images", imgObj.file));
+    if (formData.type) form.append("type", formData.type);
 
+    const response = await fetch(`${apiUrl}events/create`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    });
 
-    // Add 'type' field correctly as ObjectId
-    if (formData.type) {
-      form.append("type", formData.type); // Should be ObjectId, not name
+    const data = await response.json();
+    if (response.ok) {
+      toast.success("Event Created Successfully!", { position: "bottom-right", autoClose: 3000 });
+      setTimeout(() => navigate("/admin/eventlist"), 3000);
     }
 
-    try {
-      const token = localStorage.getItem("authToken");
-      const response = await fetch(`${apiUrl}events/create`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: form,
-      });
-
-      const data = await response.json();
-      console.log("API Response:", data);
-
-      if (response.ok) {
-        toast.success("Event Created Successfully!", {
-          position: "bottom-right",
-          autoClose: 3000,
-        });
-        setTimeout(() => {
-          navigate("/admin/eventlist");
-        }, 3000);
-      }
-    } catch (error) {
-      toast.error("Error creating event: " + error.message);
-    }
-  };
+  } catch (err) {
+    toast.error("Error checking or creating event: " + err.message, {
+      position: "bottom-right",
+      autoClose: 3000
+    });
+  }
+};
 
   return (
     <>
@@ -189,6 +192,7 @@ const AdminEventCreate = () => {
         onSubmit={handleSubmit}
         className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg space-y-6"
       >
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label htmlFor="name" className="block text-lg font-medium mb-2">
@@ -370,12 +374,38 @@ const AdminEventCreate = () => {
                   >
                     ✕
                   </button>
+                  
                 </div>
               ))}
             </div>
           )}
 
         </div>
+
+        {showConflictModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center px-4">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-lg text-center">
+              <h3 className="text-2xl font-bold text-pink-600 mb-3">Event Conflict Detected</h3>
+              <p className="mb-4">Your event overlaps with the following event(s):</p>
+              <ul className="text-left mb-4 max-h-40 overflow-auto">
+                {conflictingEvents.map((ev, i) => (
+                  <li key={i} className="mb-1">
+                    • {ev.name} ({new Date(ev.dateStart).toLocaleDateString()} - {new Date(ev.dateEnd).toLocaleDateString()})
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={() => {
+                  setShowConflictModal(false);
+                  navigate("/admin/eventlist");
+                }}
+                className="bg-pink-500 text-white px-6 py-2 rounded-full hover:bg-pink-600 transition"
+              >
+                Okay, Got it!
+              </button>
+            </div>
+          </div>
+        )}
 
         <button
           type="submit"
