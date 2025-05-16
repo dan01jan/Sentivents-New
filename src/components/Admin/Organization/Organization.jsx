@@ -10,18 +10,20 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 function Organization() {
   const [organizations, setOrganizations] = useState([]);
+  const [archivedOrgs, setArchivedOrgs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isOfficerUpdateModalOpen, setIsOfficerUpdateModalOpen] = useState(false);
   const [isOfficerModalOpen, setIsOfficerModalOpen] = useState(false);
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [selectedOrg, setSelectedOrg] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [officers, setOfficers] = useState([]);
   const [toastMessage, setToastMessage] = useState("");
   const [showToast, setShowToast] = useState(false);
-  const [confirmDeleteId, setConfirmDeleteId] = useState(null); // null or org id
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -30,13 +32,9 @@ function Organization() {
       if (!token) return;
       try {
         const response = await fetch(`${apiUrl}organizations/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-        if (!response.ok) {
-          throw new Error("There are no organizations available at the moment.");
-        }
+        if (!response.ok) throw new Error("There are no organizations available at the moment.");
         const data = await response.json();
         setOrganizations(data);
       } catch (error) {
@@ -48,47 +46,75 @@ function Organization() {
 
     fetchOrganizations();
     const intervalId = setInterval(fetchOrganizations, 2000);
-
     return () => clearInterval(intervalId);
   }, []);
 
   const askDelete = (id) => {
-    setConfirmDeleteId(id); // Opens confirm modal
+    setConfirmDeleteId(id);
   };
-  
-  const confirmDelete = async () => {
+
+  const confirmArchive = async () => {
     const token = localStorage.getItem("authToken");
     if (!confirmDeleteId || !token) return;
-  
+
     try {
-      const response = await fetch(`${apiUrl}organizations/${confirmDeleteId}`, {
-        method: "DELETE",
+      const response = await fetch(`${apiUrl}organizations/archive/${confirmDeleteId}`, {
+        method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
       });
-  
+
       if (!response.ok) {
         const result = await response.json();
-        throw new Error(result.message || "Failed to delete organization");
+        throw new Error(result.message || "Failed to archive organization");
       }
-  
-      setOrganizations((prev) =>
-        prev.filter((org) => org.id !== confirmDeleteId && org._id !== confirmDeleteId)
-      );
-      showToastMessage("Organization deleted successfully!");
+
+      setOrganizations((prev) => prev.filter((org) => org._id !== confirmDeleteId));
+      showToastMessage("Organization archived successfully!");
     } catch (error) {
-      console.error("Error deleting organization:", error);
+      console.error("Error archiving organization:", error);
     } finally {
-      setConfirmDeleteId(null); // Close confirm modal
+      setConfirmDeleteId(null);
     }
   };
-  
+
+  const fetchArchivedOrgs = async () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
+    try {
+      const response = await fetch(`${apiUrl}organizations/archived`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to fetch archived organizations");
+      const data = await response.json();
+      setArchivedOrgs(data);
+      setIsArchiveModalOpen(true);
+    } catch (err) {
+      console.error("Failed to load archived orgs:", err);
+    }
+  };
+
+  const handleUnarchive = async (id) => {
+    const token = localStorage.getItem("authToken");
+    try {
+      const response = await fetch(`${apiUrl}organizations/unarchive/${id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to unarchive");
+
+      setArchivedOrgs((prev) => prev.filter((org) => org._id !== id));
+      showToastMessage("Organization unarchived!");
+    } catch (error) {
+      console.error("Error unarchiving:", error);
+    }
+  };
 
   const showToastMessage = (message) => {
     setToastMessage(message);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   };
-  
+
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -116,9 +142,7 @@ function Organization() {
       const response = await fetch(`${apiUrl}organizations/eligible-officers/${org._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!response.ok) {
-        throw new Error("Failed to fetch officers for this organization.");
-      }
+      if (!response.ok) throw new Error("Failed to fetch officers for this organization.");
       const data = await response.json();
       setOfficers(data);
       setSelectedOrg(org);
@@ -138,6 +162,7 @@ function Organization() {
     org.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+
   return (
     <div className="flex flex-col px-10">
       {/* Search Bar */}
@@ -155,6 +180,50 @@ function Organization() {
           </div>
         </div>
       </div>
+
+      <button
+      onClick={fetchArchivedOrgs}
+      className="ml-4 bg-gray-500 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition"
+    >
+      View Archived
+    </button>
+
+    {isArchiveModalOpen && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded-lg w-full max-w-4xl max-h-[80vh] overflow-y-auto relative">
+      <button
+        onClick={() => setIsArchiveModalOpen(false)}
+        className="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl"
+      >
+        &times;
+      </button>
+      <h2 className="text-2xl font-bold text-center text-[#3a1078] mb-4">Archived Organizations</h2>
+      {archivedOrgs.length > 0 ? (
+        archivedOrgs.map((org) => (
+          <div
+            key={org._id}
+            className="flex items-center justify-between bg-gray-100 p-4 rounded mb-2"
+          >
+            <div>
+              <h3 className="text-lg font-semibold text-[#3a1078]">{org.name}</h3>
+              <p className="text-gray-600 text-sm">{org.description}</p>
+            </div>
+            <button
+              onClick={() => handleUnarchive(org._id)}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              Unarchive
+            </button>
+          </div>
+        ))
+      ) : (
+        <p className="text-center text-gray-600">No archived organizations found.</p>
+      )}
+    </div>
+  </div>
+)}
+
+
 
       {/* Organizations List */}
       {loading ? (
@@ -204,9 +273,8 @@ function Organization() {
                   onClick={() => askDelete(org.id || org._id)}
                   className="bg-red-600 text-white text-sm font-semibold uppercase px-6 py-2 rounded-full hover:bg-red-700 transition"
                 >
-                  Delete
+                  Archive
                 </button>
-
               </div>
             </div>
           </div>
@@ -281,14 +349,14 @@ function Organization() {
     {confirmDeleteId && (
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
         <div className="bg-white p-6 rounded-lg shadow-xl text-center max-w-sm w-full">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Confirm Delete</h2>
-          <p className="mb-6 text-gray-700">Are you sure you want to delete this organization?</p>
+        <h2 className="text-2xl font-bold text-red-600 mb-4">Confirm Archive</h2>
+          <p className="mb-6 text-gray-700">Are you sure you want to archive this organization?</p>
           <div className="flex justify-center gap-4">
             <button
-              onClick={confirmDelete}
+              onClick={confirmArchive}
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
             >
-              Yes, Delete
+              Yes, Archive
             </button>
             <button
               onClick={() => setConfirmDeleteId(null)}
