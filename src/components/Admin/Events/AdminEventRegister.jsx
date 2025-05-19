@@ -40,14 +40,16 @@ const AdminEventRegister = () => {
         `${apiUrl}attendance/getUsersByEvent/${eventId}`
       );
       const eventResponse = await axios.get(`${apiUrl}events/${eventId}`);
+
       setAttendees(attendeesResponse.data || []);
-      setEventName(eventResponse.data.name);
+      setEventName(`${eventResponse.data.name} - Remaining Capacity: ${eventResponse.data.remainingCapacity}`);
     } catch (err) {
       setError("Error fetching attendees");
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleCheckboxChange = (userId) => {
     setSelectedAttendees((prev) =>

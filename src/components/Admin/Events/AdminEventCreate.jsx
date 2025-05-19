@@ -8,23 +8,25 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 const AdminEventCreate = () => {
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    type: "",
-    organization: "",
-    department: "",
-    dateStart: "",
-    dateEnd: "",
-    timeStart: "",
-    timeEnd: "",
-    location: "",
-    images: [],
+  name: "",
+  description: "",
+  type: "",
+  organization: "",
+  department: "",
+  dateStart: "",
+  dateEnd: "",
+  timeStart: "",
+  timeEnd: "",
+  location: "", // will store location ID
+  capacity: "",
+  images: [],
   });
 
   const [eventTypes, setEventTypes] = useState([]);
   const [error, setError] = useState("");
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [conflictingEvents, setConflictingEvents] = useState([]);
+  const [locations, setLocations] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -81,6 +83,18 @@ const AdminEventCreate = () => {
         userId: userData.userId || "",
       }));
     }
+
+    const fetchLocations = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}locations`);
+        setLocations(response.data);
+      } catch (err) {
+        console.error("Error fetching locations:", err);
+      }
+    };
+
+    fetchLocations();
+
   }, []);
 
   const handleChange = (e) => {
@@ -136,11 +150,13 @@ const handleSubmit = async (e) => {
 
     // Step 1: Conflict Check
     const conflictCheck = await axios.post(`${apiUrl}events/check-conflict`, {
-      dateStart: startDateTime,
-      dateEnd: endDateTime
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+  dateStart: startDateTime,
+  dateEnd: endDateTime,
+  location: formData.location // <-- Add this!
+}, {
+  headers: { Authorization: `Bearer ${token}` }
+});
+    
 
     if (conflictCheck.data.conflict) {
       // Step 2: Show modal and stop submission
@@ -326,23 +342,44 @@ const handleSubmit = async (e) => {
           </div>
         </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
-          <label
-            htmlFor="location"
-            className="block text-lg font-medium mb-2"
-          >
+          <label htmlFor="location" className="block text-lg font-medium mb-2">
             Location
           </label>
-          <input
-            type="text"
+          <select
             id="location"
             name="location"
             value={formData.location}
             onChange={handleChange}
             required
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+          >
+            <option value="">Select Location</option>
+            {locations.map((loc) => (
+              <option key={loc._id} value={loc._id}>
+                {loc.name} ({loc.capacity} pax)
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="capacity" className="block text-lg font-medium mb-2">
+            Capacity
+          </label>
+          <input
+            type="number"
+            id="capacity"
+            name="capacity"
+            value={formData.capacity}
+            onChange={handleChange}
+            required
+            min="1"
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
           />
         </div>
+      </div>
 
         <div>
           <label

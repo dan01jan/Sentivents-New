@@ -17,61 +17,91 @@ const AdminEventUpdate = () => {
       dateEnd: "",
       timeEnd: "",
       location: "",
+      capacity: "",
       images: [],
     });
     const [imagesToUpload, setImagesToUpload] = useState([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
+    const [locations, setLocations] = useState([]);
     const [eventTypes, setEventTypes] = useState([]); // For event types
   
-    useEffect(() => {
-      const fetchEventTypes = async () => {
-        try {
-          const response = await fetch(`${apiUrl}types/`);
-          if (!response.ok) throw new Error("Failed to fetch event types.");
-          const data = await response.json();
-          setEventTypes(data);
-        } catch (err) {
-          setError(err.message);
-        }
-      };
-  
-      const fetchEventDetails = async () => {
-        try {
-          const response = await fetch(`${apiUrl}events/${eventId}`);
-          if (!response.ok) throw new Error("Failed to fetch event details.");
-          const data = await response.json();
-  
-          const dateStart = new Date(data.dateStart);
-          const dateEnd = new Date(data.dateEnd);
-  
-          setFormData({
-            name: data.name,
-            description: data.description,
-            type: data.type,
-            dateStart: dateStart.toISOString().split("T")[0],
-            timeStart: dateStart.toTimeString().split(" ")[0].slice(0, 5),
-            dateEnd: dateEnd.toISOString().split("T")[0],
-            timeEnd: dateEnd.toTimeString().split(" ")[0].slice(0, 5),
-            location: data.location,
-            images: data.images || [],
-          });
-        } catch (err) {
-          setError(err.message);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchEventTypes();
-      fetchEventDetails();
-    }, [eventId]);
+useEffect(() => {
+  const fetchEventTypes = async () => {
+    try {
+      const response = await fetch(`${apiUrl}types/`);
+      if (!response.ok) throw new Error("Failed to fetch event types.");
+      const data = await response.json();
+      setEventTypes(data);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const fetchLocations = async () => {
+    try {
+      const response = await fetch(`${apiUrl}locations/`);
+      if (!response.ok) throw new Error("Failed to fetch locations.");
+      const data = await response.json();
+      setLocations(data);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const fetchEventDetails = async () => {
+    try {
+      const response = await fetch(`${apiUrl}events/${eventId}`);
+      if (!response.ok) throw new Error("Failed to fetch event details.");
+      const data = await response.json();
+
+      const dateStart = new Date(data.dateStart);
+      const dateEnd = new Date(data.dateEnd);
+
+      setFormData({
+        name: data.name,
+        description: data.description,
+        type: data.type,
+        dateStart: dateStart.toISOString().split("T")[0],
+        timeStart: dateStart.toTimeString().split(" ")[0].slice(0, 5),
+        dateEnd: dateEnd.toISOString().split("T")[0],
+        timeEnd: dateEnd.toTimeString().split(" ")[0].slice(0, 5),
+        location: data.location._id || data.location, // in case it's populated
+        capacity: data.capacity || "",         // try to extract if available
+        images: data.images || [],
+      });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchEventTypes();
+  fetchLocations();
+  fetchEventDetails();
+}, [eventId]);
+
   
     const handleChange = (e) => {
       const { name, value } = e.target;
-      setFormData((prevData) => ({ ...prevData, [name]: value }));
+
+      if (name === "location") {
+        const selectedLocation = locations.find((loc) => loc._id === value);
+        setFormData((prevData) => ({
+          ...prevData,
+          location: value,
+          capacity: selectedLocation ? selectedLocation.capacity : "",
+        }));
+      } else {
+        setFormData((prevData) => ({
+          ...prevData,
+          [name]: value,
+        }));
+      }
     };
+
   
     const handleImageChange = (e) => {
       const files = Array.from(e.target.files);
@@ -291,19 +321,41 @@ const AdminEventUpdate = () => {
   
           <div className="form-group mb-4">
             <label htmlFor="location" className="block text-lg font-medium mb-2">
-              Location
+              Event Location
             </label>
-            <input
-              type="text"
+            <select
               id="location"
               name="location"
               value={formData.location}
               onChange={handleChange}
               required
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
+            >
+              <option value="">Select a location</option>
+              {locations.map((location) => (
+                <option key={location._id} value={location._id}>
+                  {location.name} (Capacity: {location.capacity})
+                </option>
+              ))}
+            </select>
           </div>
-  
+
+          <div className="form-group mb-4">
+          <label htmlFor="capacity" className="block text-lg font-medium mb-2">
+            Event Capacity
+          </label>
+          <input
+            type="number"
+            id="capacity"
+            name="capacity"
+            value={formData.capacity}
+            onChange={handleChange}
+            required
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+          />
+        </div>
+
+
           <div className="form-group mb-4">
             <label htmlFor="images" className="block text-lg font-medium mb-2">
               Event Images

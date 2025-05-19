@@ -9,7 +9,7 @@ import {
   FaArrowRight,
   FaChevronDown,
 } from "react-icons/fa";
-import { RiTeamFill, RiAdminFill, RiQuestionFill } from "react-icons/ri";
+import { RiTeamFill, RiAdminFill, RiQuestionFill, RiMapPin5Fill } from "react-icons/ri";
 import { IoMdAnalytics } from "react-icons/io";
 import logo from "../../../assets/website/V_DarkerLogo.png";
 
@@ -81,6 +81,16 @@ const AdminSideBar = () => {
               >
                 <FaCalendarAlt size={40} />
                 {isExpanded && <span>Events</span>}
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/admin/location"
+                className={`flex items-center space-x-3 text-xl font-bold transition duration-200 ease-in-out mt-8
+                  ${isActive("/admin/location") ? "text-pink-500" : "text-[#3a1078] hover:text-pink-500"}`}
+              >
+                <RiMapPin5Fill size={40} />
+                {isExpanded && <span>Location</span>}
               </Link>
             </li>
             <li>

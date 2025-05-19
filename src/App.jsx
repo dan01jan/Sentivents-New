@@ -65,6 +65,8 @@ import AdminViewReports from "./components/Admin/Events/AdminViewReports";
 import AdminAttendanceChart from "./components/Admin/Dashboard/AdminAttendanceChart";
 import AdminEventRegister from "./components/Admin/Events/AdminEventRegister";
 import AdminQuestions from "./components/Admin/Dashboard/AdminQuestions";
+import CreateLocation from "./components/Admin/Location/CreateLocation";
+import LocationList from "./components/Admin/Location/LocationList";
 import { AuthProvider } from "./components/Layouts/AuthContext";
 
 function App() {
@@ -351,6 +353,22 @@ function AppContent({ loading, user }) {
                   element={
                     <ProtectedAdminRoute>
                       <AdminQuestions />
+                    </ProtectedAdminRoute>
+                  }
+                />
+                <Route
+                  path="createlocation"
+                  element={
+                    <ProtectedAdminRoute>
+                      <CreateLocation />
+                    </ProtectedAdminRoute>
+                  }
+                />
+                <Route
+                  path="location"
+                  element={
+                    <ProtectedAdminRoute>
+                      <LocationList />
                     </ProtectedAdminRoute>
                   }
                 />

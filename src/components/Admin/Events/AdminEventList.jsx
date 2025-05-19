@@ -1,4 +1,3 @@
-// 🟢 Add to your existing imports (no new files needed)
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -18,10 +17,7 @@ const AdminEventList = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [toastMessage, setToastMessage] = useState("");
   const [showToast, setShowToast] = useState(false);
-
-  // 🟠 New states for delete modal
-  const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
-  const [eventIdToDelete, setEventIdToDelete] = useState(null);
+  const [archiveView, setArchiveView] = useState(false);
 
   const navigate = useNavigate();
 
@@ -40,20 +36,28 @@ const AdminEventList = () => {
     fetchEvents();
   }, []);
 
-  useEffect(() => {
-    let filtered = events;
-    if (selectedOrganization) {
-      filtered = filtered.filter(
-        (event) => event.organization === selectedOrganization
-      );
-    }
-    if (selectedType) {
-      filtered = filtered.filter(
-        (event) => event.type.eventType === selectedType
-      );
-    }
-    setFilteredEvents(filtered);
-  }, [selectedOrganization, selectedType, events]);
+useEffect(() => {
+  let filtered = events.filter((event) => {
+    // If isArchived is undefined, treat it as false
+    const isArchived = event.isArchived ?? false;
+    return isArchived === archiveView;
+  });
+
+  if (selectedOrganization) {
+    filtered = filtered.filter(
+      (event) => event.organization === selectedOrganization
+    );
+  }
+
+  if (selectedType) {
+    filtered = filtered.filter(
+      (event) => event.type.eventType === selectedType
+    );
+  }
+
+  setFilteredEvents(filtered);
+}, [selectedOrganization, selectedType, events, archiveView]);
+
 
   const handleCreateEvent = () => {
     navigate("/admin/eventcreate");
@@ -79,57 +83,49 @@ const AdminEventList = () => {
     setSelectedEvent(null);
   };
 
-  // 🟠 Replace window.confirm with this delete modal logic
-  const openDeleteModal = (eventId) => {
-    setEventIdToDelete(eventId);
-    setDeleteModalIsOpen(true);
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteModalIsOpen(false);
-    setEventIdToDelete(null);
-  };
-
-  const confirmDelete = async () => {
+  const handleArchiveToggle = async (eventId, toArchive) => {
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch(`${apiUrl}events/${eventIdToDelete}`, {
-        method: "DELETE",
+      const response = await fetch(`${apiUrl}events/${toArchive ? "archive" : "unarchive"}/${eventId}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (response.ok) {
-        showToastMessage("Event deleted successfully!");
-        setEvents((prevEvents) =>
-          prevEvents.filter((event) => event._id !== eventIdToDelete)
+        showToastMessage(
+          toArchive ? "Event archived successfully!" : "Event unarchived successfully!",
+          toArchive ? "📦" : "🎉"
         );
-      }
-       else {
+        setEvents((prevEvents) =>
+          prevEvents.map((event) =>
+            event._id === eventId ? { ...event, isArchived: toArchive } : event
+          )
+        );
+      } else {
         const data = await response.json();
-        alert("Failed to delete event: " + data.message);
+        alert("Failed to update archive status: " + data.message);
       }
     } catch (error) {
-      console.error("Error deleting event:", error);
-      alert("Error deleting event. Please try again.");
-    } finally {
-      closeDeleteModal();
+      console.error("Error archiving/unarchiving event:", error);
+      alert("Error. Please try again.");
     }
   };
 
-  const showToastMessage = (message) => {
-    setToastMessage(message);
+  const showToastMessage = (message, emoji = "✨") => {
+    setToastMessage(`${emoji} ${message}`);
     setShowToast(true);
     setTimeout(() => {
       setShowToast(false);
-    }, 3000); // Toast disappears after 3 sec
+    }, 3000);
   };
 
   return (
     <div className="p-4 max-w-full mx-auto">
       <h1 className="text-[6vh] font-bold mb-4 font-semibold text-[#3a1078]">
-        Admin Event List
+        {archiveView ? "Archived Events" : "Admin Event List"}
       </h1>
 
       <div className="flex gap-4 mb-6 justify-center">
@@ -156,6 +152,13 @@ const AdminEventList = () => {
             </option>
           ))}
         </select>
+
+        <button
+          onClick={() => setArchiveView(!archiveView)}
+          className="bg-indigo-200 text-indigo-800 px-4 py-2 rounded-full font-semibold hover:bg-indigo-300 transition"
+        >
+          {archiveView ? "Show Active" : "View Archives"}
+        </button>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
@@ -182,48 +185,67 @@ const AdminEventList = () => {
                   <span className="font-semibold">Date:</span>{" "}
                   {event.dateStart
                     ? new Date(event.dateStart).toLocaleDateString()
-                    : "No Date"} to {event.dateEnd
+                    : "No Date"}{" "}
+                  to{" "}
+                  {event.dateEnd
                     ? new Date(event.dateEnd).toLocaleDateString()
                     : "No Date"}
                 </p>
                 <p className="text-xs text-gray-600 truncate mb-2">
                   <span className="font-semibold">Location:</span>{" "}
-                  {event.location || "No Location"}
+                  {typeof event.location === "string"
+                    ? event.location
+                    : event.location?.name || "No Location"}{" "}
+                  (Remaining: {event.remainingCapacity ?? "0"}/{event.capacity ?? "0"})
                 </p>
                 <p className="text-xs text-gray-600 truncate">
                   <span className="font-semibold">Type:</span>{" "}
-                  {event.type && event.type.eventType
-                    ? event.type.eventType
-                    : "Unknown"}
+                  {typeof event.type === "string"
+                    ? event.type
+                    : event.type?.eventType || "Unknown"}
                 </p>
               </div>
               {event.organization === "League of Student Organization" && (
                 <div className="px-4 py-2 flex justify-center items-center border-t border-gray-200">
                   <div className="flex space-x-3">
-                    <button
-                      onClick={() => handleUpdate(event)}
-                      className="bg-yellow-200 text-yellow-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-yellow-300"
-                    >
-                      UPDATE
-                    </button>
-                    <button
-                      onClick={() => openDeleteModal(event._id)}
-                      className="bg-red-200 text-red-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-red-300"
-                    >
-                      DELETE
-                    </button>
+                    {!archiveView && (
+                      <>
+                        <button
+                          onClick={() => handleUpdate(event)}
+                          className="bg-yellow-200 text-yellow-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-yellow-300"
+                        >
+                          UPDATE
+                        </button>
+                        <button
+                          onClick={() => handleArchiveToggle(event._id, true)}
+                          className="bg-red-200 text-red-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-red-300"
+                        >
+                          ARCHIVE
+                        </button>
+                      </>
+                    )}
+                    {archiveView && (
+                      <button
+                        onClick={() => handleArchiveToggle(event._id, false)}
+                        className="bg-green-200 text-green-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-green-300"
+                      >
+                        UNARCHIVE
+                      </button>
+                    )}
                     <button
                       onClick={() => handleModalOpen(event)}
                       className="bg-pink-200 text-pink-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-pink-300"
                     >
                       VIEW
                     </button>
-                    <button
-                      onClick={() => handleRegister(event)}
-                      className="bg-blue-200 text-pink-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-pink-300"
-                    >
-                      REGISTER APPROVAL
-                    </button>
+                    {!archiveView && (
+                      <button
+                        onClick={() => handleRegister(event)}
+                        className="bg-blue-200 text-blue-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-blue-300"
+                      >
+                        REGISTER APPROVAL
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -239,48 +261,17 @@ const AdminEventList = () => {
         <FaPlus size={24} />
       </button>
 
-      {/* Existing event view modal */}
       <AdminEventModal
         selectedEvent={selectedEvent}
         modalIsOpen={modalIsOpen}
         handleModalClose={handleModalClose}
       />
 
-      {/* 🟠 Inline Delete Confirm Modal */}
-      {deleteModalIsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full text-center"
-          >
-            <h2 className="text-xl font-semibold text-[#3a1078] mb-4">Confirm Deletion</h2>
-            <p className="text-gray-600 mb-6">Are you sure you want to delete this event? This action cannot be undone.</p>
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={confirmDelete}
-                className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition"
-              >
-                Yes, Delete
-              </button>
-              <button
-                onClick={closeDeleteModal}
-                className="bg-gray-200 text-gray-800 px-4 py-2 rounded-full hover:bg-gray-300 transition"
-              >
-                Cancel
-              </button>
-            </div>
-          </motion.div>
+      {showToast && (
+        <div className="fixed bottom-6 right-6 px-6 py-3 rounded-xl bg-pink-100 border border-pink-300 shadow-lg text-pink-900 font-medium text-sm transition-opacity duration-300 ease-in-out z-50">
+          {toastMessage}
         </div>
       )}
-      {/* 🟣 Toast Notification */}
-{showToast && (
-  <div className="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg transition-opacity duration-300 z-50">
-    {toastMessage}
-  </div>
-)}
-
     </div>
   );
 };
