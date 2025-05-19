@@ -18,8 +18,11 @@ const EventUpdate = () => {
     dateEnd: "",
     timeEnd: "",
     location: "",
+    capacity: "",
     images: [],
   });
+  const [locations, setLocations] = useState([]);
+  const [selectedLocationCapacity, setSelectedLocationCapacity] = useState(null);
   const [imagesToUpload, setImagesToUpload] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -56,6 +59,7 @@ const EventUpdate = () => {
           dateEnd: dateEnd.toISOString().split("T")[0],
           timeEnd: dateEnd.toTimeString().split(" ")[0].slice(0, 5),
           location: data.location,
+          capacity: data.capacity || "",
           images: data.images || [],
         });
       } catch (err) {
@@ -64,6 +68,19 @@ const EventUpdate = () => {
         setLoading(false);
       }
     };
+
+    const fetchLocations = async () => {
+    try {
+      const response = await fetch(`${apiUrl}locations/`);
+      if (!response.ok) throw new Error("Failed to fetch locations.");
+      const data = await response.json();
+      setLocations(data);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+    fetchLocations();
 
     fetchEventTypes();
     fetchEventDetails();
@@ -294,16 +311,42 @@ const EventUpdate = () => {
           <label htmlFor="location" className="block text-lg font-medium mb-2">
             Location
           </label>
-          <input
-            type="text"
+          <select
             id="location"
             name="location"
             value={formData.location}
-            onChange={handleChange}
+            onChange={(e) => {
+              handleChange(e);
+              const selectedLoc = locations.find(loc => loc._id === e.target.value);
+              setSelectedLocationCapacity(selectedLoc ? selectedLoc.capacity : null);
+            }}
             required
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-          />
+          >
+            <option value="">Select Location</option>
+            {locations.map((loc) => (
+              <option key={loc._id} value={loc._id}>
+                {loc.name}
+              </option>
+            ))}
+          </select>
         </div>
+
+        <div className="form-group mb-4">
+        <label htmlFor="capacity" className="block text-lg font-medium mb-2">
+          Capacity
+        </label>
+        <input
+          type="number"
+          id="capacity"
+          name="capacity"
+          value={formData.capacity}
+          onChange={handleChange}
+          required
+          min={1}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+        />
+      </div>
 
         <div className="form-group mb-4">
           <label htmlFor="images" className="block text-lg font-medium mb-2">

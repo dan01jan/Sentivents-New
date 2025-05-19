@@ -71,6 +71,9 @@ const EventList = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState(null);
+  const [archivedEvents, setArchivedEvents] = useState([]);
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+
   const [groupByType, setGroupByType] = useState(true); // State to toggle grouping by type
 
   // Helper function: Get organization name (prefer officerOrgName if exists)
@@ -83,44 +86,35 @@ const EventList = () => {
     );
   };
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        const storedUserData = JSON.parse(localStorage.getItem("userData"));
-        const organizationName = getOrganizationName();
+useEffect(() => {
+  const fetchEvents = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const organizationName = getOrganizationName();
 
-        if (!organizationName) {
-          throw new Error("Organization name not found in user data.");
+      const response = await fetch(
+        `${apiUrl}events/adminevents?organization=${organizationName}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
         }
+      );
 
-        setUserOrganizationName(organizationName);
+      const data = await response.json();
+      const active = data.filter((e) => !e.isArchived);
+      const archived = data.filter((e) => e.isArchived);
+      setEvents(active);
+      setFilteredEvents(active);
+      setArchivedEvents(archived);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        const response = await fetch(
-          `${apiUrl}events/adminevents?organization=${organizationName}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+  fetchEvents();
+}, []);
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch events");
-        }
-
-        const data = await response.json();
-        setEvents(data);
-        setFilteredEvents(data);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEvents();
-  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -153,6 +147,44 @@ const EventList = () => {
 
     fetchUser();
   }, []);
+
+  const handleArchive = async (eventId) => {
+  try {
+    const token = localStorage.getItem("authToken");
+    const response = await fetch(`${apiUrl}events/archive/${eventId}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) throw new Error("Failed to archive event");
+
+    const updated = events.find((e) => e._id === eventId);
+    setEvents(events.filter((e) => e._id !== eventId));
+    setArchivedEvents([...archivedEvents, { ...updated, isArchived: true }]);
+    toast.success("Event archived.");
+  } catch (error) {
+    toast.error("Archive error: " + error.message);
+  }
+};
+
+const handleUnarchive = async (eventId) => {
+  try {
+    const token = localStorage.getItem("authToken");
+    const response = await fetch(`${apiUrl}events/unarchive/${eventId}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) throw new Error("Failed to unarchive event");
+
+    const updated = archivedEvents.find((e) => e._id === eventId);
+    setArchivedEvents(archivedEvents.filter((e) => e._id !== eventId));
+    setEvents([...events, { ...updated, isArchived: false }]);
+    toast.success("Event unarchived.");
+  } catch (error) {
+    toast.error("Unarchive error: " + error.message);
+  }
+};
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -308,6 +340,13 @@ const EventList = () => {
           Create Event
           <FaArrowRight className="text-white text-lg" />
         </button>
+        <button
+        onClick={() => setIsArchiveModalOpen(true)}
+        className="bg-gray-300 text-gray-900 font-semibold py-2 px-4 rounded-3xl hover:bg-gray-400 transition"
+      >
+        View Archived
+      </button>
+
       </div>
 
       <div className="mb-4 flex justify-between fade-in-left">
@@ -403,10 +442,12 @@ const EventList = () => {
                       : "No End Date"}
                   </p>
 
-                  <p className="text-xs text-gray-600 truncate mb-2">
-                    <span className="font-semibold">Location:</span>{" "}
-                    {event.location || "No Location"}
-                  </p>
+                 <p className="text-xs text-gray-600 truncate mb-2">
+                  <span className="font-semibold">Location:</span>{" "}
+                  {event.location?.name || event.location || "No Location"}{" "}
+                  (Remaining: {event.remainingCapacity ?? "0"}/{event.capacity ?? "0"})
+                </p>
+
                   <p className="text-xs text-gray-600 truncate">
                     <span className="font-semibold">Type:</span>{" "}
                     {event.type && event.type.eventType
@@ -425,12 +466,12 @@ const EventList = () => {
                       UPDATE
                     </button>
                     <button
-                      onClick={() => openDeleteModal(event._id)}
-                      className="bg-red-200 text-red-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-red-300"
-                      disabled={loading}
-                    >
-                      DELETE
-                    </button>
+                    onClick={() => handleArchive(event._id)}
+                    className="bg-red-200 text-red-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-red-300"
+                    disabled={loading}
+                  >
+                    ARCHIVE
+                  </button>
                     <button
                       onClick={() => handleModalOpen(event)}
                       className="bg-pink-200 text-pink-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-pink-300"
@@ -466,6 +507,38 @@ const EventList = () => {
           /* Implement this function */
         }}
       />
+
+      <Modal
+  isOpen={isArchiveModalOpen}
+  onRequestClose={() => setIsArchiveModalOpen(false)}
+  contentLabel="Archived Events"
+  className="fixed inset-0 flex items-center justify-center z-50"
+  overlayClassName="fixed inset-0 bg-black bg-opacity-70 z-40"
+>
+  <div className="bg-white p-6 rounded-lg shadow-xl max-w-3xl w-full overflow-y-auto max-h-[80vh]">
+    <h2 className="text-xl font-bold mb-4 text-gray-800">Archived Events</h2>
+    {archivedEvents.length === 0 ? (
+      <p className="text-gray-600">No archived events.</p>
+    ) : (
+      archivedEvents.map((event) => (
+        <div key={event._id} className="mb-4 border-b pb-4">
+          <h3 className="font-semibold">{event.name}</h3>
+          <p className="text-sm text-gray-600">
+            {event.dateStart &&
+              new Date(event.dateStart).toLocaleDateString()}
+          </p>
+          <p className="text-sm">{event.description}</p>
+          <button
+            onClick={() => handleUnarchive(event._id)}
+            className="mt-2 px-3 py-1 bg-green-200 text-green-800 rounded-full text-sm hover:bg-green-300"
+          >
+            UNARCHIVE
+          </button>
+        </div>
+      ))
+    )}
+  </div>
+</Modal>
 
       <Modal
         isOpen={isDeleteModalOpen}

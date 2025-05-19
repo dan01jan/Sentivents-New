@@ -8,20 +8,20 @@ import Loader from "../../Layouts/Loader";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const EventCreate = () => {
+  const [locations, setLocations] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     type: "",
     organization: "",
-    secondOrganization: "",
     department: "",
     dateStart: "",
     dateEnd: "",
-    timeStart: "",
-    timeEnd: "",
     location: "",
+    capacity: "",
     images: [],
   });
+
 
   const [eventTypes, setEventTypes] = useState([]);
   const [error, setError] = useState("");
@@ -78,6 +78,20 @@ const EventCreate = () => {
       }));
     }
   }, []);
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const res = await fetch(`${apiUrl}locations`);
+        const data = await res.json();
+        setLocations(data);
+      } catch (err) {
+        console.error("Error fetching locations:", err);
+      }
+    };
+    fetchLocations();
+  }, []);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -382,23 +396,34 @@ const EventCreate = () => {
           </div>
         </div>
 
-        <div>
-          <label
-            htmlFor="location"
-            className="block text-lg font-medium mb-2 "
-          >
-            Location
-          </label>
-          <input
-            type="text"
-            id="location"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-          />
-        </div>
+        {/* Location Select */}
+        <label className="block mb-2 text-sm font-medium text-gray-900">
+          Location
+        </label>
+        <select
+          value={formData.location}
+          onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+          className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+        >
+          <option value="">Select a location</option>
+          {locations.map((loc) => (
+            <option key={loc._id} value={loc._id}>
+              {loc.name}
+            </option>
+          ))}
+        </select>
+
+        {/* Capacity Input */}
+        <label className="block mb-2 text-sm font-medium text-gray-900">
+          Capacity
+        </label>
+        <input
+          type="number"
+          min="1"
+          value={formData.capacity}
+          onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
+          className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+        />
 
         <div>
           <label
