@@ -38,9 +38,8 @@ const Pagination = ({ currentPage, totalPages, paginate }) => {
         <button
           key={number}
           onClick={() => paginate(number)}
-          className={`mx-1 px-3 py-1 rounded-full ${
-            currentPage === number ? "bg-blue-500 text-white" : "bg-pink-200"
-          }`}
+          className={`mx-1 px-3 py-1 rounded-full ${currentPage === number ? "bg-blue-500 text-white" : "bg-pink-200"
+            }`}
         >
           {number}
         </button>
@@ -86,34 +85,34 @@ const EventList = () => {
     );
   };
 
-useEffect(() => {
-  const fetchEvents = async () => {
-    try {
-      const token = localStorage.getItem("authToken");
-      const organizationName = getOrganizationName();
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const organizationName = getOrganizationName();
 
-      const response = await fetch(
-        `${apiUrl}events/adminevents?organization=${organizationName}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+        const response = await fetch(
+          `${apiUrl}events/adminevents?organization=${organizationName}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-      const data = await response.json();
-      const active = data.filter((e) => !e.isArchived);
-      const archived = data.filter((e) => e.isArchived);
-      setEvents(active);
-      setFilteredEvents(active);
-      setArchivedEvents(archived);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+        const data = await response.json();
+        const active = data.filter((e) => !e.isArchived);
+        const archived = data.filter((e) => e.isArchived);
+        setEvents(active);
+        setFilteredEvents(active);
+        setArchivedEvents(archived);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchEvents();
-}, []);
+    fetchEvents();
+  }, []);
 
 
   useEffect(() => {
@@ -349,50 +348,50 @@ useEffect(() => {
 
       </div>
 
-          <div className="mb-4 flex justify-between items-center flex-wrap gap-2 fade-in-left">
-      <div>
-        <label htmlFor="type" className="mr-2">Filter by Type:</label>
-        <select
-          id="type"
-          name="type"
-          value={filter.type}
-          onChange={handleFilterChange}
-          className="px-4 py-2 rounded-full bg-gray-100"
-        >
-          <option value="">All</option>
-          {eventTypes.map((type) => (
-            <option key={type} value={type}>{type}</option>
-          ))}
-        </select>
+      <div className="mb-4 flex justify-between items-center flex-wrap gap-2 fade-in-left">
+        <div>
+          <label htmlFor="type" className="mr-2">Filter by Type:</label>
+          <select
+            id="type"
+            name="type"
+            value={filter.type}
+            onChange={handleFilterChange}
+            className="px-4 py-2 rounded-full bg-gray-100"
+          >
+            <option value="">All</option>
+            {eventTypes.map((type) => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="date" className="mr-2">Filter by Date:</label>
+          <input
+            type="date"
+            id="date"
+            name="date"
+            value={filter.date}
+            onChange={handleFilterChange}
+            className="px-4 py-2 rounded-full bg-gray-100"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="mr-2">Group by Type</label>
+          <input
+            type="checkbox"
+            checked={groupByType}
+            onChange={() => setGroupByType(!groupByType)}
+          />
+        </div>
+        <div>
+          <button
+            onClick={() => setIsArchiveModalOpen(true)}
+            className="bg-gray-300 text-gray-900 font-semibold py-2 px-4 rounded-3xl hover:bg-gray-400 transition"
+          >
+            View Archived
+          </button>
+        </div>
       </div>
-      <div>
-        <label htmlFor="date" className="mr-2">Filter by Date:</label>
-        <input
-          type="date"
-          id="date"
-          name="date"
-          value={filter.date}
-          onChange={handleFilterChange}
-          className="px-4 py-2 rounded-full bg-gray-100"
-        />
-      </div>
-      <div className="flex items-center gap-2">
-        <label className="mr-2">Group by Type</label>
-        <input
-          type="checkbox"
-          checked={groupByType}
-          onChange={() => setGroupByType(!groupByType)}
-        />
-      </div>
-      <div>
-        <button
-          onClick={() => setIsArchiveModalOpen(true)}
-          className="bg-gray-300 text-gray-900 font-semibold py-2 px-4 rounded-3xl hover:bg-gray-400 transition"
-        >
-          View Archived
-        </button>
-      </div>
-    </div>
 
 
       {Object.entries(groupedEvents).map(([type, events]) => (
@@ -416,41 +415,40 @@ useEffect(() => {
                 )}
 
                 <div className="px-4 py-4">
-                  <div className="font-bold text-lg mb-2 truncate">
+                  <div className="font-bold text-xl mb-2 truncate text-[#3a1078]">
                     {event.name || "No Name"}
                   </div>
-                  <div className="font-bold text-lg mb-2 truncate">
+                  <div className="font-bold text-lg mb-2 truncate text-red-600">
                     {event.organization || "No Organization"}
                   </div>
-                   {event.secondOrganization ? (
-                      <p className="text-gray-700 text-sm mb-2 line-clamp-3">
-                        In partnership with {event.secondOrganization}
-                      </p>
-                    ) : null}
+                  {event.secondOrganization ? (
+                    <p className="text-gray-700 text-sm mb-2 line-clamp-3">
+                      In partnership with {event.secondOrganization}
+                    </p>
+                  ) : null}
 
-                  <p className="text-gray-700 text-sm mb-2 line-clamp-3">
+                  <p className="text-gray-700 text-[1.7vh] mb-2 line-clamp-3">
                     {event.description || "No Description"}
                   </p>
-                  <p className="text-xs text-gray-600 mb-2">
+                  <p className="text-[1.7vh] text-gray-600 mb-2 truncate">
                     <span className="font-semibold">Start:</span>{" "}
                     {event.dateStart
                       ? `${new Date(event.dateStart).toLocaleDateString()} ${new Date(event.dateStart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                       : "No Start Date"}
                   </p>
-                  <p className="text-xs text-gray-600 mb-2">
+                  <p className="text-[1.7vh] text-gray-600 mb-2 truncate">
                     <span className="font-semibold">End:</span>{" "}
                     {event.dateEnd
                       ? `${new Date(event.dateEnd).toLocaleDateString()} ${new Date(event.dateEnd).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                       : "No End Date"}
                   </p>
+                  <p className="text-[1.7vh] text-gray-600 mb-2 truncate">
+                    <span className="font-semibold">Location:</span>{" "}
+                    {event.location?.name || event.location || "No Location"}{" "}
+                    (Remaining: {event.remainingCapacity ?? "0"}/{event.capacity ?? "0"})
+                  </p>
 
-                 <p className="text-xs text-gray-600 truncate mb-2">
-                  <span className="font-semibold">Location:</span>{" "}
-                  {event.location?.name || event.location || "No Location"}{" "}
-                  (Remaining: {event.remainingCapacity ?? "0"}/{event.capacity ?? "0"})
-                </p>
-
-                  <p className="text-xs text-gray-600 truncate">
+                  <p className="text-[1.7vh] text-gray-600 mb-2 truncate">
                     <span className="font-semibold">Type:</span>{" "}
                     {event.type && event.type.eventType
                       ? event.type.eventType
@@ -468,12 +466,12 @@ useEffect(() => {
                       UPDATE
                     </button>
                     <button
-                    onClick={() => handleArchive(event._id)}
-                    className="bg-red-200 text-red-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-red-300"
-                    disabled={loading}
-                  >
-                    ARCHIVE
-                  </button>
+                      onClick={() => handleArchive(event._id)}
+                      className="bg-red-200 text-red-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-red-300"
+                      disabled={loading}
+                    >
+                      ARCHIVE
+                    </button>
                     <button
                       onClick={() => handleModalOpen(event)}
                       className="bg-pink-200 text-pink-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-pink-300"
