@@ -149,42 +149,42 @@ useEffect(() => {
   }, []);
 
   const handleArchive = async (eventId) => {
-  try {
-    const token = localStorage.getItem("authToken");
-    const response = await fetch(`${apiUrl}events/archive/${eventId}`, {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${apiUrl}events/archive/${eventId}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    if (!response.ok) throw new Error("Failed to archive event");
+      if (!response.ok) throw new Error("Failed to archive event");
 
-    const updated = events.find((e) => e._id === eventId);
-    setEvents(events.filter((e) => e._id !== eventId));
-    setArchivedEvents([...archivedEvents, { ...updated, isArchived: true }]);
-    toast.success("Event archived.");
-  } catch (error) {
-    toast.error("Archive error: " + error.message);
-  }
-};
+      toast.success("Event archived.");
+      setTimeout(() => window.location.reload(), 1500); // reload after toast
+    } catch (error) {
+      toast.error("Archive error: " + error.message);
+    }
+  };
 
-const handleUnarchive = async (eventId) => {
-  try {
-    const token = localStorage.getItem("authToken");
-    const response = await fetch(`${apiUrl}events/unarchive/${eventId}`, {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${token}` },
-    });
 
-    if (!response.ok) throw new Error("Failed to unarchive event");
+  const handleUnarchive = async (eventId) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`${apiUrl}events/unarchive/${eventId}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    const updated = archivedEvents.find((e) => e._id === eventId);
-    setArchivedEvents(archivedEvents.filter((e) => e._id !== eventId));
-    setEvents([...events, { ...updated, isArchived: false }]);
-    toast.success("Event unarchived.");
-  } catch (error) {
-    toast.error("Unarchive error: " + error.message);
-  }
-};
+      if (!response.ok) throw new Error("Failed to unarchive event");
+
+      toast.success("Event unarchived.");
+      setTimeout(() => {
+        window.location.href = "/dashboard/events"; // navigate and reload
+      }, 1500);
+    } catch (error) {
+      toast.error("Unarchive error: " + error.message);
+    }
+  };
+
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -340,58 +340,60 @@ const handleUnarchive = async (eventId) => {
           Create Event
           <FaArrowRight className="text-white text-lg" />
         </button>
-        <button
+        {/* <button
         onClick={() => setIsArchiveModalOpen(true)}
         className="bg-gray-300 text-gray-900 font-semibold py-2 px-4 rounded-3xl hover:bg-gray-400 transition"
       >
         View Archived
-      </button>
+      </button> */}
 
       </div>
 
-      <div className="mb-4 flex justify-between fade-in-left">
-        <div>
-          <label htmlFor="type" className="mr-2">
-            Filter by Type:
-          </label>
-          <select
-            id="type"
-            name="type"
-            value={filter.type}
-            onChange={handleFilterChange}
-            className="px-4 py-2 rounded-full bg-gray-100"
-          >
-            <option value="">All</option>
-            {eventTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="date" className="mr-2">
-            Filter by Date:
-          </label>
-          <input
-            type="date"
-            id="date"
-            name="date"
-            value={filter.date}
-            onChange={handleFilterChange}
-            className="px-4 py-2 rounded-full bg-gray-100"
-          />
-        </div>
-        <div>
-          <label className="mr-2">Group by Type</label>
-          <input
-            type="checkbox"
-            checked={groupByType}
-            onChange={() => setGroupByType(!groupByType)}
-            className="mr-2"
-          />
-        </div>
+          <div className="mb-4 flex justify-between items-center flex-wrap gap-2 fade-in-left">
+      <div>
+        <label htmlFor="type" className="mr-2">Filter by Type:</label>
+        <select
+          id="type"
+          name="type"
+          value={filter.type}
+          onChange={handleFilterChange}
+          className="px-4 py-2 rounded-full bg-gray-100"
+        >
+          <option value="">All</option>
+          {eventTypes.map((type) => (
+            <option key={type} value={type}>{type}</option>
+          ))}
+        </select>
       </div>
+      <div>
+        <label htmlFor="date" className="mr-2">Filter by Date:</label>
+        <input
+          type="date"
+          id="date"
+          name="date"
+          value={filter.date}
+          onChange={handleFilterChange}
+          className="px-4 py-2 rounded-full bg-gray-100"
+        />
+      </div>
+      <div className="flex items-center gap-2">
+        <label className="mr-2">Group by Type</label>
+        <input
+          type="checkbox"
+          checked={groupByType}
+          onChange={() => setGroupByType(!groupByType)}
+        />
+      </div>
+      <div>
+        <button
+          onClick={() => setIsArchiveModalOpen(true)}
+          className="bg-gray-300 text-gray-900 font-semibold py-2 px-4 rounded-3xl hover:bg-gray-400 transition"
+        >
+          View Archived
+        </button>
+      </div>
+    </div>
+
 
       {Object.entries(groupedEvents).map(([type, events]) => (
         <div key={type} className="mb-6 fade-in-up">
@@ -509,36 +511,36 @@ const handleUnarchive = async (eventId) => {
       />
 
       <Modal
-  isOpen={isArchiveModalOpen}
-  onRequestClose={() => setIsArchiveModalOpen(false)}
-  contentLabel="Archived Events"
-  className="fixed inset-0 flex items-center justify-center z-50"
-  overlayClassName="fixed inset-0 bg-black bg-opacity-70 z-40"
->
-  <div className="bg-white p-6 rounded-lg shadow-xl max-w-3xl w-full overflow-y-auto max-h-[80vh]">
-    <h2 className="text-xl font-bold mb-4 text-gray-800">Archived Events</h2>
-    {archivedEvents.length === 0 ? (
-      <p className="text-gray-600">No archived events.</p>
-    ) : (
-      archivedEvents.map((event) => (
-        <div key={event._id} className="mb-4 border-b pb-4">
-          <h3 className="font-semibold">{event.name}</h3>
-          <p className="text-sm text-gray-600">
-            {event.dateStart &&
-              new Date(event.dateStart).toLocaleDateString()}
-          </p>
-          <p className="text-sm">{event.description}</p>
-          <button
-            onClick={() => handleUnarchive(event._id)}
-            className="mt-2 px-3 py-1 bg-green-200 text-green-800 rounded-full text-sm hover:bg-green-300"
-          >
-            UNARCHIVE
-          </button>
+        isOpen={isArchiveModalOpen}
+        onRequestClose={() => setIsArchiveModalOpen(false)}
+        className="bg-white rounded-lg p-6 max-w-3xl mx-auto mt-20 shadow-xl overflow-auto max-h-[80vh]"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start z-50"
+      >
+        <h2 className="text-2xl font-semibold mb-4 text-[#3a1078]">Archived Events</h2>
+        <button
+          onClick={() => setIsArchiveModalOpen(false)}
+          className="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-xl"
+        >
+          ✕
+        </button>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {archivedEvents.map((event) => (
+            <div key={event._id} className="bg-gray-100 p-4 rounded shadow">
+              <h3 className="font-semibold text-lg truncate">{event.name}</h3>
+              <p className="text-sm text-gray-600 truncate">{event.description}</p>
+              <button
+                onClick={async () => {
+                  await handleUnarchive(event._id);
+                }}
+                className="mt-2 bg-green-300 text-green-900 px-4 py-1 rounded-full hover:bg-green-400 text-sm"
+              >
+                Unarchive
+              </button>
+            </div>
+          ))}
         </div>
-      ))
-    )}
-  </div>
-</Modal>
+      </Modal>
+
 
       <Modal
         isOpen={isDeleteModalOpen}

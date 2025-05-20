@@ -62,12 +62,18 @@ const Wordtag = () => {
         const response = await axios.get(`${apiUrl}events/adminevents?organization=${org}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setEvents(response.data || []);
+    
+       setEvents((response.data || []).filter(event => !event.isArchived));
       } catch (error) {
         console.error("Error fetching events:", error);
         setEvents([]);
       }
-    };
+    };{events.map((event) => (
+  <option key={event._id} value={event._id}>
+    {event.name} {event.isArchived ? "(Archived)" : ""}
+  </option>
+))}
+
     fetchEvents();
   }, []);
 
@@ -186,9 +192,10 @@ const gaugePie = (label, rawCount, color) => {
           <option value="">Select an Event</option>
           {events.map((event) => (
             <option key={event._id} value={event._id}>
-              {event.name}
+              {event.name} {event.isArchived ? "(Archived)" : ""}
             </option>
           ))}
+
         </select>
       </div>
 

@@ -27,6 +27,7 @@ const AdminEventCreate = () => {
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [conflictingEvents, setConflictingEvents] = useState([]);
   const [locations, setLocations] = useState([]);
+  const [capacityWarning, setCapacityWarning] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -97,6 +98,31 @@ const AdminEventCreate = () => {
 
   }, []);
 
+  useEffect(() => {
+  if (!formData.location || !formData.capacity) {
+    setCapacityWarning(false);
+    return;
+  }
+
+  const selectedLocation = locations.find((loc) => loc._id === formData.location);
+
+  if (selectedLocation) {
+    const eventCapacity = parseInt(formData.capacity, 10);
+    const locationCapacity = selectedLocation.capacity;
+
+    if (eventCapacity > locationCapacity) {
+      setCapacityWarning(true);
+      toast.warning(`⚠️ Event capacity (${eventCapacity}) exceeds location capacity (${locationCapacity})`, {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
+    } else {
+      setCapacityWarning(false);
+    }
+  }
+}, [formData.capacity, formData.location, locations]);
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -142,8 +168,19 @@ const handleSubmit = async (e) => {
     return;
   }
 
+  if (capacityWarning) {
+  toast.error("Event capacity exceeds the selected location's capacity!", {
+    position: "bottom-right",
+    autoClose: 3000,
+  });
+  return;
+}
+
+
   const startDateTime = new Date(`${formData.dateStart}T${formData.timeStart}:00`);
   const endDateTime = new Date(`${formData.dateEnd}T${formData.timeEnd}:00`);
+
+  
 
   try {
     const token = localStorage.getItem("authToken");

@@ -17,6 +17,8 @@ const Attendance = () => {
   const [fetchClicked, setFetchClicked] = useState(false);
   const [eventType, setEventType] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [remainingCapacity, setRemainingCapacity] = useState(null);
+  const [maxCapacity, setMaxCapacity] = useState(null);
 
   const navigate = useNavigate();
 
@@ -37,7 +39,7 @@ const Attendance = () => {
           `${apiUrl}events/adminevents?organization=${organizationName}${typeQuery}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setEvents(response.data || []);
+         setEvents((response.data || []).filter(event => !event.isArchived));
       } catch (error) {
         console.error("Error fetching events:", error);
         setEvents([]);
@@ -59,8 +61,11 @@ const Attendance = () => {
       const response = await axios.get(`${apiUrl}attendance/getUsersByEvent/${eventId}`);
       const eventResponse = await axios.get(`${apiUrl}events/${eventId}`);
 
+      const eventData = eventResponse.data;
       setAttendees(response.data || []);
-      setEventName(eventResponse.data.name);
+      setEventName(eventData.name);
+      setRemainingCapacity(eventData.remainingCapacity);
+      setMaxCapacity(eventData.capacity);
     } catch (err) {
       setError("Error fetching attendees");
     } finally {
@@ -84,12 +89,13 @@ const Attendance = () => {
     }
     setError("");
     setLoading(true);
+
     try {
       const attendeesToUpdate = attendees
         .filter((att) => selectedAttendees.includes(att.userId))
         .map((att) => ({ userId: att.userId, hasRegistered: true }));
 
-      await axios.put(`${apiUrl}attendance/updateUsersAttendance/${eventId}`, {
+      const response = await axios.put(`${apiUrl}attendance/updateUsersAttendance/${eventId}`, {
         attendees: attendeesToUpdate,
       });
 
@@ -109,6 +115,14 @@ const Attendance = () => {
       );
 
       setSelectedAttendees([]);
+
+      // Update remaining capacity
+      if (response.data.remainingCapacity !== undefined) {
+        setRemainingCapacity(response.data.remainingCapacity);
+      } else {
+        setRemainingCapacity((prev) => prev - selectedAttendees.length);
+      }
+
       setTimeout(() => navigate("/dashboard/attendance"), 3000);
     } catch (err) {
       setError("Error approving attendance");
@@ -134,12 +148,14 @@ const Attendance = () => {
               setEventId(e.target.value);
               setAttendees([]);
               setFetchClicked(false);
+              setRemainingCapacity(null);
+              setMaxCapacity(null);
             }}
           >
             <option value="">Select an Event</option>
-            {events.map((event) => (
+              {events.map((event) => (
               <option key={event._id} value={event._id}>
-                {event.name}
+                {event.name} {event.isArchived ? "(Archived)" : ""}
               </option>
             ))}
           </select>
@@ -159,6 +175,12 @@ const Attendance = () => {
           <h2 className="font-semibold text-[3vh] md:text-[4vh] text-[#3a1078]">
             {eventName ? `${eventName} - Attendees` : "Event Attendees"}
           </h2>
+
+          {eventName && remainingCapacity !== null && maxCapacity !== null && (
+            <p className="text-sm text-gray-600 mb-2">
+              Remaining Capacity: <span className="font-semibold">{remainingCapacity}/{maxCapacity}</span>
+            </p>
+          )}
 
           {attendees.length > 0 && (
             <>
@@ -181,9 +203,7 @@ const Attendance = () => {
                   <tbody>
                     {attendees
                       .filter((attendee) =>
-                        `${attendee.firstName} ${attendee.lastName}`
-                          .toLowerCase()
-                          .includes(searchQuery)
+                        `${attendee.firstName} ${attendee.lastName}`.toLowerCase().includes(searchQuery)
                       )
                       .map((attendee) => (
                         <tr key={attendee.userId} className="text-center">
