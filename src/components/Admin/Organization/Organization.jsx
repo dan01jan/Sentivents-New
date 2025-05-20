@@ -190,7 +190,6 @@ function Organization() {
       {isArchiveModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 sm:p-8 rounded-2xl w-full max-w-4xl shadow-xl relative max-h-[80vh] flex flex-col">
-            {/* Close Button */}
             <button
               onClick={() => setIsArchiveModalOpen(false)}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl focus:outline-none"
@@ -198,12 +197,10 @@ function Organization() {
               &times;
             </button>
 
-            {/* Modal Title */}
             <h2 className="text-2xl sm:text-3xl font-bold text-center text-[#3a1078] mb-6">
               Archived Organizations
             </h2>
 
-            {/* Archived Organization List */}
             <div className="overflow-y-auto flex-1 max-h-[70vh] pr-2">
               {archivedOrgs.length > 0 ? (
                 <div className="space-y-4">

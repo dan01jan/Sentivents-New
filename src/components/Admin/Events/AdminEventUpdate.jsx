@@ -198,7 +198,7 @@ useEffect(() => {
     return (
       <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
         <ToastContainer position="bottom-right" autoClose={3000} />
-        <h2 className="text-[8vh] font-bold mb-4 font-tungsten text-[#3a1078] text-center">
+        <h2 className="text-[5vh] font-bold mb-4 font-semibold text-[#3a1078] text-center">
           Update Your Event
         </h2>
         <form onSubmit={handleSubmit}>

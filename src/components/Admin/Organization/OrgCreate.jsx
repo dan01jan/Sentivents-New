@@ -138,7 +138,7 @@ function OrgCreate({ isOpen, onClose }) {
             transition={{ duration: 0.3 }}
             className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto"
           >
-            <h2 className="text-[5vh] font-tungsten text-[#3a1078] mb-6">
+            <h2 className="text-[5vh] font-semibold text-[#3a1078] mb-6">
               Create Organizations
             </h2>
             <form className="space-y-5" onSubmit={handleSubmit}>
