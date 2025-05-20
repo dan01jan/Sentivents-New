@@ -156,7 +156,6 @@ const AdminEventList = () => {
         <button
           onClick={() => setArchiveView(!archiveView)}
           className="ml-4 bg-[#3a1078] text-white font-semibold px-4 py-2 rounded-full hover:bg-[#3795bd] transition"
-
         >
           {archiveView ? "Show Active" : "View Archives"}
         </button>
@@ -199,7 +198,7 @@ const AdminEventList = () => {
                     : event.location?.name || "No Location"}{" "}
                   (Remaining: {event.remainingCapacity ?? "0"}/{event.capacity ?? "0"})
                 </p>
-               <p className="text-[1.7vh] text-gray-600 mb-2 truncate">
+                <p className="text-[1.7vh] text-gray-600 mb-2 truncate">
                   <span className="font-semibold">Type:</span>{" "}
                   {typeof event.type === "string"
                     ? event.type

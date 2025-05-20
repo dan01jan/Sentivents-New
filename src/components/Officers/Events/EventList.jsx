@@ -386,7 +386,8 @@ const EventList = () => {
         <div>
           <button
             onClick={() => setIsArchiveModalOpen(true)}
-            className="bg-gray-300 text-gray-900 font-semibold py-2 px-4 rounded-3xl hover:bg-gray-400 transition"
+            className="ml-4 bg-[#3a1078] text-white font-semibold px-4 py-2 rounded-full hover:bg-[#3795bd] transition"
+
           >
             View Archived
           </button>
@@ -511,33 +512,56 @@ const EventList = () => {
       <Modal
         isOpen={isArchiveModalOpen}
         onRequestClose={() => setIsArchiveModalOpen(false)}
-        className="bg-white rounded-lg p-6 max-w-3xl mx-auto mt-20 shadow-xl overflow-auto max-h-[80vh]"
+        className="relative bg-white rounded-xl p-6 max-w-3xl mx-auto mt-20 shadow-lg overflow-auto max-h-[80vh]"
         overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start z-50"
       >
-        <h2 className="text-2xl font-semibold mb-4 text-[#3a1078]">Archived Events</h2>
-        <button
-          onClick={() => setIsArchiveModalOpen(false)}
-          className="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-xl"
-        >
-          ✕
-        </button>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {archivedEvents.map((event) => (
-            <div key={event._id} className="bg-gray-100 p-4 rounded shadow">
-              <h3 className="font-semibold text-lg truncate">{event.name}</h3>
-              <p className="text-sm text-gray-600 truncate">{event.description}</p>
-              <button
-                onClick={async () => {
-                  await handleUnarchive(event._id);
-                }}
-                className="mt-2 bg-green-300 text-green-900 px-4 py-1 rounded-full hover:bg-green-400 text-sm"
-              >
-                Unarchive
-              </button>
+        {/* Modal Header */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold text-[#3a1078]">Archived Events</h2>
+          <button
+            onClick={() => setIsArchiveModalOpen(false)}
+            className="text-gray-500 hover:text-red-500 text-2xl font-bold"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Archived Event List */}
+        <div className="border-t border-gray-200 pt-4">
+          {archivedEvents.length === 0 ? (
+            <p className="text-center text-gray-500">No archived events found.</p>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {archivedEvents.map((event) => (
+                <div
+                  key={event._id}
+                  className="bg-gray-50 w-full p-4 rounded-lg shadow-sm flex flex-col space-y-3"
+                >
+                  {/* Event Info */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-[#3a1078] truncate">
+                      {event.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 line-clamp-2">{event.description}</p>
+                  </div>
+
+                  {/* Action Button */}
+                  <div className="flex justify-end border-t border-gray-200 pt-3">
+                    <button
+                      onClick={async () => await handleUnarchive(event._id)}
+                      className="bg-green-200 text-green-800 text-sm font-medium px-4 py-2 rounded-full transition duration-300 hover:bg-green-300"
+                    >
+                      UNARCHIVE
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       </Modal>
+
 
 
       <Modal
