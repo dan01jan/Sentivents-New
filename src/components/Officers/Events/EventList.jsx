@@ -512,11 +512,11 @@ const EventList = () => {
       <Modal
         isOpen={isArchiveModalOpen}
         onRequestClose={() => setIsArchiveModalOpen(false)}
-        className="relative bg-white rounded-xl p-6 max-w-3xl mx-auto mt-20 shadow-lg overflow-auto max-h-[80vh]"
+        className="relative bg-white rounded-xl p-6 max-w-3xl mx-auto mt-20 shadow-lg overflow-auto max-h-[80vh] "
         overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start z-50"
       >
-        {/* Modal Header */}
-        <div className="flex justify-between items-center mb-4">
+
+        <div className="flex justify-between items-center mb-4 justify-center gap-4">
           <h2 className="text-2xl font-semibold text-[#3a1078]">Archived Events</h2>
           <button
             onClick={() => setIsArchiveModalOpen(false)}
@@ -527,35 +527,36 @@ const EventList = () => {
           </button>
         </div>
 
-        {/* Archived Event List */}
-        <div className="border-t border-gray-200 pt-4">
+        <div className="overflow-y-auto flex-1 max-h-[70vh] pr-2">
           {archivedEvents.length === 0 ? (
             <p className="text-center text-gray-500">No archived events found.</p>
           ) : (
-            <div className="flex flex-col gap-4">
+            <div className="space-y-4">
               {archivedEvents.map((event) => (
                 <div
                   key={event._id}
-                  className="bg-gray-50 w-full p-4 rounded-lg shadow-sm flex flex-col space-y-3"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-50 border border-gray-200 p-4 sm:p-5 rounded-xl shadow-sm transition hover:shadow-md"
+
                 >
                   {/* Event Info */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-[#3a1078] truncate">
+                  <div className="mb-3 sm:mb-0">
+                    <h3 className="text-lg font-semibold text-[#3a1078]">
                       {event.name}
                     </h3>
                     <p className="text-sm text-gray-600 line-clamp-2">{event.description}</p>
                   </div>
 
                   {/* Action Button */}
-                  <div className="flex justify-end border-t border-gray-200 pt-3">
-                    <button
-                      onClick={async () => await handleUnarchive(event._id)}
-                      className="bg-green-200 text-green-800 text-sm font-medium px-4 py-2 rounded-full transition duration-300 hover:bg-green-300"
-                    >
-                      UNARCHIVE
-                    </button>
-                  </div>
+
+                  <button
+                    onClick={async () => await handleUnarchive(event._id)}
+                    className="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-green-700 transition"
+
+                  >
+                    UNARCHIVE
+                  </button>
                 </div>
+
               ))}
             </div>
           )}
