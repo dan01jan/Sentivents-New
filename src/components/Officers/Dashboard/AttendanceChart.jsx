@@ -5,9 +5,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 const AttendanceChart = () => {
   return (
     <div className="p-5">
-      <div className="bg-white rounded-2xl shadow-md p-5">
-        <AttendanceColumns />
-      </div>
+      <AttendanceColumns />
     </div>
   );
 };
@@ -47,59 +45,92 @@ const AttendanceColumns = () => {
 
   return (
     <div>
-      {/* Search Bar */}
+      <h1 className="text-[6vh] font-bold mb-4 font-semibold text-[#3a1078] items-center text-center">
+        Attendance</h1>
       <div className="mb-6 flex justify-center">
         <input
           type="text"
           placeholder="Search users..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-72 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+          className="w-96 px-5 py-3 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
         />
       </div>
 
-      {/* Columns */}
-      <div className="flex justify-center gap-6 flex-wrap">
-        {/* Registered */}
-        <div className="flex-1 min-w-[200px]">
-          <h3 className="font-semibold text-[#3a1078] text-lg mb-4 text-center">Registered Users</h3>
-          <ul className="list-disc list-inside max-h-60 overflow-y-auto">
-            {registeredUsers.length === 0 ? (
-              <li className="text-gray-400 text-center">No users found</li>
-            ) : (
-              registeredUsers.map(user => (
-                <li key={user.userId}>{user.firstName} {user.lastName}</li>
-              ))
-            )}
-          </ul>
+      <div className="flex justify-center gap-12 flex-wrap">
+        <div className="w-96 max-h-[32rem] overflow-y-auto border border-gray-300 rounded-lg shadow-sm">
+          <table className="min-w-full">
+            <thead className="bg-[#3a1078] text-white sticky top-0">
+              <tr>
+                <th className="text-left px-6 py-3 text-lg font-semibold">Registered Users</th>
+              </tr>
+            </thead>
+            <tbody>
+              {registeredUsers.length === 0 ? (
+                <tr>
+                  <td className="text-center text-gray-400 py-6">No users found</td>
+                </tr>
+              ) : (
+                registeredUsers.map(user => (
+                  <tr key={user.userId} className="even:bg-gray-50 hover:bg-gray-100 transition">
+                    <td className="px-6 py-4 text-base">
+                      {user.firstName} {user.lastName}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
 
-        {/* Attended */}
-        <div className="flex-1 min-w-[200px]">
-          <h3 className="font-semibold text-[#3a1078] text-lg mb-4 text-center">Attended Users</h3>
-          <ul className="list-disc list-inside max-h-60 overflow-y-auto">
-            {attendedUsers.length === 0 ? (
-              <li className="text-gray-400 text-center">No users found</li>
-            ) : (
-              attendedUsers.map(user => (
-                <li key={user.userId}>{user.firstName} {user.lastName}</li>
-              ))
-            )}
-          </ul>
+        <div className="w-96 max-h-[32rem] overflow-y-auto border border-gray-300 rounded-lg shadow-sm">
+          <table className="min-w-full">
+            <thead className="bg-[#3a1078] text-white sticky top-0">
+              <tr>
+                <th className="text-left px-6 py-3 text-lg font-semibold">Attended Users</th>
+              </tr>
+            </thead>
+            <tbody>
+              {attendedUsers.length === 0 ? (
+                <tr>
+                  <td className="text-center text-gray-400 py-6">No users found</td>
+                </tr>
+              ) : (
+                attendedUsers.map(user => (
+                  <tr key={user.userId} className="even:bg-gray-50 hover:bg-gray-100 transition">
+                    <td className="px-6 py-4 text-base">
+                      {user.firstName} {user.lastName}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
 
-        {/* Absent */}
-        <div className="flex-1 min-w-[200px]">
-          <h3 className="font-semibold text-[#3a1078] text-lg mb-4 text-center">Absent Users</h3>
-          <ul className="list-disc list-inside max-h-60 overflow-y-auto">
-            {absentUsers.length === 0 ? (
-              <li className="text-gray-400 text-center">No users found</li>
-            ) : (
-              absentUsers.map(user => (
-                <li key={user.userId}>{user.firstName} {user.lastName}</li>
-              ))
-            )}
-          </ul>
+        <div className="w-96 max-h-[32rem] overflow-y-auto border border-gray-300 rounded-lg shadow-sm">
+          <table className="min-w-full">
+            <thead className="bg-[#3a1078] text-white sticky top-0">
+              <tr>
+                <th className="text-left px-6 py-3 text-lg font-semibold">Absent Users</th>
+              </tr>
+            </thead>
+            <tbody>
+              {absentUsers.length === 0 ? (
+                <tr>
+                  <td className="text-center text-gray-400 py-6">No users found</td>
+                </tr>
+              ) : (
+                absentUsers.map(user => (
+                  <tr key={user.userId} className="even:bg-gray-50 hover:bg-gray-100 transition">
+                    <td className="px-6 py-4 text-base">
+                      {user.firstName} {user.lastName}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

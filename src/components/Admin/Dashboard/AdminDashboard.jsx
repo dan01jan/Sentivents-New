@@ -264,18 +264,18 @@ function AdminDashboard() {
               </div>
             </div>
           )}
-        <div className="h-auto lg:h-[30vh] w-full bg-[#f7f7f9] flex flex-wrap lg:flex-nowrap rounded-3xl justify-center items-center shadow-lg px-4 lg:px-10 gap-4 lg:gap-8 hover:shadow-xl transition-shadow duration-300">
-          <div className="w-full lg:w-1/2 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
-            <p className="text-[#f7f7f8] font-bold text-lg lg:text-xl">
-              Org. Count: {orgCount}
-            </p>
+          <div className="h-auto lg:h-[30vh] w-full bg-[#f7f7f9] flex flex-wrap lg:flex-nowrap rounded-3xl justify-center items-center shadow-lg px-4 lg:px-10 gap-4 lg:gap-8 hover:shadow-xl transition-shadow duration-300">
+            <div className="w-full lg:w-1/2 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
+              <p className="text-[#f7f7f8] font-bold text-lg lg:text-xl">
+                Org. Count: {orgCount}
+              </p>
+            </div>
+            <div className="w-full lg:w-1/2 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
+              <p className="text-[#f7f7f8] font-bold text-lg lg:text-xl">
+                Events: {events.length}
+              </p>
+            </div>
           </div>
-          <div className="w-full lg:w-1/2 h-[20vh] bg-[#3a1078] flex items-center rounded-3xl justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
-            <p className="text-[#f7f7f8] font-bold text-lg lg:text-xl">
-              Events: {events.length}
-            </p>
-          </div>
-        </div>
 
           <section className="w-full bg-[#f7f7f9] shadow-lg px-4 lg:px-10 mt-6 lg:mt-11 h-auto lg:h-[40vh] overflow-y-auto rounded-3xl hover:shadow-xl transition-shadow duration-300">
             {loading ? (
@@ -363,7 +363,7 @@ function AdminDashboard() {
             <h2 className="text-lg lg:text-xl font-bold text-[#3a1078]">
               Upcoming Events
             </h2>
-            <ul className="mt-4">
+            <ul className="mt-4 max-h-64 lg:max-h-96 overflow-y-auto pr-2">
               {upcomingEvents.length > 0 ? (
                 upcomingEvents.map((event) => (
                   <li
@@ -385,6 +385,7 @@ function AdminDashboard() {
               )}
             </ul>
           </div>
+
           <div className="mt-6 lg:mt-10">
             <h2 className="text-lg lg:text-xl font-bold text-[#3a1078]">
               Pending Officers Approval

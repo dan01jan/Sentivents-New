@@ -165,9 +165,9 @@ function Organization() {
 
   return (
     <div className="flex flex-col px-10">
-      {/* Search Bar */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="relative w-full md:w-1/4">
+      {/* Top Bar: Search (left) and View Archived (right) */}
+      <div className="flex flex-row items-center justify-between mb-6 w-full">
+        <div className="relative w-full max-w-xs">
           <input
             type="text"
             placeholder="Search for organizations..."
@@ -179,49 +179,56 @@ function Organization() {
             <IoMdSearch />
           </div>
         </div>
+        <button
+          onClick={fetchArchivedOrgs}
+          className="ml-4 bg-[#3a1078] text-white font-semibold px-4 py-2 rounded-full hover:bg-[#3795bd] transition"
+        >
+          Archived Organizations
+        </button>
       </div>
 
-      <button
-      onClick={fetchArchivedOrgs}
-      className="ml-4 bg-gray-500 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition"
-    >
-      View Archived
-    </button>
-
-    {isArchiveModalOpen && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div className="bg-white p-6 rounded-lg w-full max-w-4xl max-h-[80vh] overflow-y-auto relative">
-      <button
-        onClick={() => setIsArchiveModalOpen(false)}
-        className="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl"
-      >
-        &times;
-      </button>
-      <h2 className="text-2xl font-bold text-center text-[#3a1078] mb-4">Archived Organizations</h2>
-      {archivedOrgs.length > 0 ? (
-        archivedOrgs.map((org) => (
-          <div
-            key={org._id}
-            className="flex items-center justify-between bg-gray-100 p-4 rounded mb-2"
-          >
-            <div>
-              <h3 className="text-lg font-semibold text-[#3a1078]">{org.name}</h3>
-              <p className="text-gray-600 text-sm">{org.description}</p>
-            </div>
+      {isArchiveModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 sm:p-8 rounded-2xl w-full max-w-4xl shadow-xl relative max-h-[80vh] flex flex-col">
             <button
-              onClick={() => handleUnarchive(org._id)}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              onClick={() => setIsArchiveModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl focus:outline-none"
             >
-              Unarchive
+              &times;
             </button>
+
+            <h2 className="text-2xl sm:text-3xl font-bold text-center text-[#3a1078] mb-6">
+              Archived Organizations
+            </h2>
+
+            <div className="overflow-y-auto flex-1 max-h-[70vh] pr-2">
+              {archivedOrgs.length > 0 ? (
+                <div className="space-y-4">
+                  {archivedOrgs.map((org) => (
+                    <div
+                      key={org._id}
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-50 border border-gray-200 p-4 sm:p-5 rounded-xl shadow-sm transition hover:shadow-md"
+                    >
+                      <div className="mb-3 sm:mb-0">
+                        <h3 className="text-lg font-semibold text-[#3a1078]">{org.name}</h3>
+                        <p className="text-gray-600 text-sm mt-1">{org.description}</p>
+                      </div>
+                      <button
+                        onClick={() => handleUnarchive(org._id)}
+                        className="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-green-700 transition"
+                      >
+                        Unarchive
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-gray-500 italic">No archived organizations found.</p>
+              )}
+            </div>
           </div>
-        ))
-      ) : (
-        <p className="text-center text-gray-600">No archived organizations found.</p>
+        </div>
       )}
-    </div>
-  </div>
-)}
 
 
 
@@ -307,74 +314,74 @@ function Organization() {
         </>
       )}
 
-{isOfficerModalOpen && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div className="bg-white p-6 rounded-lg w-full max-w-4xl relative max-h-[80vh] overflow-y-auto">
-      <button
-        onClick={closeOfficerModal}
-        className="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl"
-      >
-        &times;
-      </button>
-      <h2 className="text-[5vh] font-bold mb-4 font-semibold text-[#3a1078] text-center">
-        Officers
-      </h2>
-      {officers.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          {officers.map((officer) => (
-            <div key={officer._id} className="mb-4 p-4 border rounded-lg text-center">
-              <img
-                src={
-                  officer.image ||
-                  "https://res.cloudinary.com/do2utxjmc/image/upload/v1741749795/3918329-200_bpfm11.png"
-                }
-                alt="Officer"
-                className="w-24 h-24 rounded-full mb-2 mx-auto"
-              />
-              <p className="text-2xl text-[#3a1078] font-semibold">
-                {officer.name} {officer.surname}
-              </p>
-              <p className="text-[#3a1078]">{officer.position}</p>
-              {/* <p className="text-[#3a1078]">{officer.email}</p> */}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-center text-[#3a1078]">No officers found.</p>
-      )}
-    </div>
-  </div>
-)}
-    {/* 🟣 Confirm Delete Modal */}
-    {confirmDeleteId && (
-      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-        <div className="bg-white p-6 rounded-lg shadow-xl text-center max-w-sm w-full">
-        <h2 className="text-2xl font-bold text-red-600 mb-4">Confirm Archive</h2>
-          <p className="mb-6 text-gray-700">Are you sure you want to archive this organization?</p>
-          <div className="flex justify-center gap-4">
+      {isOfficerModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-4xl relative max-h-[80vh] overflow-y-auto">
             <button
-              onClick={confirmArchive}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              onClick={closeOfficerModal}
+              className="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl"
             >
-              Yes, Archive
+              &times;
             </button>
-            <button
-              onClick={() => setConfirmDeleteId(null)}
-              className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
-            >
-              Cancel
-            </button>
+            <h2 className="text-[5vh] font-bold mb-4 font-semibold text-[#3a1078] text-center">
+              Officers
+            </h2>
+            {officers.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                {officers.map((officer) => (
+                  <div key={officer._id} className="mb-4 p-4 border rounded-lg text-center">
+                    <img
+                      src={
+                        officer.image ||
+                        "https://res.cloudinary.com/do2utxjmc/image/upload/v1741749795/3918329-200_bpfm11.png"
+                      }
+                      alt="Officer"
+                      className="w-24 h-24 rounded-full mb-2 mx-auto"
+                    />
+                    <p className="text-2xl text-[#3a1078] font-semibold">
+                      {officer.name} {officer.surname}
+                    </p>
+                    <p className="text-[#3a1078]">{officer.position}</p>
+                    {/* <p className="text-[#3a1078]">{officer.email}</p> */}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-[#3a1078]">No officers found.</p>
+            )}
           </div>
         </div>
-      </div>
-    )}
+      )}
+      {/* 🟣 Confirm Delete Modal */}
+      {confirmDeleteId && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl text-center max-w-sm w-full">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Confirm Archive</h2>
+            <p className="mb-6 text-gray-700">Are you sure you want to archive this organization?</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={confirmArchive}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-    {/* 🟢 Toast */}
-    {showToast && (
-      <div className="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg transition-opacity duration-300 z-50">
-        {toastMessage}
-      </div>
-    )}
+      {/* 🟢 Toast */}
+      {showToast && (
+        <div className="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg transition-opacity duration-300 z-50">
+          {toastMessage}
+        </div>
+      )}
 
     </div>
   );

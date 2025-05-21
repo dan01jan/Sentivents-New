@@ -36,27 +36,27 @@ const AdminEventList = () => {
     fetchEvents();
   }, []);
 
-useEffect(() => {
-  let filtered = events.filter((event) => {
-    // If isArchived is undefined, treat it as false
-    const isArchived = event.isArchived ?? false;
-    return isArchived === archiveView;
-  });
+  useEffect(() => {
+    let filtered = events.filter((event) => {
+      // If isArchived is undefined, treat it as false
+      const isArchived = event.isArchived ?? false;
+      return isArchived === archiveView;
+    });
 
-  if (selectedOrganization) {
-    filtered = filtered.filter(
-      (event) => event.organization === selectedOrganization
-    );
-  }
+    if (selectedOrganization) {
+      filtered = filtered.filter(
+        (event) => event.organization === selectedOrganization
+      );
+    }
 
-  if (selectedType) {
-    filtered = filtered.filter(
-      (event) => event.type.eventType === selectedType
-    );
-  }
+    if (selectedType) {
+      filtered = filtered.filter(
+        (event) => event.type.eventType === selectedType
+      );
+    }
 
-  setFilteredEvents(filtered);
-}, [selectedOrganization, selectedType, events, archiveView]);
+    setFilteredEvents(filtered);
+  }, [selectedOrganization, selectedType, events, archiveView]);
 
 
   const handleCreateEvent = () => {
@@ -155,7 +155,7 @@ useEffect(() => {
 
         <button
           onClick={() => setArchiveView(!archiveView)}
-          className="bg-indigo-200 text-indigo-800 px-4 py-2 rounded-full font-semibold hover:bg-indigo-300 transition"
+          className="ml-4 bg-[#3a1078] text-white font-semibold px-4 py-2 rounded-full hover:bg-[#3795bd] transition"
         >
           {archiveView ? "Show Active" : "View Archives"}
         </button>
@@ -175,13 +175,13 @@ useEffect(() => {
                 <div className="w-full h-48 bg-gray-200"></div>
               )}
               <div className="p-4">
-                <div className="font-bold text-lg mb-2 truncate text-[#3a1078]">
+                <div className="font-bold text-xl mb-2 truncate text-[#3a1078]">
                   {event.name || "No Name"}
                 </div>
-                <p className="text-gray-700 text-sm mb-2 line-clamp-3">
+                <p className="text-gray-700 text-[1.7vh] mb-2 line-clamp-3">
                   {event.description || "No Description"}
                 </p>
-                <p className="text-xs text-gray-600 mb-2">
+                <p className="text-[1.7vh] text-gray-600 mb-2 truncate">
                   <span className="font-semibold">Date:</span>{" "}
                   {event.dateStart
                     ? new Date(event.dateStart).toLocaleDateString()
@@ -191,14 +191,14 @@ useEffect(() => {
                     ? new Date(event.dateEnd).toLocaleDateString()
                     : "No Date"}
                 </p>
-                <p className="text-xs text-gray-600 truncate mb-2">
+                <p className="text-[1.7vh] text-gray-600 mb-2 truncate">
                   <span className="font-semibold">Location:</span>{" "}
                   {typeof event.location === "string"
                     ? event.location
                     : event.location?.name || "No Location"}{" "}
                   (Remaining: {event.remainingCapacity ?? "0"}/{event.capacity ?? "0"})
                 </p>
-                <p className="text-xs text-gray-600 truncate">
+                <p className="text-[1.7vh] text-gray-600 mb-2 truncate">
                   <span className="font-semibold">Type:</span>{" "}
                   {typeof event.type === "string"
                     ? event.type

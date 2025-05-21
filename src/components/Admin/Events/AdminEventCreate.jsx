@@ -238,7 +238,7 @@ const handleSubmit = async (e) => {
   return (
     <>
       <ToastContainer position="bottom-right" autoClose={3000} />
-      <h2 className="text-[5vh] font-tungsten text-[#3a1078] mb-6 text-center">
+      <h2 className="text-[5vh] font-semibold text-[#3a1078] mb-6 text-center">
         Create Your Event
       </h2>
       <form

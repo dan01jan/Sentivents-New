@@ -38,9 +38,8 @@ const Pagination = ({ currentPage, totalPages, paginate }) => {
         <button
           key={number}
           onClick={() => paginate(number)}
-          className={`mx-1 px-3 py-1 rounded-full ${
-            currentPage === number ? "bg-blue-500 text-white" : "bg-pink-200"
-          }`}
+          className={`mx-1 px-3 py-1 rounded-full ${currentPage === number ? "bg-blue-500 text-white" : "bg-pink-200"
+            }`}
         >
           {number}
         </button>
@@ -86,34 +85,34 @@ const EventList = () => {
     );
   };
 
-useEffect(() => {
-  const fetchEvents = async () => {
-    try {
-      const token = localStorage.getItem("authToken");
-      const organizationName = getOrganizationName();
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const organizationName = getOrganizationName();
 
-      const response = await fetch(
-        `${apiUrl}events/adminevents?organization=${organizationName}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+        const response = await fetch(
+          `${apiUrl}events/adminevents?organization=${organizationName}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-      const data = await response.json();
-      const active = data.filter((e) => !e.isArchived);
-      const archived = data.filter((e) => e.isArchived);
-      setEvents(active);
-      setFilteredEvents(active);
-      setArchivedEvents(archived);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+        const data = await response.json();
+        const active = data.filter((e) => !e.isArchived);
+        const archived = data.filter((e) => e.isArchived);
+        setEvents(active);
+        setFilteredEvents(active);
+        setArchivedEvents(archived);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchEvents();
-}, []);
+    fetchEvents();
+  }, []);
 
 
   useEffect(() => {
@@ -349,50 +348,51 @@ useEffect(() => {
 
       </div>
 
-          <div className="mb-4 flex justify-between items-center flex-wrap gap-2 fade-in-left">
-      <div>
-        <label htmlFor="type" className="mr-2">Filter by Type:</label>
-        <select
-          id="type"
-          name="type"
-          value={filter.type}
-          onChange={handleFilterChange}
-          className="px-4 py-2 rounded-full bg-gray-100"
-        >
-          <option value="">All</option>
-          {eventTypes.map((type) => (
-            <option key={type} value={type}>{type}</option>
-          ))}
-        </select>
+      <div className="mb-4 flex justify-between items-center flex-wrap gap-2 fade-in-left">
+        <div>
+          <label htmlFor="type" className="mr-2">Filter by Type:</label>
+          <select
+            id="type"
+            name="type"
+            value={filter.type}
+            onChange={handleFilterChange}
+            className="px-4 py-2 rounded-full bg-gray-100"
+          >
+            <option value="">All</option>
+            {eventTypes.map((type) => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="date" className="mr-2">Filter by Date:</label>
+          <input
+            type="date"
+            id="date"
+            name="date"
+            value={filter.date}
+            onChange={handleFilterChange}
+            className="px-4 py-2 rounded-full bg-gray-100"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="mr-2">Group by Type</label>
+          <input
+            type="checkbox"
+            checked={groupByType}
+            onChange={() => setGroupByType(!groupByType)}
+          />
+        </div>
+        <div>
+          <button
+            onClick={() => setIsArchiveModalOpen(true)}
+            className="ml-4 bg-[#3a1078] text-white font-semibold px-4 py-2 rounded-full hover:bg-[#3795bd] transition"
+
+          >
+            View Archived
+          </button>
+        </div>
       </div>
-      <div>
-        <label htmlFor="date" className="mr-2">Filter by Date:</label>
-        <input
-          type="date"
-          id="date"
-          name="date"
-          value={filter.date}
-          onChange={handleFilterChange}
-          className="px-4 py-2 rounded-full bg-gray-100"
-        />
-      </div>
-      <div className="flex items-center gap-2">
-        <label className="mr-2">Group by Type</label>
-        <input
-          type="checkbox"
-          checked={groupByType}
-          onChange={() => setGroupByType(!groupByType)}
-        />
-      </div>
-      <div>
-        <button
-          onClick={() => setIsArchiveModalOpen(true)}
-          className="bg-gray-300 text-gray-900 font-semibold py-2 px-4 rounded-3xl hover:bg-gray-400 transition"
-        >
-          View Archived
-        </button>
-      </div>
-    </div>
 
 
       {Object.entries(groupedEvents).map(([type, events]) => (
@@ -416,41 +416,40 @@ useEffect(() => {
                 )}
 
                 <div className="px-4 py-4">
-                  <div className="font-bold text-lg mb-2 truncate">
+                  <div className="font-bold text-xl mb-2 truncate text-[#3a1078]">
                     {event.name || "No Name"}
                   </div>
-                  <div className="font-bold text-lg mb-2 truncate">
+                  <div className="font-bold text-lg mb-2 truncate text-red-600">
                     {event.organization || "No Organization"}
                   </div>
-                   {event.secondOrganization ? (
-                      <p className="text-gray-700 text-sm mb-2 line-clamp-3">
-                        In partnership with {event.secondOrganization}
-                      </p>
-                    ) : null}
+                  {event.secondOrganization ? (
+                    <p className="text-gray-700 text-sm mb-2 line-clamp-3">
+                      In partnership with {event.secondOrganization}
+                    </p>
+                  ) : null}
 
-                  <p className="text-gray-700 text-sm mb-2 line-clamp-3">
+                  <p className="text-gray-700 text-[1.7vh] mb-2 line-clamp-3">
                     {event.description || "No Description"}
                   </p>
-                  <p className="text-xs text-gray-600 mb-2">
+                  <p className="text-[1.7vh] text-gray-600 mb-2 truncate">
                     <span className="font-semibold">Start:</span>{" "}
                     {event.dateStart
                       ? `${new Date(event.dateStart).toLocaleDateString()} ${new Date(event.dateStart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                       : "No Start Date"}
                   </p>
-                  <p className="text-xs text-gray-600 mb-2">
+                  <p className="text-[1.7vh] text-gray-600 mb-2 truncate">
                     <span className="font-semibold">End:</span>{" "}
                     {event.dateEnd
                       ? `${new Date(event.dateEnd).toLocaleDateString()} ${new Date(event.dateEnd).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                       : "No End Date"}
                   </p>
+                  <p className="text-[1.7vh] text-gray-600 mb-2 truncate">
+                    <span className="font-semibold">Location:</span>{" "}
+                    {event.location?.name || event.location || "No Location"}{" "}
+                    (Remaining: {event.remainingCapacity ?? "0"}/{event.capacity ?? "0"})
+                  </p>
 
-                 <p className="text-xs text-gray-600 truncate mb-2">
-                  <span className="font-semibold">Location:</span>{" "}
-                  {event.location?.name || event.location || "No Location"}{" "}
-                  (Remaining: {event.remainingCapacity ?? "0"}/{event.capacity ?? "0"})
-                </p>
-
-                  <p className="text-xs text-gray-600 truncate">
+                  <p className="text-[1.7vh] text-gray-600 mb-2 truncate">
                     <span className="font-semibold">Type:</span>{" "}
                     {event.type && event.type.eventType
                       ? event.type.eventType
@@ -468,12 +467,12 @@ useEffect(() => {
                       UPDATE
                     </button>
                     <button
-                    onClick={() => handleArchive(event._id)}
-                    className="bg-red-200 text-red-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-red-300"
-                    disabled={loading}
-                  >
-                    ARCHIVE
-                  </button>
+                      onClick={() => handleArchive(event._id)}
+                      className="bg-red-200 text-red-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-red-300"
+                      disabled={loading}
+                    >
+                      ARCHIVE
+                    </button>
                     <button
                       onClick={() => handleModalOpen(event)}
                       className="bg-pink-200 text-pink-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-pink-300"
@@ -513,33 +512,57 @@ useEffect(() => {
       <Modal
         isOpen={isArchiveModalOpen}
         onRequestClose={() => setIsArchiveModalOpen(false)}
-        className="bg-white rounded-lg p-6 max-w-3xl mx-auto mt-20 shadow-xl overflow-auto max-h-[80vh]"
+        className="relative bg-white rounded-xl p-6 max-w-3xl mx-auto mt-20 shadow-lg overflow-auto max-h-[80vh] "
         overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start z-50"
       >
-        <h2 className="text-2xl font-semibold mb-4 text-[#3a1078]">Archived Events</h2>
-        <button
-          onClick={() => setIsArchiveModalOpen(false)}
-          className="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-xl"
-        >
-          ✕
-        </button>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {archivedEvents.map((event) => (
-            <div key={event._id} className="bg-gray-100 p-4 rounded shadow">
-              <h3 className="font-semibold text-lg truncate">{event.name}</h3>
-              <p className="text-sm text-gray-600 truncate">{event.description}</p>
-              <button
-                onClick={async () => {
-                  await handleUnarchive(event._id);
-                }}
-                className="mt-2 bg-green-300 text-green-900 px-4 py-1 rounded-full hover:bg-green-400 text-sm"
-              >
-                Unarchive
-              </button>
+
+        <div className="flex justify-between items-center mb-4 justify-center gap-4">
+          <h2 className="text-2xl font-semibold text-[#3a1078]">Archived Events</h2>
+          <button
+            onClick={() => setIsArchiveModalOpen(false)}
+            className="text-gray-500 hover:text-red-500 text-2xl font-bold"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="overflow-y-auto flex-1 max-h-[70vh] pr-2">
+          {archivedEvents.length === 0 ? (
+            <p className="text-center text-gray-500">No archived events found.</p>
+          ) : (
+            <div className="space-y-4">
+              {archivedEvents.map((event) => (
+                <div
+                  key={event._id}
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-50 border border-gray-200 p-4 sm:p-5 rounded-xl shadow-sm transition hover:shadow-md"
+
+                >
+                  {/* Event Info */}
+                  <div className="mb-3 sm:mb-0">
+                    <h3 className="text-lg font-semibold text-[#3a1078]">
+                      {event.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 line-clamp-2">{event.description}</p>
+                  </div>
+
+                  {/* Action Button */}
+
+                  <button
+                    onClick={async () => await handleUnarchive(event._id)}
+                    className="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-green-700 transition"
+
+                  >
+                    UNARCHIVE
+                  </button>
+                </div>
+
+              ))}
             </div>
-          ))}
+          )}
         </div>
       </Modal>
+
 
 
       <Modal
