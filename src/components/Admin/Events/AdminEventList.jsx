@@ -279,7 +279,7 @@ const AdminEventList = () => {
         className="fixed bottom-10 right-10 bg-[#3a1078] text-white p-4 rounded-full shadow-lg hover:bg-[#3a1078c5] transition"
         onClick={handleCreateEvent}
       >
-        <FaPlus size={24} />
+        <FaPlus size={24} />  
       </button>
 
       <Modal
