@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { FaPlus } from "react-icons/fa";
 import AdminEventModal from "./AdminEventModal";
+import Modal from "react-modal";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -18,6 +19,11 @@ const AdminEventList = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [archiveView, setArchiveView] = useState(false);
+  const [isConfirmUnarchiveOpen, setIsConfirmUnarchiveOpen] = useState(false);
+  const [eventToUnarchive, setEventToUnarchive] = useState(null);
+  const [isConfirmArchiveOpen, setIsConfirmArchiveOpen] = useState(false);
+  const [eventToArchive, setEventToArchive] = useState(null);
+
 
   const navigate = useNavigate();
 
@@ -81,6 +87,12 @@ const AdminEventList = () => {
   const handleModalClose = () => {
     setModalIsOpen(false);
     setSelectedEvent(null);
+  };
+
+
+  const openConfirmUnarchive = (event) => {
+    setEventToUnarchive(event);
+    setIsConfirmUnarchiveOpen(true);
   };
 
   const handleArchiveToggle = async (eventId, toArchive) => {
@@ -217,21 +229,30 @@ const AdminEventList = () => {
                           UPDATE
                         </button>
                         <button
-                          onClick={() => handleArchiveToggle(event._id, true)}
+                          onClick={() => {
+                            setEventToArchive(event);
+                            setIsConfirmArchiveOpen(true);
+                          }}
                           className="bg-red-200 text-red-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-red-300"
                         >
                           ARCHIVE
                         </button>
+
+
                       </>
                     )}
                     {archiveView && (
                       <button
-                        onClick={() => handleArchiveToggle(event._id, false)}
+                        onClick={() => {
+                          setEventToUnarchive(event);
+                          setIsConfirmUnarchiveOpen(true);
+                        }}
                         className="bg-green-200 text-green-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-green-300"
                       >
                         UNARCHIVE
                       </button>
                     )}
+
                     <button
                       onClick={() => handleModalOpen(event)}
                       className="bg-pink-200 text-pink-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-pink-300"
@@ -260,6 +281,67 @@ const AdminEventList = () => {
       >
         <FaPlus size={24} />
       </button>
+
+      <Modal
+        isOpen={isConfirmArchiveOpen}
+        onRequestClose={() => setIsConfirmArchiveOpen(false)}
+        className="relative bg-white rounded-xl p-6 max-w-md mx-auto shadow-lg overflow-auto"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+      >
+        <h2 className="text-xl font-semibold mb-4 text-[#3a1078]">Confirm Archive</h2>
+        <p className="mb-6">
+          Are you sure you want to archive the event <strong className="text-[#3a1078]">{eventToArchive?.name}</strong>?
+        </p>
+        <div className="flex justify-end gap-4">
+          <button
+            onClick={() => setIsConfirmArchiveOpen(false)}
+            className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 transition"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={async () => {
+              await handleArchiveToggle(eventToArchive._id, true); // Archive action
+              setIsConfirmArchiveOpen(false);
+              setEventToArchive(null);
+            }}
+            className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 transition"
+          >
+            Confirm
+          </button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={isConfirmUnarchiveOpen}
+        onRequestClose={() => setIsConfirmUnarchiveOpen(false)}
+        className="relative bg-white rounded-xl p-6 max-w-md mx-auto shadow-lg overflow-auto"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+      >
+        <h2 className="text-xl font-semibold mb-4 text-[#3a1078]">Confirm Unarchive</h2>
+        <p className="mb-6 ">
+          Are you sure you want to unarchive the event <strong className="text-[#3a1078]">{eventToUnarchive?.name}</strong>?
+        </p>
+        <div className="flex justify-end gap-4">
+          <button
+            onClick={() => setIsConfirmUnarchiveOpen(false)}
+            className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 transition"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={async () => {
+              await handleArchiveToggle(eventToUnarchive._id, false);
+              setIsConfirmUnarchiveOpen(false);
+              setEventToUnarchive(null);
+            }}
+            className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 transition"
+          >
+            Confirm
+          </button>
+        </div>
+      </Modal>
+
 
       <AdminEventModal
         selectedEvent={selectedEvent}

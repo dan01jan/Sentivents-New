@@ -72,6 +72,9 @@ const EventList = () => {
   const [eventToDelete, setEventToDelete] = useState(null);
   const [archivedEvents, setArchivedEvents] = useState([]);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+  const [isConfirmUnarchiveOpen, setIsConfirmUnarchiveOpen] = useState(false);
+  const [eventToUnarchive, setEventToUnarchive] = useState(null);
+
 
   const [groupByType, setGroupByType] = useState(true); // State to toggle grouping by type
 
@@ -512,8 +515,8 @@ const EventList = () => {
       <Modal
         isOpen={isArchiveModalOpen}
         onRequestClose={() => setIsArchiveModalOpen(false)}
-        className="relative bg-white rounded-xl p-6 max-w-3xl mx-auto mt-20 shadow-lg overflow-auto max-h-[80vh] "
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start z-50"
+        className="relative bg-white rounded-xl p-6 max-w-md mx-auto shadow-lg overflow-auto"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
       >
 
         <div className="flex justify-between items-center mb-4 justify-center gap-4">
@@ -549,17 +552,50 @@ const EventList = () => {
                   {/* Action Button */}
 
                   <button
-                    onClick={async () => await handleUnarchive(event._id)}
+                    onClick={() => {
+                      setEventToUnarchive(event);
+                      setIsConfirmUnarchiveOpen(true);
+                    }}
                     className="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-green-700 transition"
-
                   >
                     UNARCHIVE
                   </button>
+
                 </div>
 
               ))}
             </div>
           )}
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={isConfirmUnarchiveOpen}
+        onRequestClose={() => setIsConfirmUnarchiveOpen(false)}
+        className="relative bg-white rounded-xl p-6 max-w-md mx-auto shadow-lg overflow-auto"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+      >
+        <h2 className="text-xl font-semibold mb-4 text-[#3a1078]">Confirm Unarchive</h2>
+        <p className="mb-6 text-[#3a1078]">
+          Are you sure you want to unarchive the event <strong>{eventToUnarchive?.name}</strong>?
+        </p>
+        <div className="flex justify-end gap-4">
+          <button
+            onClick={() => setIsConfirmUnarchiveOpen(false)}
+            className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 transition"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={async () => {
+              await handleUnarchive(eventToUnarchive._id);
+              setIsConfirmUnarchiveOpen(false);
+              setEventToUnarchive(null);
+            }}
+            className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 transition"
+          >
+            Confirm
+          </button>
         </div>
       </Modal>
 
