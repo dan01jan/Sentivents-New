@@ -57,6 +57,20 @@ const AttendanceColumns = () => {
         />
       </div>
 
+      {filteredUsers.length > 0 && (
+  <div className="mb-8 flex justify-center gap-10 flex-wrap text-lg font-medium text-gray-700">
+    <div className="bg-white shadow-md rounded-xl px-6 py-4 border border-gray-200">
+      Total Registered: <span className="font-bold">{registeredUsers.length}</span>
+    </div>
+    <div className="bg-white shadow-md rounded-xl px-6 py-4 border border-gray-200">
+      Total Attended: <span className="font-bold text-green-600">{attendedUsers.length}</span>
+    </div>
+    <div className="bg-white shadow-md rounded-xl px-6 py-4 border border-gray-200">
+      Total Absent: <span className="font-bold text-red-600">{absentUsers.length}</span>
+    </div>
+  </div>
+)}
+
       <div className="flex justify-center gap-12 flex-wrap">
         <div className="w-96 max-h-[32rem] overflow-y-auto border border-gray-300 rounded-lg shadow-sm">
           <table className="min-w-full">
