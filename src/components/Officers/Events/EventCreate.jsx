@@ -176,6 +176,7 @@ const EventCreate = () => {
         body: JSON.stringify({
           dateStart: startDateTime.toISOString(),
           dateEnd: endDateTime.toISOString(),
+          location: formData.location,
         }),
       });
 
