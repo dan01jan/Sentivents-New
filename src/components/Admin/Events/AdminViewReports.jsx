@@ -535,10 +535,22 @@ const AdminViewReports = () => {
           {overallInterpretation && (
             <div className="mt-5 p-4 bg-gray-100 rounded-lg">
               <h3 className="text-lg text-[#2c3e50] mb-1">Overall Interpretation</h3>
-              <p className="text-sm">{overallInterpretation}</p>
+              <p className="text-sm mb-2">{overallInterpretation}</p>
+              <p className="text-xs text-gray-600">
+                References:
+                <br />
+                <a href="https://projects.ori.org/lrg/PDFs_papers/Goldberg.Big-Five-Markers-Psych.Assess.1992.pdf" target="_blank" rel="noopener noreferrer" className="underline text-blue-600">
+                  Goldberg (1992) – Big Five Markers
+                </a>
+                <br />
+                <a href="https://openpsychometrics.org/tests/IPIP-BFFM/" target="_blank" rel="noopener noreferrer" className="underline text-blue-600">
+                  IPIP Big-Five Factor Markers – OpenPsychometrics
+                </a>
+              </p>
             </div>
           )}
         </div>
+
       </div>
 
       {/* Final Interpretation */}

@@ -27,6 +27,7 @@ const EventCreate = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showConflictModal, setShowConflictModal] = useState(false);
+  const [conflictEvent, setConflictEvent] = useState(null);
   const [organizations, setOrganizations] = useState([]);
   const [capacityWarning, setCapacityWarning] = useState(false);
   const navigate = useNavigate();
@@ -183,9 +184,12 @@ const EventCreate = () => {
 
       if (conflictData.conflict) {
         setShowConflictModal(true);
+        setConflictEvent(conflictData.conflictingEvent); // ✅ Correct key
         setLoading(false);
         return;
       }
+
+
 
       const form = new FormData();
       for (const [key, value] of Object.entries(formData)) {
@@ -246,24 +250,34 @@ const EventCreate = () => {
 
       {/* 🎀 Cute Conflict Modal */}
       {showConflictModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full text-center animate-bounceIn">
-            <h3 className="text-2xl font-bold text-pink-600 mb-2">Oopsie! 😢</h3>
-            <p className="text-gray-700">
-              Your event overlaps with an existing one. Please pick another time!
-            </p>
-            <button
-              onClick={() => {
-                setShowConflictModal(false);
-                navigate("/dashboard/events");
-              }}
-              className="mt-4 px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white font-medium rounded-full transition duration-300"
-            >
-              Okay, Got it!
-            </button>
-          </div>
+  <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
+    <div className="bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full text-center animate-bounceIn">
+      <h3 className="text-2xl font-bold text-pink-600 mb-2">Oopsie! 😢</h3>
+      <p className="text-gray-700 mb-3">
+        Your event overlaps with an existing one. Please pick another time!
+      </p>
+
+      {conflictEvent && (
+        <div className="text-left text-sm bg-gray-100 rounded-lg p-4 mb-3">
+          <p><span className="font-semibold">Title:</span> {conflictEvent.name}</p>
+          <p><span className="font-semibold">Date:</span> {new Date(conflictEvent.dateStart).toLocaleString()} - {new Date(conflictEvent.dateEnd).toLocaleString()}</p>
+          <p><span className="font-semibold">Location:</span> {conflictEvent.location?.name || conflictEvent.location}</p>
         </div>
       )}
+
+      <button
+        onClick={() => {
+          setShowConflictModal(false);
+          navigate("/dashboard/events");
+        }}
+        className="mt-4 px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white font-medium rounded-full transition duration-300"
+      >
+        Okay, Got it!
+      </button>
+    </div>
+  </div>
+      )}
+
 
       {/* ⬇️ Your Form starts here */}
       <h2 className="text-[4vh] font-semibold text-[#3a1078] mb-6 text-center">
