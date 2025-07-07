@@ -134,6 +134,41 @@ const AdminEventList = () => {
     }, 3000);
   };
 
+const handleReopenToggle = async (eventId, toReopen) => {
+  try {
+    const token = localStorage.getItem("authToken");
+
+    const response = await fetch(`${apiUrl}events/reopen/${eventId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ isReopened: toReopen }),
+    });
+
+    if (response.ok) {
+      showToastMessage(
+        toReopen ? "Event reopened successfully!" : "Event closed from reopening!",
+        toReopen ? "🔓" : "🚫"
+      );
+
+      setEvents((prevEvents) =>
+        prevEvents.map((event) =>
+          event._id === eventId ? { ...event, isReopened: toReopen } : event
+        )
+      );
+    } else {
+      const data = await response.json();
+      alert("Failed to update reopen status: " + data.message);
+    }
+  } catch (error) {
+    console.error("Error toggling reopen status:", error);
+    alert("Error. Please try again.");
+  }
+};
+
+
   return (
     <div className="p-4 max-w-full mx-auto">
       <h1 className="text-[6vh] font-bold mb-4 font-semibold text-[#3a1078]">
@@ -217,59 +252,77 @@ const AdminEventList = () => {
                     : event.type?.eventType || "Unknown"}
                 </p>
               </div>
-              {event.organization === "League of Student Organization" && (
-                <div className="px-4 py-2 flex justify-center items-center border-t border-gray-200">
-                  <div className="flex space-x-3">
-                    {!archiveView && (
-                      <>
-                        <button
-                          onClick={() => handleUpdate(event)}
-                          className="bg-yellow-200 text-yellow-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-yellow-300"
-                        >
-                          UPDATE
-                        </button>
-                        <button
-                          onClick={() => {
-                            setEventToArchive(event);
-                            setIsConfirmArchiveOpen(true);
-                          }}
-                          className="bg-red-200 text-red-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-red-300"
-                        >
-                          ARCHIVE
-                        </button>
+            {event.organization === "League of Student Organization" && (
+              <div className="px-4 py-2 flex justify-center items-center border-t border-gray-200">
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {!archiveView && (
+                    <>
+                      <button
+                        onClick={() => handleUpdate(event)}
+                        className="w-full sm:w-auto bg-purple-200 text-purple-800 text-xs sm:text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-purple-300"
+                      >
+                        UPDATE
+                      </button>
 
-
-                      </>
-                    )}
-                    {archiveView && (
                       <button
                         onClick={() => {
-                          setEventToUnarchive(event);
-                          setIsConfirmUnarchiveOpen(true);
+                          setEventToArchive(event);
+                          setIsConfirmArchiveOpen(true);
                         }}
-                        className="bg-green-200 text-green-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-green-300"
+                        className="w-full sm:w-auto bg-purple-200 text-purple-800 text-xs sm:text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-purple-300"
                       >
-                        UNARCHIVE
+                        ARCHIVE
                       </button>
-                    )}
 
-                    <button
-                      onClick={() => handleModalOpen(event)}
-                      className="bg-pink-200 text-pink-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-pink-300"
-                    >
-                      VIEW
-                    </button>
-                    {!archiveView && (
                       <button
-                        onClick={() => handleRegister(event)}
-                        className="bg-blue-200 text-blue-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-blue-300"
+                        onClick={() => handleReopenToggle(event._id, !event.isReopened)}
+                        disabled={
+                          new Date() < new Date(new Date(event.dateStart).getTime() + 60 * 60000)
+                        }
+                        className={`w-full sm:w-auto text-xs sm:text-sm font-semibold px-4 py-2 rounded-full transition duration-300 ${
+                          new Date() >= new Date(new Date(event.dateStart).getTime() + 60 * 60000)
+                            ? event.isReopened
+                              ? "bg-purple-300 hover:bg-purple-400 text-white"
+                              : "bg-purple-200 hover:bg-purple-300 text-purple-800"
+                            : "bg-gray-200 text-gray-600 cursor-not-allowed"
+                        }`}
                       >
-                        REGISTER APPROVAL
+                        {event.isReopened ? "CLOSE REOPENING" : "REOPEN EVENT"}
                       </button>
-                    )}
-                  </div>
+                    </>
+                  )}
+
+                  {archiveView && (
+                    <button
+                      onClick={() => {
+                        setEventToUnarchive(event);
+                        setIsConfirmUnarchiveOpen(true);
+                      }}
+                      className="w-full sm:w-auto bg-purple-200 text-purple-800 text-xs sm:text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-purple-300"
+                    >
+                      UNARCHIVE
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => handleModalOpen(event)}
+                    className="w-full sm:w-auto bg-purple-200 text-purple-800 text-xs sm:text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-purple-300"
+                  >
+                    VIEW
+                  </button>
+
+                  {!archiveView && (
+                    <button
+                      onClick={() => handleRegister(event)}
+                      className="w-full sm:w-auto bg-purple-200 text-purple-800 text-xs sm:text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-purple-300"
+                    >
+                      REGISTER APPROVAL
+                    </button>
+                  )}
                 </div>
-              )}
+              </div>
+            )}
+
             </div>
           </motion.div>
         ))}
