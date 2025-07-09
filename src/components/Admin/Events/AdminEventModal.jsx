@@ -11,26 +11,59 @@ Modal.setAppElement("#root");
 const AdminEventModal =  ({ selectedEvent, modalIsOpen, handleModalClose }) => {
     const [hasQuestionnaire, setHasQuestionnaire] = useState(null);
     const navigate = useNavigate(); // Get the navigate function
+      const [slotInfo, setSlotInfo] = useState(null);
+
+  useEffect(() => {
+    if (selectedEvent) {
+      // Fetch if the event has a questionnaire
+      const checkQuestionnaire = async () => {
+        try {
+          const response = await axios.get(
+            `${apiUrl}questionnaires/check-questionnaire/${selectedEvent._id}`
+          );
+          setHasQuestionnaire(response.data.hasQuestionnaire);
+        } catch (error) {
+          console.error("Error checking for questionnaire:", error);
+        }
+      };
+      const fetchSlotInfo = async () => {
+            try {
+              const response = await axios.get(
+                `${apiUrl}attendance/slots/remaining?eventId=${selectedEvent._id}`
+              );
+              setSlotInfo(response.data);
+            } catch (error) {
+              console.error("Error fetching slot info:", error);
+              setSlotInfo(null);
+            }
+          };
+
+          checkQuestionnaire();
+          fetchSlotInfo();
+    }
+  }, [selectedEvent, apiUrl]);
+
+  if (!selectedEvent) return null; // Prevent rendering when no event is selected
   
-    useEffect(() => {
-      if (selectedEvent) {
-        // Fetch if the event has a questionnaire
-        const checkQuestionnaire = async () => {
-          try {
-            const response = await axios.get(
-              `${apiUrl}questionnaires/check-questionnaire/${selectedEvent._id}`
-            );
-            setHasQuestionnaire(response.data.hasQuestionnaire);
-          } catch (error) {
-            console.error("Error checking for questionnaire:", error);
-          }
-        };
+    // useEffect(() => {
+    //   if (selectedEvent) {
+    //     // Fetch if the event has a questionnaire
+    //     const checkQuestionnaire = async () => {
+    //       try {
+    //         const response = await axios.get(
+    //           `${apiUrl}questionnaires/check-questionnaire/${selectedEvent._id}`
+    //         );
+    //         setHasQuestionnaire(response.data.hasQuestionnaire);
+    //       } catch (error) {
+    //         console.error("Error checking for questionnaire:", error);
+    //       }
+    //     };
   
-        checkQuestionnaire();
-      }
-    }, [selectedEvent, apiUrl]);
+    //     checkQuestionnaire();
+    //   }
+    // }, [selectedEvent, apiUrl]);
   
-    if (!selectedEvent) return null; // Prevent rendering when no event is selected
+    // if (!selectedEvent) return null; // Prevent rendering when no event is selected
   
     return (
       <Modal
@@ -62,10 +95,41 @@ const AdminEventModal =  ({ selectedEvent, modalIsOpen, handleModalClose }) => {
                 <strong>Type:</strong>{" "}
                 {selectedEvent.type?.eventType || "Unknown"}
               </p>
-              <p>
-                <strong>Date:</strong>{" "}
-                {new Date(selectedEvent.dateStart).toLocaleDateString()}
+   <p className="text-gray-700 text-lg space-y-2">
+              <span className="font-semibold">Start:</span>{" "}
+              {selectedEvent.dateStart
+                ? `${new Date(selectedEvent.dateStart).toLocaleDateString()} ${new Date(selectedEvent.dateStart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                : "No Start Date"}
+            </p>
+
+            <p className="text-gray-700 text-lg space-y-2">
+              <span className="font-semibold">End:</span>{" "}
+              {selectedEvent.dateEnd
+                ? `${new Date(selectedEvent.dateEnd).toLocaleDateString()} ${new Date(selectedEvent.dateEnd).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                : "No End Date"}
+            </p>
+            <p className="text-gray-700 text-lg space-y-2">
+              <span className="font-semibold">Capacity:</span> {slotInfo?.capacity ?? "Loading..."}{" | "}
+              <span className="font-semibold">Slots Left:</span> {slotInfo?.remainingSlots ?? "Loading..."}
+            </p>
+            {selectedEvent?.dateEnd && new Date(selectedEvent.dateEnd) > new Date() && (
+              <p className="text-gray-700 text-lg space-y-2">
+                <span className="font-semibold">Registered:</span> {slotInfo?.totalRegistered ?? "Loading..."}{" "}
+                (<span className="font-semibold">Attended:</span> {slotInfo?.totalAttended ?? "Loading..."}{" | "}
+                <span className="font-semibold">Pending Attendance:</span> {slotInfo?.remainingUnattended ?? "Loading..."}
+                {slotInfo?.replacedCount > 0 && ` (–${slotInfo.replacedCount} replaced by waitlisted)`})
               </p>
+            )}
+
+            {selectedEvent?.dateEnd &&
+              new Date(selectedEvent.dateEnd) > new Date() &&
+              slotInfo &&
+              (slotInfo.waitlistedUnregistered?.length > 0 || slotInfo.waitlistedRegistered?.length > 0) && (
+                <p className="text-gray-700 text-lg space-y-2">
+                  <span className="font-semibold">Waitlisted (Not In):</span> {slotInfo.waitlistedUnregistered.length}{" | "}
+                  <span className="font-semibold">Waitlisted (Registered):</span> {slotInfo.waitlistedRegistered.length}
+                </p>
+            )}
             </div>
   
             {hasQuestionnaire === null ? (

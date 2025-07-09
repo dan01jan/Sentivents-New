@@ -74,6 +74,8 @@ const EventList = () => {
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isConfirmUnarchiveOpen, setIsConfirmUnarchiveOpen] = useState(false);
   const [eventToUnarchive, setEventToUnarchive] = useState(null);
+  const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
 
 
   const [groupByType, setGroupByType] = useState(true); // State to toggle grouping by type
@@ -318,6 +320,48 @@ const EventList = () => {
     setEventToDelete(null);
   };
 
+    const showToastMessage = (message, emoji = "✨") => {
+    setToastMessage(`${emoji} ${message}`);
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
+
+const handleReopenToggle = async (eventId, toReopen) => {
+  try {
+    const token = localStorage.getItem("authToken");
+
+    const response = await fetch(`${apiUrl}events/reopen/${eventId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ isReopened: toReopen }),
+    });
+
+    if (response.ok) {
+      showToastMessage(
+        toReopen ? "Event reopened successfully!" : "Event closed from reopening!",
+        toReopen ? "🔓" : "🚫"
+      );
+
+      setEvents((prevEvents) =>
+        prevEvents.map((event) =>
+          event._id === eventId ? { ...event, isReopened: toReopen } : event
+        )
+      );
+    } else {
+      const data = await response.json();
+      alert("Failed to update reopen status: " + data.message);
+    }
+  } catch (error) {
+    console.error("Error toggling reopen status:", error);
+    alert("Error. Please try again.");
+  }
+};
+
   const groupedEvents = groupByType
     ? groupEventsByType(filteredEvents)
     : { "No Grouping": filteredEvents };
@@ -460,31 +504,48 @@ const EventList = () => {
                   </p>
                 </div>
 
-                <div className="px-4 py-2 flex justify-center items-center border-t border-gray-200">
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={() => handleUpdate(event)}
-                      className="bg-yellow-200 text-yellow-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-yellow-300"
-                      disabled={loading}
-                    >
-                      UPDATE
-                    </button>
-                    <button
-                      onClick={() => handleArchive(event._id)}
-                      className="bg-red-200 text-red-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-red-300"
-                      disabled={loading}
-                    >
-                      ARCHIVE
-                    </button>
-                    <button
-                      onClick={() => handleModalOpen(event)}
-                      className="bg-pink-200 text-pink-800 text-sm font-semibold px-4 py-2 rounded-full transition duration-300 hover:bg-pink-300"
-                      disabled={loading}
-                    >
-                      VIEW
-                    </button>
-                  </div>
-                </div>
+<div className="px-4 py-2 flex justify-center items-center border-t border-gray-200">
+  <div className="flex flex-wrap justify-center gap-2 w-full">
+    <button
+      onClick={() => handleUpdate(event)}
+      className="bg-purple-200 text-purple-800 text-[10px] sm:text-xs font-semibold px-3 py-1 rounded-full transition duration-300 hover:bg-purple-300"
+      disabled={loading}
+    >
+      UPDATE
+    </button>
+    <button
+      onClick={() => handleArchive(event._id)}
+      className="bg-purple-200 text-purple-800 text-[10px] sm:text-xs font-semibold px-3 py-1 rounded-full transition duration-300 hover:bg-purple-300"
+      disabled={loading}
+    >
+      ARCHIVE
+    </button>
+    <button
+      onClick={() => handleModalOpen(event)}
+      className="bg-purple-200 text-purple-800 text-[10px] sm:text-xs font-semibold px-3 py-1 rounded-full transition duration-300 hover:bg-purple-300"
+      disabled={loading}
+    >
+      VIEW
+    </button>
+    <button
+      onClick={() => handleReopenToggle(event._id, !event.isReopened)}
+      disabled={
+        new Date() < new Date(new Date(event.dateStart).getTime() + 60 * 60000)
+      }
+      className={`text-[10px] sm:text-xs font-semibold px-3 py-1 rounded-full transition duration-300 ${
+        new Date() >= new Date(new Date(event.dateStart).getTime() + 60 * 60000)
+          ? event.isReopened
+            ? "bg-purple-300 hover:bg-purple-400 text-white"
+            : "bg-purple-200 hover:bg-purple-300 text-purple-800"
+          : "bg-gray-200 text-gray-600 cursor-not-allowed"
+      }`}
+    >
+      {event.isReopened ? "CLOSE REOPENING" : "REOPEN EVENT"}
+    </button>
+  </div>
+</div>
+
+
               </div>
             ))}
           </div>
@@ -599,7 +660,11 @@ const EventList = () => {
         </div>
       </Modal>
 
-
+      {showToast && (
+        <div className="fixed bottom-6 right-6 px-6 py-3 rounded-xl bg-pink-100 border border-pink-300 shadow-lg text-pink-900 font-medium text-sm transition-opacity duration-300 ease-in-out z-50">
+          {toastMessage}
+        </div>
+      )}
 
       <Modal
         isOpen={isDeleteModalOpen}
