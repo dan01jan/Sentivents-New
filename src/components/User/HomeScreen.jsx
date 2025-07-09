@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import bg2 from "../../assets/website/bg2.png";
 import logo from "../../assets/website/V_DarkerLogo.png";
-import downloadImage from "../../assets/website/qr.jpg"; // <-- Example image for the modal
+import downloadImage from "../../assets/website/qr.png"; // <-- Example image for the modal
 import teamMember1 from "../../assets/website/twinkle.jpg";
 import teamMember2 from "../../assets/website/dan.jpg";
 import teamMember3 from "../../assets/website/ej.jpg";
