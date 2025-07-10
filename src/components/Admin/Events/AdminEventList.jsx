@@ -160,16 +160,15 @@ const handleReopenToggle = async (event) => {
 
     const slotData = await res.json();
     const hasPending = slotData.totalPending > 0;
+    const hasAvailableSlots = slotData.remainingSlots > 0;
 
-    // ❌ Only block reopen if no pending users
-    if (!event.isReopened && !hasPending) {
+    if (!event.isReopened && !hasPending && !hasAvailableSlots) {
       showToastMessage(
-        "❌ Cannot reopen — there are no pending attendees left.",
+        "❌ Cannot reopen — there are no pending attendees or available slots.",
         "⚠️"
       );
       return;
     }
-
     // ✅ Proceed with reopening
     const response = await fetch(`${apiUrl}events/reopen/${event._id}`, {
       method: "PUT",
