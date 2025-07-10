@@ -134,40 +134,72 @@ const AdminEventList = () => {
     }, 3000);
   };
 
-const handleReopenToggle = async (eventId, toReopen) => {
-  try {
-    const token = localStorage.getItem("authToken");
+const handleReopenToggle = async (event) => {
+  const token = localStorage.getItem("authToken");
+  const now = new Date();
+  const eventStart = new Date(event.dateStart);
 
-    const response = await fetch(`${apiUrl}events/reopen/${eventId}`, {
+  if (now < eventStart) {
+    showToastMessage(
+      "⏳ You can only reopen the event after it has started.",
+      "⚠️"
+    );
+    return;
+  }
+
+  try {
+    // 1. Get updated slot info
+    const res = await fetch(
+      `${apiUrl}attendance/slots/remaining?eventId=${event._id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const slotData = await res.json();
+    const hasPending = slotData.totalPending > 0;
+
+    // ❌ Only block reopen if no pending users
+    if (!event.isReopened && !hasPending) {
+      showToastMessage(
+        "❌ Cannot reopen — there are no pending attendees left.",
+        "⚠️"
+      );
+      return;
+    }
+
+    // ✅ Proceed with reopening
+    const response = await fetch(`${apiUrl}events/reopen/${event._id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ isReopened: toReopen }),
+      body: JSON.stringify({ isReopened: !event.isReopened }),
     });
 
     if (response.ok) {
       showToastMessage(
-        toReopen ? "Event reopened successfully!" : "Event closed from reopening!",
-        toReopen ? "🔓" : "🚫"
+        !event.isReopened ? "✅ Event reopened!" : "🚫 Reopening closed!",
+        !event.isReopened ? "🔓" : "✅"
       );
 
       setEvents((prevEvents) =>
-        prevEvents.map((event) =>
-          event._id === eventId ? { ...event, isReopened: toReopen } : event
+        prevEvents.map((e) =>
+          e._id === event._id ? { ...e, isReopened: !event.isReopened } : e
         )
       );
     } else {
-      const data = await response.json();
-      alert("Failed to update reopen status: " + data.message);
+      const errorData = await response.json();
+      alert("Failed to toggle reopen: " + errorData.message);
     }
-  } catch (error) {
-    console.error("Error toggling reopen status:", error);
-    alert("Error. Please try again.");
+  } catch (err) {
+    console.error("❌ Toggle Reopen Error:", err);
+    alert("Something went wrong. Please try again.");
   }
 };
-
 
   return (
     <div className="p-4 max-w-full mx-auto">
@@ -275,20 +307,16 @@ const handleReopenToggle = async (eventId, toReopen) => {
                       </button>
 
                       <button
-                        onClick={() => handleReopenToggle(event._id, !event.isReopened)}
-                        disabled={
-                          new Date() < new Date(new Date(event.dateStart).getTime() + 60 * 60000)
-                        }
-                        className={`w-full sm:w-auto text-xs sm:text-sm font-semibold px-4 py-2 rounded-full transition duration-300 ${
-                          new Date() >= new Date(new Date(event.dateStart).getTime() + 60 * 60000)
-                            ? event.isReopened
-                              ? "bg-purple-300 hover:bg-purple-400 text-white"
-                              : "bg-purple-200 hover:bg-purple-300 text-purple-800"
-                            : "bg-gray-200 text-gray-600 cursor-not-allowed"
-                        }`}
-                      >
-                        {event.isReopened ? "CLOSE REOPENING" : "REOPEN EVENT"}
-                      </button>
+                      onClick={() => handleReopenToggle(event)}
+                      className={`w-full sm:w-auto text-xs sm:text-sm font-semibold px-4 py-2 rounded-full transition duration-300 ${
+                        event.isReopened
+                          ? "bg-purple-300 hover:bg-purple-400 text-white"
+                          : "bg-purple-200 hover:bg-purple-300 text-purple-800"
+                      }`}
+                    >
+                      {event.isReopened ? "CLOSE REOPENING" : "REOPEN EVENT"}
+                    </button>
+
                     </>
                   )}
 

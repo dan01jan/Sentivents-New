@@ -108,28 +108,27 @@ const AdminEventModal =  ({ selectedEvent, modalIsOpen, handleModalClose }) => {
                 ? `${new Date(selectedEvent.dateEnd).toLocaleDateString()} ${new Date(selectedEvent.dateEnd).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                 : "No End Date"}
             </p>
-            <p className="text-gray-700 text-lg space-y-2">
-              <span className="font-semibold">Capacity:</span> {slotInfo?.capacity ?? "Loading..."}{" | "}
-              <span className="font-semibold">Slots Left:</span> {slotInfo?.remainingSlots ?? "Loading..."}
-            </p>
-            {selectedEvent?.dateEnd && new Date(selectedEvent.dateEnd) > new Date() && (
+              <p className="text-gray-700 text-lg space-y-2">
+                <span className="font-semibold">Capacity:</span> {slotInfo?.capacity ?? "Loading..."}{" | "}
+                <span className="font-semibold">Slots Left:</span> {slotInfo?.remainingSlots ?? "Loading..."}
+              </p>
+
               <p className="text-gray-700 text-lg space-y-2">
                 <span className="font-semibold">Registered:</span> {slotInfo?.totalRegistered ?? "Loading..."}{" "}
-                (<span className="font-semibold">Attended:</span> {slotInfo?.totalAttended ?? "Loading..."}{" | "}
-                <span className="font-semibold">Pending Attendance:</span> {slotInfo?.remainingUnattended ?? "Loading..."}
-                {slotInfo?.replacedCount > 0 && ` (–${slotInfo.replacedCount} replaced by waitlisted)`})
+                (
+                <span className="font-semibold">Attended:</span> {slotInfo?.totalAttended ?? "Loading..."}{" | "}
+                
+                {new Date(selectedEvent?.dateEnd) > new Date() ? (
+                  <span className="font-semibold">
+                    Pending Attendance: {slotInfo?.totalPending ?? "Loading..."}
+                  </span>
+                ) : (
+                  <span className="font-semibold">
+                    Absent: {slotInfo?.totalAbsent ?? "Loading..."}
+                  </span>
+                )}
+                )
               </p>
-            )}
-
-            {selectedEvent?.dateEnd &&
-              new Date(selectedEvent.dateEnd) > new Date() &&
-              slotInfo &&
-              (slotInfo.waitlistedUnregistered?.length > 0 || slotInfo.waitlistedRegistered?.length > 0) && (
-                <p className="text-gray-700 text-lg space-y-2">
-                  <span className="font-semibold">Waitlisted (Not In):</span> {slotInfo.waitlistedUnregistered.length}{" | "}
-                  <span className="font-semibold">Waitlisted (Registered):</span> {slotInfo.waitlistedRegistered.length}
-                </p>
-            )}
             </div>
   
             {hasQuestionnaire === null ? (
