@@ -1,0 +1,152 @@
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
+import OrgLoginModal from "./OrgLoginModal";
+import logo from "../../assets/website/aboutvoys.png";
+import Loader from "../Layouts/Loader.jsx";
+import { AuthContext } from "./AuthContext";
+
+const apiUrl = import.meta.env.VITE_API_URL;
+
+const ForgotPassword = () => {
+    const location = useLocation();
+    const [credentials, setCredentials] = useState({
+        email: location.state?.email || "",
+        password: "",
+    });
+    const [loading, setLoading] = useState(false);
+    const { login } = useContext(AuthContext);
+    const [loggedInUser, setLoggedInUser] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const navigate = useNavigate();
+
+    // Helper function to navigate and refresh
+    const navigateAndRefresh = (path) => {
+        navigate(path);
+        window.location.reload();
+    };
+
+    // Redirect if already logged in
+    useEffect(() => {
+        const token = localStorage.getItem("authToken");
+        if (token) {
+            navigateAndRefresh("/dashboard");
+        }
+    }, [navigate]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const response = await fetch(`${apiUrl}users/weblogin`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(credentials),
+            });
+
+            if (!response.ok) throw new Error("Invalid credentials");
+
+            const data = await response.json();
+            login(data.user);
+            localStorage.setItem("authToken", data.token);
+
+            if (data.user.isAdmin) {
+                navigateAndRefresh("/admin/admindashboard");
+            } else {
+                const organizations = data.user.organizations || [];
+                const approvedOfficerMemberships = organizations.filter(membership =>
+                    membership.role.toLowerCase() === "officer" && membership.isOfficer === true
+                );
+                const hasApprovedOfficer = approvedOfficerMemberships.length > 0;
+                const hasUser = organizations.some(membership =>
+                    membership.role.toLowerCase() === "user"
+                );
+
+                if (hasApprovedOfficer && hasUser) {
+                    setLoggedInUser(data.user);
+                    setShowModal(true);
+                } else if (hasApprovedOfficer) {
+                    const officerMembership = approvedOfficerMemberships[0];
+                    if (officerMembership && officerMembership.organization) {
+                        localStorage.setItem('officerOrgName', officerMembership.organization.name);
+                        localStorage.setItem('officerOrgId', officerMembership.organization._id);
+                        localStorage.setItem('officerDepartment', officerMembership.department);
+                    }
+                    navigateAndRefresh("/dashboard");
+                } else if (hasUser) {
+                    navigateAndRefresh("/");
+                } else {
+                    navigateAndRefresh("/");
+                }
+            }
+        } catch (error) {
+            alert(error.message || "Something went wrong");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+    };
+
+    return (
+        <div className="min-h-screen h-screen flex items-center justify-center bg-[#3a1078] p-4 relative">
+            {/* Login Form */}
+            <div className="bg-[#f7f7f8] flex flex-col md:flex-row rounded-3xl shadow-2xl overflow-hidden max-w-7xl w-full h-auto md:h-[80vh]">
+                <div className="w-full md:w-1/2 h-[70vh] md:h-auto flex items-center justify-center bg-[#f7f7f8]">
+                    <img
+                        src={logo}
+                        alt="Logo"
+                        className="max-w-[80%] max-h-[80%] object-contain"
+                    />
+                </div>
+                <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center h-full">
+                    <h2 className="text-4xl font-bold text-[#3a1078] mb-4">
+                        Forgot your password?          </h2>
+                    <p className="text-lg text-gray-600 mb-6">
+                        Enter your email to reset your password.
+                    </p>
+                    <form onSubmit={handleSubmit} className="space-y-6 pr-6">
+                        <div className="flex flex-col">
+                            <label htmlFor="email" className="text-lg text-black">
+                                Email
+                            </label>
+                            <input
+                                id="email"
+                                type="email"
+                                value={credentials.email}
+                                onChange={(e) =>
+                                    setCredentials({ ...credentials, email: e.target.value })
+                                }
+                                placeholder="Enter your email"
+                                required
+                                className="mt-2 px-5 py-4 text-m border-2 bg-[#d6e4f0] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            className="w-full py-4 mt-6 font-bold bg-[#3a1078] text-white rounded-full hover:bg-[#4e31aa] transition duration-300 text-m uppercase"
+                        >
+                            Submit
+                        </button>
+                    </form>
+                    <Link
+                        to="/login"
+                        className="mt-4 text-center text-[#3a1078] hover:underline"
+                    >
+                        Already have an account? <strong className="text-red-500">Login</strong>
+                    </Link>
+
+                </div>
+            </div>
+
+            {showModal && loggedInUser && (
+                <OrgLoginModal user={loggedInUser} closeModal={closeModal} />
+            )}
+            {loading && <Loader />}
+        </div>
+    );
+};
+
+export default ForgotPassword;

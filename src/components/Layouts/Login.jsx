@@ -106,11 +106,11 @@ const Login = () => {
             Welcome to VOYS!
           </h2>
           <p className="text-lg text-[#3a1078] font-medium mb-8">
-            Keep your data safe
+            Keep your data safe and secure with our login system
           </p>
           <form onSubmit={handleSubmit} className="space-y-6 pr-6">
             <div className="flex flex-col">
-              <label htmlFor="email" className="text-xl text-[#3a1078]">
+              <label htmlFor="email" className="text-lg text-black">
                 Email
               </label>
               <input
@@ -126,7 +126,7 @@ const Login = () => {
               />
             </div>
             <div className="flex flex-col">
-              <label htmlFor="password" className="text-xl text-[#3a1078]">
+              <label htmlFor="password" className="text-lg text-black">
                 Password
               </label>
               <input
@@ -141,9 +141,17 @@ const Login = () => {
                 className="mt-2 px-5 py-4 text-m bg-[#d6e4f0] border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
               />
             </div>
+            <div className="flex justify-start mt-4">
+              <Link
+                to="/forgot-password"
+                className="text-[#3a1078] hover:underline text-sm font-medium"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <button
               type="submit"
-              className="w-full py-4 mt-6 font-bold bg-[#3a1078] text-white rounded-lg hover:bg-[#4e31aa] transition duration-300 text-m uppercase"
+              className="w-full py-4 mt-6 font-bold bg-[#3a1078] text-white rounded-full hover:bg-[#4e31aa] transition duration-300 text-m uppercase"
             >
               Login
             </button>
@@ -152,8 +160,9 @@ const Login = () => {
             to="/register"
             className="mt-4 text-center text-[#3a1078] hover:underline"
           >
-            Not yet Registered? Create an Account
+            Not yet registered? <strong className="text-red-500">Create an account</strong>
           </Link>
+
         </div>
       </div>
 

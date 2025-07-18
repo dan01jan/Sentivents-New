@@ -37,6 +37,7 @@ import Loader from "./components/Layouts/Loader";
 import Header from "./components/Layouts/Header";
 import Register from "./components/Layouts/Register";
 import OrgLoginModal from "./components/Layouts/OrgLoginModal";
+import ForgotPassword from "./components/Layouts/Forgot-Password";
 
 // User
 import HomeScreen from "./components/User/HomeScreen";
@@ -99,6 +100,7 @@ function AppContent({ loading, user }) {
   const isLoginRoute = location.pathname === "/login";
   const isRegisterRoute = location.pathname === "/register";
   const isAdminRoute = location.pathname.startsWith("/admin");
+  const isForgotPasswordRoute = location.pathname.startsWith("/forgot-password");
 
   return (
     <>
@@ -110,13 +112,15 @@ function AppContent({ loading, user }) {
           {!isOfficerRoute &&
             !isLoginRoute &&
             !isRegisterRoute &&
-            !isAdminRoute && <Header user={user} />}
+            !isAdminRoute &&
+            !isForgotPasswordRoute && <Header user={user} />}
           <div
             className={
               !isOfficerRoute &&
                 !isLoginRoute &&
                 !isRegisterRoute &&
-                !isAdminRoute
+                !isAdminRoute &&
+                !isForgotPasswordRoute
                 ? "mt-20"
                 : ""
             }
@@ -132,6 +136,7 @@ function AppContent({ loading, user }) {
                 }
               />
               <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/org-login" element={<OrgLoginModal />} />
               <Route path="/register" element={<Register />} />
               <Route path="/events" element={<Events />} />
