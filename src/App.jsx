@@ -38,6 +38,7 @@ import Header from "./components/Layouts/Header";
 import Register from "./components/Layouts/Register";
 import OrgLoginModal from "./components/Layouts/OrgLoginModal";
 import ForgotPassword from "./components/Layouts/Forgot-Password";
+import ResetPassword from "./components/Layouts/ResetPassword";
 
 // User
 import HomeScreen from "./components/User/HomeScreen";
@@ -137,6 +138,7 @@ function AppContent({ loading, user }) {
               />
               <Route path="/login" element={<Login />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
               <Route path="/org-login" element={<OrgLoginModal />} />
               <Route path="/register" element={<Register />} />
               <Route path="/events" element={<Events />} />
