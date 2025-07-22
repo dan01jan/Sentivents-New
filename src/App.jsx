@@ -102,6 +102,7 @@ function AppContent({ loading, user }) {
   const isRegisterRoute = location.pathname === "/register";
   const isAdminRoute = location.pathname.startsWith("/admin");
   const isForgotPasswordRoute = location.pathname.startsWith("/forgot-password");
+  const isResetPasswordRoute = location.pathname.startsWith("/reset-password");
 
   return (
     <>
@@ -114,14 +115,16 @@ function AppContent({ loading, user }) {
             !isLoginRoute &&
             !isRegisterRoute &&
             !isAdminRoute &&
-            !isForgotPasswordRoute && <Header user={user} />}
+            !isForgotPasswordRoute &&
+            !isResetPasswordRoute && <Header user={user} />}
           <div
             className={
               !isOfficerRoute &&
                 !isLoginRoute &&
                 !isRegisterRoute &&
                 !isAdminRoute &&
-                !isForgotPasswordRoute
+                !isForgotPasswordRoute &&
+                !isResetPasswordRoute
                 ? "mt-20"
                 : ""
             }
